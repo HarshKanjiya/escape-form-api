@@ -1,15 +1,16 @@
 package services
 
-import "github.com/HarshKanjiya/escape-form-api/internal/config"
+import (
+	"github.com/HarshKanjiya/escape-form-api/internal/query"
+	"gorm.io/gorm"
+)
 
 type DashService struct {
-	cfg *config.Config
-	db  *config.DatabaseConfig
+	q *query.Query
 }
 
-func NewDashService(cfg *config.Config, db *config.DatabaseConfig) *DashService {
+func NewDashService(db *gorm.DB) *DashService {
 	return &DashService{
-		cfg: cfg,
-		db:  db,
+	q: query.Use(db),
 	}
 }

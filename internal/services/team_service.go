@@ -1,19 +1,18 @@
 package services
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/config"
+	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"gorm.io/gorm"
 )
 
 type TeamService struct {
-	cfg *config.Config
-	db  *config.DatabaseConfig
+	q *query.Query
 }
 
-func NewTeamService(cfg *config.Config, db *config.DatabaseConfig) *TeamService {
+func NewTeamService(db *gorm.DB) *TeamService {
 	return &TeamService{
-		cfg: cfg,
-		db:  db,
+		q: query.Use(db),
 	}
 }
 

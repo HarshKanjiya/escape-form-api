@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/controllers"
+	"github.com/HarshKanjiya/escape-form-api/internal/database"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,12 +13,12 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 
 	// Initialize services
 	// userService := services.NewUserService()
-	teamService := services.NewTeamService(cfg, &cfg.Database)
-	projectService := services.NewProjectService(cfg, &cfg.Database)
-	formService := services.NewFormService(cfg, &cfg.Database)
-	questionService := services.NewQuestionService(cfg, &cfg.Database)
-	edgeService := services.NewEdgeService(cfg, &cfg.Database)
-	dashService := services.NewDashService(cfg, &cfg.Database)
+	teamService := services.NewTeamService(database.DB)
+	projectService := services.NewProjectService(database.DB)
+	formService := services.NewFormService(database.DB)
+	questionService := services.NewQuestionService(database.DB)
+	edgeService := services.NewEdgeService(database.DB)
+	dashService := services.NewDashService(database.DB)
 
 	// Initialize controllers
 	// userController := controllers.NewUserController(userService, cfg)

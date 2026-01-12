@@ -1,15 +1,16 @@
 package services
 
-import "github.com/HarshKanjiya/escape-form-api/internal/config"
+import (
+	"github.com/HarshKanjiya/escape-form-api/internal/query"
+	"gorm.io/gorm"
+)
 
 type ProjectService struct {
-	cfg *config.Config
-	db  *config.DatabaseConfig
+	q *query.Query
 }
 
-func NewProjectService(cfg *config.Config, db *config.DatabaseConfig) *ProjectService {
+func NewProjectService(db *gorm.DB) *ProjectService {
 	return &ProjectService{
-		cfg: cfg,
-		db:  db,
+		q: query.Use(db),
 	}
 }

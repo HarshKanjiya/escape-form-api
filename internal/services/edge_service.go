@@ -1,15 +1,16 @@
 package services
 
-import "github.com/HarshKanjiya/escape-form-api/internal/config"
+import (
+	"github.com/HarshKanjiya/escape-form-api/internal/query"
+	"gorm.io/gorm"
+)
 
 type EdgeService struct {
-	cfg *config.Config
-	db  *config.DatabaseConfig
+	q *query.Query
 }
 
-func NewEdgeService(cfg *config.Config, db *config.DatabaseConfig) *EdgeService {
+func NewEdgeService(db *gorm.DB) *EdgeService {
 	return &EdgeService{
-		cfg: cfg,
-		db:  db,
+		q: query.Use(db),
 	}
 }
