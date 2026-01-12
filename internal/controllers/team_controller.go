@@ -1,16 +1,20 @@
 package controllers
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 type TeamController struct {
+	validator   *validator.Validate
+	teamService *services.TeamService
 }
 
-func NewTeamController(*services.TeamService, *config.Config) *TeamController {
-	return &TeamController{}
+func NewTeamController(*services.TeamService) *TeamController {
+	return &TeamController{
+		validator: validator.New(),
+	}
 }
 
 // @Summary Get all teams

@@ -12,21 +12,21 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 
 	// Initialize services
 	// userService := services.NewUserService()
-	teamService := services.NewTeamService()
-	projectService := services.NewProjectService()
-	formService := services.NewFormService()
-	questionService := services.NewQuestionService()
-	edgeService := services.NewEdgeService()
-	dashService := services.NewDashService()
+	teamService := services.NewTeamService(cfg)
+	projectService := services.NewProjectService(cfg)
+	formService := services.NewFormService(cfg)
+	questionService := services.NewQuestionService(cfg)
+	edgeService := services.NewEdgeService(cfg)
+	dashService := services.NewDashService(cfg)
 
 	// Initialize controllers
 	// userController := controllers.NewUserController(userService, cfg)
-	teamController := controllers.NewTeamController(teamService, cfg)
-	projectController := controllers.NewProjectController(projectService, cfg)
-	formController := controllers.NewFormController(formService, cfg)
-	questionController := controllers.NewQuestionController(questionService, cfg)
-	edgeController := controllers.NewEdgeController(edgeService, cfg)
-	dashController := controllers.NewDashController(dashService, cfg)
+	teamController := controllers.NewTeamController(teamService)
+	projectController := controllers.NewProjectController(projectService)
+	formController := controllers.NewFormController(formService)
+	questionController := controllers.NewQuestionController(questionService)
+	edgeController := controllers.NewEdgeController(edgeService)
+	dashController := controllers.NewDashController(dashService)
 
 	// API v1 routes
 	api := app.Group("/api/v1")

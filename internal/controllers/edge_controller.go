@@ -1,16 +1,20 @@
 package controllers
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 type EdgeController struct {
+	validator   *validator.Validate
+	teamService *services.TeamService
 }
 
-func NewEdgeController(*services.EdgeService, *config.Config) *EdgeController {
-	return &EdgeController{}
+func NewEdgeController(*services.EdgeService) *EdgeController {
+	return &EdgeController{
+		validator: validator.New(),
+	}
 }
 
 // @Summary Get all edges

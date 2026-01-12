@@ -1,16 +1,20 @@
 package controllers
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 type ProjectController struct {
+	validator   *validator.Validate
+	teamService *services.TeamService
 }
 
-func NewProjectController(*services.ProjectService, *config.Config) *ProjectController {
-	return &ProjectController{}
+func NewProjectController(*services.ProjectService) *ProjectController {
+	return &ProjectController{
+		validator: validator.New(),
+	}
 }
 
 // @Summary Get all projects

@@ -1,16 +1,20 @@
 package controllers
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 type DashController struct {
+	validator   *validator.Validate
+	teamService *services.TeamService
 }
 
-func NewDashController(*services.DashService, *config.Config) *DashController {
-	return &DashController{}
+func NewDashController(*services.DashService) *DashController {
+	return &DashController{
+		validator: validator.New(),
+	}
 }
 
 // @Summary Get form analytics

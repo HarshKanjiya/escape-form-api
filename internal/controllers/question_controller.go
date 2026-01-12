@@ -1,16 +1,20 @@
 package controllers
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 type QuestionController struct {
+	validator   *validator.Validate
+	teamService *services.TeamService
 }
 
-func NewQuestionController(*services.QuestionService, *config.Config) *QuestionController {
-	return &QuestionController{}
+func NewQuestionController(*services.QuestionService) *QuestionController {
+	return &QuestionController{
+		validator: validator.New(),
+	}
 }
 
 // @Summary Get all questions

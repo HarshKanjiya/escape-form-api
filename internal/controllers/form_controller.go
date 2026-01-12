@@ -1,16 +1,20 @@
 package controllers
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 type FormController struct {
+	validator   *validator.Validate
+	teamService *services.TeamService
 }
 
-func NewFormController(*services.FormService, *config.Config) *FormController {
-	return &FormController{}
+func NewFormController(*services.FormService) *FormController {
+	return &FormController{
+		validator: validator.New(),
+	}
 }
 
 // @Summary Get all forms
