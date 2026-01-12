@@ -1,140 +1,11 @@
-basePath: /api/v1
-definitions:
-  models.CreateUserRequest:
-    properties:
-      email:
-        type: string
-      first_name:
-        type: string
-      last_name:
-        type: string
-      password:
-        minLength: 8
-        type: string
-      role:
-        type: string
-    required:
-    - email
-    - first_name
-    - last_name
-    - password
-    type: object
-  models.LoginRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  models.UpdateUserRequest:
-    properties:
-      email:
-        type: string
-      first_name:
-        type: string
-      is_active:
-        description: Pointer to distinguish between false and not provided
-        type: boolean
-      last_name:
-        type: string
-      role:
-        type: string
-    type: object
-  utils.Response:
-    properties:
-      data: {}
-      error:
-        type: string
-      message:
-        type: string
-      meta:
-        description: For pagination, etc.
-      success:
-        type: boolean
-    type: object
-host: localhost:3000
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: A scalable REST API built with Fiber framework for user management
-    and authentication
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: EscapeForm API
-  version: "1.0"
+  contact: {}
 paths:
-  /auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Authenticate user and return JWT tokens
-      parameters:
-      - description: Login credentials
-        in: body
-        name: credentials
-        required: true
-        schema:
-          $ref: '#/definitions/models.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/utils.Response'
-      summary: User login
-      tags:
-      - auth
-  /auth/register:
-    post:
-      consumes:
-      - application/json
-      description: Create a new user account
-      parameters:
-      - description: User registration data
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateUserRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/utils.Response'
-      summary: Register a new user
-      tags:
-      - auth
-  /health:
+  /api/v1/health:
     get:
       consumes:
       - application/json
-      description: Get the health status of the API
+      description: Check the health status of the API
       produces:
       - application/json
       responses:
@@ -146,31 +17,16 @@ paths:
       summary: Health check
       tags:
       - health
-  /users:
+  /dashboard/{formId}/analytics:
     get:
       consumes:
       - application/json
-      description: Get a paginated list of all users
+      description: Retrieve analytics for a form
       parameters:
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: Page size
-        in: query
-        name: page_size
-        type: integer
-      - default: id
-        description: Sort by field
-        in: query
-        name: sort_by
-        type: string
-      - default: desc
-        description: Sort order (asc/desc)
-        in: query
-        name: order
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
         type: string
       produces:
       - application/json
@@ -178,162 +34,585 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Get all users
+            additionalProperties: true
+            type: object
+      summary: Get form analytics
       tags:
-      - users
-  /users/{id}:
+      - dashboard
+  /dashboard/{formId}/passwords:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve passwords for a form
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get form passwords
+      tags:
+      - dashboard
+    post:
+      consumes:
+      - application/json
+      description: Create passwords for a form
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create form passwords
+      tags:
+      - dashboard
+  /dashboard/{formId}/passwords/{passwordId}:
     delete:
       consumes:
       - application/json
-      description: Soft delete a user by ID
+      description: Delete passwords for a form
       parameters:
-      - description: User ID
+      - description: Form ID
         in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Delete user
-      tags:
-      - users
-    get:
-      consumes:
-      - application/json
-      description: Get a single user by their ID
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Get user by ID
-      tags:
-      - users
-    put:
-      consumes:
-      - application/json
-      description: Update a user's information
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Updated user data
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateUserRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Update user
-      tags:
-      - users
-  /users/search:
-    get:
-      consumes:
-      - application/json
-      description: Search users by name or email
-      parameters:
-      - description: Search query
-        in: query
-        name: q
+        name: formId
         required: true
         type: string
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: Page size
-        in: query
-        name: page_size
-        type: integer
+      - description: Password ID
+        in: path
+        name: passwordId
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utils.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      security:
-      - BearerAuth: []
-      summary: Search users
+            additionalProperties: true
+            type: object
+      summary: Delete form passwords
       tags:
-      - users
-securityDefinitions:
-  BearerAuth:
-    description: Type "Bearer" followed by a space and JWT token.
-    in: header
-    name: Authorization
-    type: apiKey
+      - dashboard
+    patch:
+      consumes:
+      - application/json
+      description: Update passwords for a form
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Password ID
+        in: path
+        name: passwordId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update form passwords
+      tags:
+      - dashboard
+  /dashboard/{formId}/questions:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve questions for a form
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get form questions
+      tags:
+      - dashboard
+  /dashboard/{formId}/responses:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve responses for a form
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get form responses
+      tags:
+      - dashboard
+  /dashboard/{formId}/security:
+    patch:
+      consumes:
+      - application/json
+      description: Update security settings for a form
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update form security
+      tags:
+      - dashboard
+  /dashboard/{formId}/settings:
+    patch:
+      consumes:
+      - application/json
+      description: Update settings for a form
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update form settings
+      tags:
+      - dashboard
+  /edges:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of edges
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all edges
+      tags:
+      - edges
+    post:
+      consumes:
+      - application/json
+      description: Create a new edge
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new edge
+      tags:
+      - edges
+  /edges/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an edge by ID
+      parameters:
+      - description: Edge ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete an edge
+      tags:
+      - edges
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing edge by ID
+      parameters:
+      - description: Edge ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update an edge
+      tags:
+      - edges
+  /forms:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of forms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all forms
+      tags:
+      - forms
+    post:
+      consumes:
+      - application/json
+      description: Create a new form
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new form
+      tags:
+      - forms
+  /forms/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a form by its ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a form by ID
+      tags:
+      - forms
+  /forms/{id}/status:
+    delete:
+      consumes:
+      - application/json
+      description: Update the status of a form by ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update form status
+      tags:
+      - forms
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of a form by ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update form status
+      tags:
+      - forms
+  /projects:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of projects
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all projects
+      tags:
+      - projects
+    post:
+      consumes:
+      - application/json
+      description: Create a new project
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new project
+      tags:
+      - projects
+  /projects/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a project by ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a project
+      tags:
+      - projects
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing project by ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a project
+      tags:
+      - projects
+  /questions:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of questions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all questions
+      tags:
+      - questions
+    post:
+      consumes:
+      - application/json
+      description: Create a new question
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new question
+      tags:
+      - questions
+  /questions/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a question by ID
+      parameters:
+      - description: Question ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a question
+      tags:
+      - questions
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing question by ID
+      parameters:
+      - description: Question ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a question
+      tags:
+      - questions
+  /teams:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of teams
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all teams
+      tags:
+      - teams
+    post:
+      consumes:
+      - application/json
+      description: Create a new team
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new team
+      tags:
+      - teams
+  /teams/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a team by ID
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a team
+      tags:
+      - teams
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing team by ID
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a team
+      tags:
+      - teams
 swagger: "2.0"
