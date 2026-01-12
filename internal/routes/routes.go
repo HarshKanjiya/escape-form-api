@@ -12,12 +12,12 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 
 	// Initialize services
 	// userService := services.NewUserService()
-	teamService := services.NewTeamService(cfg)
-	projectService := services.NewProjectService(cfg)
-	formService := services.NewFormService(cfg)
-	questionService := services.NewQuestionService(cfg)
-	edgeService := services.NewEdgeService(cfg)
-	dashService := services.NewDashService(cfg)
+	teamService := services.NewTeamService(cfg, &cfg.Database)
+	projectService := services.NewProjectService(cfg, &cfg.Database)
+	formService := services.NewFormService(cfg, &cfg.Database)
+	questionService := services.NewQuestionService(cfg, &cfg.Database)
+	edgeService := services.NewEdgeService(cfg, &cfg.Database)
+	dashService := services.NewDashService(cfg, &cfg.Database)
 
 	// Initialize controllers
 	// userController := controllers.NewUserController(userService, cfg)

@@ -1,31 +1,61 @@
 package main
 
 import (
-	"os"
+	"log"
 
-	"gorm.io/driver/postgres"
+	"github.com/HarshKanjiya/escape-form-api/internal/config"
+	"github.com/HarshKanjiya/escape-form-api/internal/database"
+	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"gorm.io/gen"
-	"gorm.io/gorm"
 )
 
 func main() {
-	dsn := os.Getenv("DATABASE_URL")
-
-	db, err := gorm.Open(postgres.Open(dsn))
+	// Load configuration
+	cfg, err := config.Load()
 	if err != nil {
-		panic(err)
+		log.Fatal("Failed to load config:", err)
 	}
 
+	// Connect to database
+	if err := database.Connect(cfg); err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer database.Close()
+
+	// Get the DB instance
+	db := database.DB
+
+	// Initialize GORM Gen
 	g := gen.NewGenerator(gen.Config{
-		OutPath:      "internal/query",
-		ModelPkgPath: "internal/models",
-		Mode:         gen.WithDefaultQuery | gen.WithQueryInterface,
+		OutPath:           "internal/query",
+		Mode:              gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface,
+		FieldNullable:     true,
+		FieldCoverable:    true,
+		FieldSignable:     true,
+		FieldWithIndexTag: true,
+		FieldWithTypeTag:  true,
 	})
 
+	// Use the database connection
 	g.UseDB(db)
 
-	// Equivalent to "db pull"
-	g.ApplyBasic(g.GenerateAllTable()...)
+	// Apply all models
+	g.ApplyBasic(
+		models.Team{},
+		models.Project{},
+		models.Form{},
+		models.Question{},
+		models.Edge{},
+		models.Response{},
+		models.User{},
+		models.Plan{},
+		models.Transaction{},
+		models.Coupon{},
+		models.Feature{},
+		models.ActivePassword{},
+		models.QuestionOption{},
+	)
 
+	// Generate the code
 	g.Execute()
 }

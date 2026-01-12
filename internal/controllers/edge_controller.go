@@ -8,12 +8,13 @@ import (
 
 type EdgeController struct {
 	validator   *validator.Validate
-	teamService *services.TeamService
+	edgeService *services.EdgeService
 }
 
-func NewEdgeController(*services.EdgeService) *EdgeController {
+func NewEdgeController(service *services.EdgeService) *EdgeController {
 	return &EdgeController{
-		validator: validator.New(),
+		validator:   validator.New(),
+		edgeService: service,
 	}
 }
 

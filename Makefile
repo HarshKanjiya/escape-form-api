@@ -27,6 +27,10 @@ test:
 tidy:
 	go mod tidy
 
+# Generate GORM queries
+generate:
+	go run ./cmd/generate
+
 # Clean build artifacts
 clean:
 	rm -rf bin/

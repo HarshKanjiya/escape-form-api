@@ -8,12 +8,13 @@ import (
 
 type DashController struct {
 	validator   *validator.Validate
-	teamService *services.TeamService
+	dashService *services.DashService
 }
 
-func NewDashController(*services.DashService) *DashController {
+func NewDashController(service *services.DashService) *DashController {
 	return &DashController{
-		validator: validator.New(),
+		validator:   validator.New(),
+		dashService: service,
 	}
 }
 

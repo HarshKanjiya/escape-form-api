@@ -11,9 +11,10 @@ type TeamController struct {
 	teamService *services.TeamService
 }
 
-func NewTeamController(*services.TeamService) *TeamController {
+func NewTeamController(service *services.TeamService) *TeamController {
 	return &TeamController{
-		validator: validator.New(),
+		validator:   validator.New(),
+		teamService: service,
 	}
 }
 

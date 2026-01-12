@@ -8,12 +8,13 @@ import (
 
 type FormController struct {
 	validator   *validator.Validate
-	teamService *services.TeamService
+	formService *services.FormService
 }
 
-func NewFormController(*services.FormService) *FormController {
+func NewFormController(service *services.FormService) *FormController {
 	return &FormController{
-		validator: validator.New(),
+		validator:   validator.New(),
+		formService: service,
 	}
 }
 

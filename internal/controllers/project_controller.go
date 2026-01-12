@@ -7,13 +7,14 @@ import (
 )
 
 type ProjectController struct {
-	validator   *validator.Validate
-	teamService *services.TeamService
+	validator      *validator.Validate
+	projectService *services.ProjectService
 }
 
-func NewProjectController(*services.ProjectService) *ProjectController {
+func NewProjectController(service *services.ProjectService) *ProjectController {
 	return &ProjectController{
-		validator: validator.New(),
+		validator:      validator.New(),
+		projectService: service,
 	}
 }
 
