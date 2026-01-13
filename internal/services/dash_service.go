@@ -1,16 +1,15 @@
 package services
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/query"
-	"gorm.io/gorm"
+	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 )
 
 type DashService struct {
-	q *query.Query
+	dashRepo *repositories.DashRepo
 }
 
-func NewDashService(db *gorm.DB) *DashService {
+func NewDashService(dashRepo *repositories.DashRepo) *DashService {
 	return &DashService{
-	q: query.Use(db),
+		dashRepo: dashRepo,
 	}
 }

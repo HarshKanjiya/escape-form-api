@@ -4,6 +4,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/controllers"
 	"github.com/HarshKanjiya/escape-form-api/internal/database"
+	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/gofiber/fiber/v2"
 )
@@ -11,14 +12,21 @@ import (
 // SetupRoutes configures all application routes
 func SetupRoutes(app *fiber.App, cfg *config.Config) {
 
+	// Initialize repositories
+	teamRepo := repositories.NewTeamRepo(database.DB)
+	projectRepo := repositories.NewProjectRepo(database.DB)
+	formRepo := repositories.NewFormRepo(database.DB)
+	questionRepo := repositories.NewQuestionRepo(database.DB)
+	edgeRepo := repositories.NewEdgeRepo(database.DB)
+	dashRepo := repositories.NewDashRepo(database.DB)
+
 	// Initialize services
-	// userService := services.NewUserService()
-	teamService := services.NewTeamService(database.DB)
-	projectService := services.NewProjectService(database.DB)
-	formService := services.NewFormService(database.DB)
-	questionService := services.NewQuestionService(database.DB)
-	edgeService := services.NewEdgeService(database.DB)
-	dashService := services.NewDashService(database.DB)
+	teamService := services.NewTeamService(teamRepo)
+	projectService := services.NewProjectService(projectRepo)
+	formService := services.NewFormService(formRepo)
+	questionService := services.NewQuestionService(questionRepo)
+	edgeService := services.NewEdgeService(edgeRepo)
+	dashService := services.NewDashService(dashRepo)
 
 	// Initialize controllers
 	// userController := controllers.NewUserController(userService, cfg)

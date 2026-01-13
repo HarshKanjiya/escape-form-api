@@ -1,23 +1,29 @@
 package services
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/query"
+	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
-	"gorm.io/gorm"
 )
 
 type TeamService struct {
-	q *query.Query
+	teamRepo *repositories.TeamRepo
 }
 
-func NewTeamService(db *gorm.DB) *TeamService {
+func NewTeamService(teamRepo *repositories.TeamRepo) *TeamService {
 	return &TeamService{
-		q: query.Use(db),
+		teamRepo: teamRepo,
 	}
 }
 
 func (ts *TeamService) Get() []types.TeamResponse {
-	return []types.TeamResponse{}
+
+	teams := []types.TeamResponse{}
+	// err := ts.q.Team.Where().Scan(&teams).Error
+	// if err != nil {
+	// 	return []types.TeamResponse{}
+	// }
+
+	return teams
 }
 
 func (ts *TeamService) Create() types.TeamResponse {

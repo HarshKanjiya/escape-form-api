@@ -1,16 +1,15 @@
 package services
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/query"
-	"gorm.io/gorm"
+	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 )
 
 type ProjectService struct {
-	q *query.Query
+	projectRepo *repositories.ProjectRepo
 }
 
-func NewProjectService(db *gorm.DB) *ProjectService {
+func NewProjectService(projectRepo *repositories.ProjectRepo) *ProjectService {
 	return &ProjectService{
-		q: query.Use(db),
+		projectRepo: projectRepo,
 	}
 }

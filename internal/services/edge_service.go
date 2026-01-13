@@ -1,16 +1,15 @@
 package services
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/query"
-	"gorm.io/gorm"
+	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 )
 
 type EdgeService struct {
-	q *query.Query
+	edgeRepo *repositories.EdgeRepo
 }
 
-func NewEdgeService(db *gorm.DB) *EdgeService {
+func NewEdgeService(edgeRepo *repositories.EdgeRepo) *EdgeService {
 	return &EdgeService{
-		q: query.Use(db),
+		edgeRepo: edgeRepo,
 	}
 }
