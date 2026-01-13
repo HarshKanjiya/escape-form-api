@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -26,9 +28,15 @@ func NewTeamController(service *services.TeamService) *TeamController {
 // @Success 200 {object} map[string]interface{}
 // @Router /teams [get]
 func (tc *TeamController) Get(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "TeamController Get method called",
-	})
+	pagination := &types.PaginationQuery{
+		Page:   c.QueryInt("page", 1),
+		Limit:  c.QueryInt("limit", 10),
+		Search: c.Query("search", ""),
+		SortBy: c.Query("sortBy", ""),
+		Order:  c.Query("order", ""),
+	}
+	teams := tc.teamService.Get(c, pagination, true)
+	return utils.Success(c, teams, "Teams fetched successfully")
 }
 
 // @Summary Create a new team

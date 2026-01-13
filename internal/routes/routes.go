@@ -29,7 +29,6 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	dashService := services.NewDashService(dashRepo)
 
 	// Initialize controllers
-	// userController := controllers.NewUserController(userService, cfg)
 	teamController := controllers.NewTeamController(teamService)
 	projectController := controllers.NewProjectController(projectService)
 	formController := controllers.NewFormController(formService)
