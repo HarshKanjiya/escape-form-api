@@ -1,40 +1,33 @@
 package middlewares
 
 import (
-	"net/http"
 	"strings"
 
-	"github.com/clerk/clerk-sdk-go/v2"
+	"github.com/clerk/clerk-sdk-go/v2/jwt"
 	"github.com/gofiber/fiber/v2"
 )
 
 func ClerkAuth() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		authHeader := string(c.Request().Header.Peek("Authorization"))
-		if authHeader == "" {
-			return c.SendStatus(fiber.StatusNotFound)
+		authHeader := c.Get("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Missing or invalid token",
+			})
 		}
+		sessionToken := strings.TrimPrefix(authHeader, "Bearer ")
 
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		if token == authHeader {
-			return c.SendStatus(fiber.StatusNotFound)
-		}
-
-		var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			claims, ok := clerk.SessionClaimsFromContext(r.Context())
-			if !ok {
-				c.SendStatus(fiber.StatusNotFound)
-				return
-			}
-
-			c.Locals("clerk_session", claims)
-			c.Next()
+		claims, err := jwt.Verify(c.Context(), &jwt.VerifyParams{
+			Token: sessionToken,
 		})
-		// mw := clerkhttp.WithHeaderAuthorization()(handler)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Invalid session",
+			})
+		}
 
-		// req := c.Request().Ctx().Value(fiber.HeaderAuthorizationKey)
-		// _ = req
+		c.Locals("user_claims", claims)
 
-		return nil
+		return c.Next()
 	}
 }
