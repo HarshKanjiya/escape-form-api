@@ -18,6 +18,7 @@ type Config struct {
 	CORS      CORSConfig
 	RateLimit RateLimitConfig
 	Logging   LoggingConfig
+	Clerk     ClerkConfig
 }
 
 // application-level configuration
@@ -61,6 +62,11 @@ type RateLimitConfig struct {
 // logging configuration
 type LoggingConfig struct {
 	Level string
+}
+
+// Clerk Config
+type ClerkConfig struct {
+	SecretKey string
 }
 
 // automatically loads the correct .env file based on APP_ENV
@@ -107,6 +113,9 @@ func Load() (*Config, error) {
 		},
 		Logging: LoggingConfig{
 			Level: getEnv("LOG_LEVEL", "info"),
+		},
+		Clerk: ClerkConfig{
+			SecretKey: getEnv("CLERK_SK", "sk_test_XXX"),
 		},
 	}
 

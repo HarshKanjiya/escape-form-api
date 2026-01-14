@@ -8,9 +8,8 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/database"
 	"github.com/HarshKanjiya/escape-form-api/internal/middlewares"
-
-	// "github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/routes"
+	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
@@ -37,6 +36,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to load config:", err)
 	}
+
+	clerk.SetKey(cfg.Clerk.SecretKey)
 
 	// Setup logger
 	zerolog.TimeFieldFormat = time.RFC3339
