@@ -7,9 +7,9 @@ type Transaction struct {
 	Type        TransactionType `gorm:"column:type" json:"type"`
 	Amount      float64         `gorm:"column:amount" json:"amount"`
 	Description *string         `gorm:"column:description" json:"description"`
-	CreatedAt   time.Time       `gorm:"type:timestamptz(6);default:now();column:created_at" json:"createdAt"`
-	CreatedBy   *string         `gorm:"type:varchar;column:created_by" json:"createdBy"`
-	TeamID      string          `gorm:"type:uuid;index;column:team_id" json:"teamId"`
+	CreatedAt   time.Time       `gorm:"type:timestamptz(6);default:now();column:createdAt" json:"createdAt"`
+	CreatedBy   *string         `gorm:"type:varchar;column:createdBy" json:"createdBy"`
+	TeamID      string          `gorm:"type:uuid;index;column:teamId" json:"teamId"`
 	Team        Team            `gorm:"references:ID" json:"team"`
 }
 

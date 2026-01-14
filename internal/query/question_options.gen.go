@@ -29,10 +29,10 @@ func newQuestionOption(db *gorm.DB, opts ...gen.DOOption) questionOption {
 	tableName := _questionOption.questionOptionDo.TableName()
 	_questionOption.ALL = field.NewAsterisk(tableName)
 	_questionOption.ID = field.NewString(tableName, "id")
-	_questionOption.QuestionID = field.NewString(tableName, "question_id")
+	_questionOption.QuestionID = field.NewString(tableName, "questionId")
 	_questionOption.Label = field.NewString(tableName, "label")
 	_questionOption.Value = field.NewString(tableName, "value")
-	_questionOption.SortOrder = field.NewInt(tableName, "sort_order")
+	_questionOption.SortOrder = field.NewInt(tableName, "sortOrder")
 	_questionOption.Question = questionOptionBelongsToQuestion{
 		db: db.Session(&gorm.Session{}),
 
@@ -388,10 +388,10 @@ func (q questionOption) As(alias string) *questionOption {
 func (q *questionOption) updateTableName(table string) *questionOption {
 	q.ALL = field.NewAsterisk(table)
 	q.ID = field.NewString(table, "id")
-	q.QuestionID = field.NewString(table, "question_id")
+	q.QuestionID = field.NewString(table, "questionId")
 	q.Label = field.NewString(table, "label")
 	q.Value = field.NewString(table, "value")
-	q.SortOrder = field.NewInt(table, "sort_order")
+	q.SortOrder = field.NewInt(table, "sortOrder")
 
 	q.fillFieldMap()
 
@@ -410,10 +410,10 @@ func (q *questionOption) GetFieldByName(fieldName string) (field.OrderExpr, bool
 func (q *questionOption) fillFieldMap() {
 	q.fieldMap = make(map[string]field.Expr, 6)
 	q.fieldMap["id"] = q.ID
-	q.fieldMap["question_id"] = q.QuestionID
+	q.fieldMap["questionId"] = q.QuestionID
 	q.fieldMap["label"] = q.Label
 	q.fieldMap["value"] = q.Value
-	q.fieldMap["sort_order"] = q.SortOrder
+	q.fieldMap["sortOrder"] = q.SortOrder
 
 }
 

@@ -34,8 +34,8 @@ func newPlan(db *gorm.DB, opts ...gen.DOOption) plan {
 	_plan.Price = field.NewFloat64(tableName, "price")
 	_plan.Currency = field.NewString(tableName, "currency")
 	_plan.Valid = field.NewBool(tableName, "valid")
-	_plan.CreatedAt = field.NewTime(tableName, "created_at")
-	_plan.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_plan.CreatedAt = field.NewTime(tableName, "createdAt")
+	_plan.UpdatedAt = field.NewTime(tableName, "updatedAt")
 	_plan.Coupons = planHasManyCoupons{
 		db: db.Session(&gorm.Session{}),
 
@@ -502,8 +502,8 @@ func (p *plan) updateTableName(table string) *plan {
 	p.Price = field.NewFloat64(table, "price")
 	p.Currency = field.NewString(table, "currency")
 	p.Valid = field.NewBool(table, "valid")
-	p.CreatedAt = field.NewTime(table, "created_at")
-	p.UpdatedAt = field.NewTime(table, "updated_at")
+	p.CreatedAt = field.NewTime(table, "createdAt")
+	p.UpdatedAt = field.NewTime(table, "updatedAt")
 
 	p.fillFieldMap()
 
@@ -527,8 +527,8 @@ func (p *plan) fillFieldMap() {
 	p.fieldMap["price"] = p.Price
 	p.fieldMap["currency"] = p.Currency
 	p.fieldMap["valid"] = p.Valid
-	p.fieldMap["created_at"] = p.CreatedAt
-	p.fieldMap["updated_at"] = p.UpdatedAt
+	p.fieldMap["createdAt"] = p.CreatedAt
+	p.fieldMap["updatedAt"] = p.UpdatedAt
 
 }
 

@@ -29,16 +29,16 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 	tableName := _question.questionDo.TableName()
 	_question.ALL = field.NewAsterisk(tableName)
 	_question.ID = field.NewString(tableName, "id")
-	_question.FormID = field.NewString(tableName, "form_id")
+	_question.FormID = field.NewString(tableName, "formId")
 	_question.Title = field.NewString(tableName, "title")
 	_question.Placeholder = field.NewString(tableName, "placeholder")
 	_question.Description = field.NewString(tableName, "description")
 	_question.Required = field.NewBool(tableName, "required")
 	_question.Type = field.NewString(tableName, "type")
 	_question.Metadata = field.NewString(tableName, "metadata")
-	_question.PosX = field.NewInt(tableName, "pos_x")
-	_question.PosY = field.NewInt(tableName, "pos_y")
-	_question.SortOrder = field.NewInt(tableName, "sort_order")
+	_question.PosX = field.NewInt(tableName, "posX")
+	_question.PosY = field.NewInt(tableName, "posY")
+	_question.SortOrder = field.NewInt(tableName, "sortOrder")
 	_question.Options = questionHasManyOptions{
 		db: db.Session(&gorm.Session{}),
 
@@ -502,16 +502,16 @@ func (q question) As(alias string) *question {
 func (q *question) updateTableName(table string) *question {
 	q.ALL = field.NewAsterisk(table)
 	q.ID = field.NewString(table, "id")
-	q.FormID = field.NewString(table, "form_id")
+	q.FormID = field.NewString(table, "formId")
 	q.Title = field.NewString(table, "title")
 	q.Placeholder = field.NewString(table, "placeholder")
 	q.Description = field.NewString(table, "description")
 	q.Required = field.NewBool(table, "required")
 	q.Type = field.NewString(table, "type")
 	q.Metadata = field.NewString(table, "metadata")
-	q.PosX = field.NewInt(table, "pos_x")
-	q.PosY = field.NewInt(table, "pos_y")
-	q.SortOrder = field.NewInt(table, "sort_order")
+	q.PosX = field.NewInt(table, "posX")
+	q.PosY = field.NewInt(table, "posY")
+	q.SortOrder = field.NewInt(table, "sortOrder")
 
 	q.fillFieldMap()
 
@@ -530,16 +530,16 @@ func (q *question) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (q *question) fillFieldMap() {
 	q.fieldMap = make(map[string]field.Expr, 15)
 	q.fieldMap["id"] = q.ID
-	q.fieldMap["form_id"] = q.FormID
+	q.fieldMap["formId"] = q.FormID
 	q.fieldMap["title"] = q.Title
 	q.fieldMap["placeholder"] = q.Placeholder
 	q.fieldMap["description"] = q.Description
 	q.fieldMap["required"] = q.Required
 	q.fieldMap["type"] = q.Type
 	q.fieldMap["metadata"] = q.Metadata
-	q.fieldMap["pos_x"] = q.PosX
-	q.fieldMap["pos_y"] = q.PosY
-	q.fieldMap["sort_order"] = q.SortOrder
+	q.fieldMap["posX"] = q.PosX
+	q.fieldMap["posY"] = q.PosY
+	q.fieldMap["sortOrder"] = q.SortOrder
 
 }
 

@@ -29,9 +29,9 @@ func newEdge(db *gorm.DB, opts ...gen.DOOption) edge {
 	tableName := _edge.edgeDo.TableName()
 	_edge.ALL = field.NewAsterisk(tableName)
 	_edge.ID = field.NewString(tableName, "id")
-	_edge.FormID = field.NewString(tableName, "form_id")
-	_edge.SourceNodeID = field.NewString(tableName, "source_node_id")
-	_edge.TargetNodeID = field.NewString(tableName, "target_node_id")
+	_edge.FormID = field.NewString(tableName, "formId")
+	_edge.SourceNodeID = field.NewString(tableName, "sourceNodeId")
+	_edge.TargetNodeID = field.NewString(tableName, "targetNodeId")
 	_edge.Condition = field.NewString(tableName, "condition")
 	_edge.Form = edgeBelongsToForm{
 		db: db.Session(&gorm.Session{}),
@@ -365,9 +365,9 @@ func (e edge) As(alias string) *edge {
 func (e *edge) updateTableName(table string) *edge {
 	e.ALL = field.NewAsterisk(table)
 	e.ID = field.NewString(table, "id")
-	e.FormID = field.NewString(table, "form_id")
-	e.SourceNodeID = field.NewString(table, "source_node_id")
-	e.TargetNodeID = field.NewString(table, "target_node_id")
+	e.FormID = field.NewString(table, "formId")
+	e.SourceNodeID = field.NewString(table, "sourceNodeId")
+	e.TargetNodeID = field.NewString(table, "targetNodeId")
 	e.Condition = field.NewString(table, "condition")
 
 	e.fillFieldMap()
@@ -387,9 +387,9 @@ func (e *edge) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (e *edge) fillFieldMap() {
 	e.fieldMap = make(map[string]field.Expr, 8)
 	e.fieldMap["id"] = e.ID
-	e.fieldMap["form_id"] = e.FormID
-	e.fieldMap["source_node_id"] = e.SourceNodeID
-	e.fieldMap["target_node_id"] = e.TargetNodeID
+	e.fieldMap["formId"] = e.FormID
+	e.fieldMap["sourceNodeId"] = e.SourceNodeID
+	e.fieldMap["targetNodeId"] = e.TargetNodeID
 	e.fieldMap["condition"] = e.Condition
 
 }

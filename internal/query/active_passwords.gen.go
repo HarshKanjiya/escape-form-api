@@ -29,13 +29,13 @@ func newActivePassword(db *gorm.DB, opts ...gen.DOOption) activePassword {
 	tableName := _activePassword.activePasswordDo.TableName()
 	_activePassword.ALL = field.NewAsterisk(tableName)
 	_activePassword.ID = field.NewString(tableName, "id")
-	_activePassword.FormID = field.NewString(tableName, "form_id")
+	_activePassword.FormID = field.NewString(tableName, "formId")
 	_activePassword.Name = field.NewString(tableName, "name")
 	_activePassword.Password = field.NewString(tableName, "password")
-	_activePassword.IsValid = field.NewBool(tableName, "is_valid")
-	_activePassword.ExpireAt = field.NewTime(tableName, "expire_at")
-	_activePassword.CreatedAt = field.NewTime(tableName, "created_at")
-	_activePassword.UsableUpto = field.NewInt(tableName, "usable_upto")
+	_activePassword.IsValid = field.NewBool(tableName, "isValid")
+	_activePassword.ExpireAt = field.NewTime(tableName, "expireAt")
+	_activePassword.CreatedAt = field.NewTime(tableName, "createdAt")
+	_activePassword.UsableUpto = field.NewInt(tableName, "usableUpto")
 	_activePassword.Form = activePasswordBelongsToForm{
 		db: db.Session(&gorm.Session{}),
 
@@ -355,13 +355,13 @@ func (a activePassword) As(alias string) *activePassword {
 func (a *activePassword) updateTableName(table string) *activePassword {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewString(table, "id")
-	a.FormID = field.NewString(table, "form_id")
+	a.FormID = field.NewString(table, "formId")
 	a.Name = field.NewString(table, "name")
 	a.Password = field.NewString(table, "password")
-	a.IsValid = field.NewBool(table, "is_valid")
-	a.ExpireAt = field.NewTime(table, "expire_at")
-	a.CreatedAt = field.NewTime(table, "created_at")
-	a.UsableUpto = field.NewInt(table, "usable_upto")
+	a.IsValid = field.NewBool(table, "isValid")
+	a.ExpireAt = field.NewTime(table, "expireAt")
+	a.CreatedAt = field.NewTime(table, "createdAt")
+	a.UsableUpto = field.NewInt(table, "usableUpto")
 
 	a.fillFieldMap()
 
@@ -380,13 +380,13 @@ func (a *activePassword) GetFieldByName(fieldName string) (field.OrderExpr, bool
 func (a *activePassword) fillFieldMap() {
 	a.fieldMap = make(map[string]field.Expr, 9)
 	a.fieldMap["id"] = a.ID
-	a.fieldMap["form_id"] = a.FormID
+	a.fieldMap["formId"] = a.FormID
 	a.fieldMap["name"] = a.Name
 	a.fieldMap["password"] = a.Password
-	a.fieldMap["is_valid"] = a.IsValid
-	a.fieldMap["expire_at"] = a.ExpireAt
-	a.fieldMap["created_at"] = a.CreatedAt
-	a.fieldMap["usable_upto"] = a.UsableUpto
+	a.fieldMap["isValid"] = a.IsValid
+	a.fieldMap["expireAt"] = a.ExpireAt
+	a.fieldMap["createdAt"] = a.CreatedAt
+	a.fieldMap["usableUpto"] = a.UsableUpto
 
 }
 

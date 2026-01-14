@@ -29,18 +29,18 @@ func newResponse(db *gorm.DB, opts ...gen.DOOption) response {
 	tableName := _response.responseDo.TableName()
 	_response.ALL = field.NewAsterisk(tableName)
 	_response.ID = field.NewString(tableName, "id")
-	_response.FormID = field.NewString(tableName, "form_id")
-	_response.UserID = field.NewString(tableName, "user_id")
+	_response.FormID = field.NewString(tableName, "formId")
+	_response.UserID = field.NewString(tableName, "userId")
 	_response.Data = field.NewString(tableName, "data")
-	_response.MetaData = field.NewString(tableName, "meta_data")
+	_response.MetaData = field.NewString(tableName, "metaData")
 	_response.Tags = field.NewField(tableName, "tags")
 	_response.Status = field.NewString(tableName, "status")
-	_response.PartialSave = field.NewBool(tableName, "partial_save")
+	_response.PartialSave = field.NewBool(tableName, "partialSave")
 	_response.Notified = field.NewBool(tableName, "notified")
 	_response.Valid = field.NewBool(tableName, "valid")
-	_response.StartedAt = field.NewTime(tableName, "started_at")
-	_response.SubmittedAt = field.NewTime(tableName, "submitted_at")
-	_response.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_response.StartedAt = field.NewTime(tableName, "startedAt")
+	_response.SubmittedAt = field.NewTime(tableName, "submittedAt")
+	_response.UpdatedAt = field.NewTime(tableName, "updatedAt")
 	_response.Form = responseBelongsToForm{
 		db: db.Session(&gorm.Session{}),
 
@@ -365,18 +365,18 @@ func (r response) As(alias string) *response {
 func (r *response) updateTableName(table string) *response {
 	r.ALL = field.NewAsterisk(table)
 	r.ID = field.NewString(table, "id")
-	r.FormID = field.NewString(table, "form_id")
-	r.UserID = field.NewString(table, "user_id")
+	r.FormID = field.NewString(table, "formId")
+	r.UserID = field.NewString(table, "userId")
 	r.Data = field.NewString(table, "data")
-	r.MetaData = field.NewString(table, "meta_data")
+	r.MetaData = field.NewString(table, "metaData")
 	r.Tags = field.NewField(table, "tags")
 	r.Status = field.NewString(table, "status")
-	r.PartialSave = field.NewBool(table, "partial_save")
+	r.PartialSave = field.NewBool(table, "partialSave")
 	r.Notified = field.NewBool(table, "notified")
 	r.Valid = field.NewBool(table, "valid")
-	r.StartedAt = field.NewTime(table, "started_at")
-	r.SubmittedAt = field.NewTime(table, "submitted_at")
-	r.UpdatedAt = field.NewTime(table, "updated_at")
+	r.StartedAt = field.NewTime(table, "startedAt")
+	r.SubmittedAt = field.NewTime(table, "submittedAt")
+	r.UpdatedAt = field.NewTime(table, "updatedAt")
 
 	r.fillFieldMap()
 
@@ -395,18 +395,18 @@ func (r *response) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (r *response) fillFieldMap() {
 	r.fieldMap = make(map[string]field.Expr, 14)
 	r.fieldMap["id"] = r.ID
-	r.fieldMap["form_id"] = r.FormID
-	r.fieldMap["user_id"] = r.UserID
+	r.fieldMap["formId"] = r.FormID
+	r.fieldMap["userId"] = r.UserID
 	r.fieldMap["data"] = r.Data
-	r.fieldMap["meta_data"] = r.MetaData
+	r.fieldMap["metaData"] = r.MetaData
 	r.fieldMap["tags"] = r.Tags
 	r.fieldMap["status"] = r.Status
-	r.fieldMap["partial_save"] = r.PartialSave
+	r.fieldMap["partialSave"] = r.PartialSave
 	r.fieldMap["notified"] = r.Notified
 	r.fieldMap["valid"] = r.Valid
-	r.fieldMap["started_at"] = r.StartedAt
-	r.fieldMap["submitted_at"] = r.SubmittedAt
-	r.fieldMap["updated_at"] = r.UpdatedAt
+	r.fieldMap["startedAt"] = r.StartedAt
+	r.fieldMap["submittedAt"] = r.SubmittedAt
+	r.fieldMap["updatedAt"] = r.UpdatedAt
 
 }
 

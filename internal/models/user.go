@@ -12,7 +12,7 @@ type User struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-	
+
 	// User fields
 	Email     string `gorm:"uniqueIndex;not null" json:"email" validate:"required,email"`
 	Password  string `gorm:"not null" json:"-"` // Never expose password in JSON

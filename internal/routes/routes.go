@@ -4,6 +4,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/config"
 	"github.com/HarshKanjiya/escape-form-api/internal/controllers"
 	"github.com/HarshKanjiya/escape-form-api/internal/database"
+	"github.com/HarshKanjiya/escape-form-api/internal/middlewares"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/gofiber/fiber/v2"
@@ -51,7 +52,10 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 
 	// Protected user routes (JWT required)
 	// users := api.Group("/users", middlewares.JWTMiddleware(cfg.JWT.Secret))
-	teams := api.Group("/teams")
+
+	protectedRoutes := api.Group("/", middlewares.ClerkAuth())
+
+	teams := protectedRoutes.Group("/teams")
 	{
 		teams.Get("/", teamController.Get)
 		teams.Post("/", teamController.Create)
@@ -59,7 +63,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		teams.Delete("/:id", teamController.Delete)
 	}
 
-	projects := api.Group("/projects")
+	projects := protectedRoutes.Group("/projects")
 	{
 		projects.Get("/", projectController.Get)
 		projects.Post("/", projectController.Create)
@@ -67,7 +71,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		projects.Delete("/:id", projectController.Delete)
 	}
 
-	forms := api.Group("/forms")
+	forms := protectedRoutes.Group("/forms")
 	{
 		forms.Get("/", formController.Get)
 		forms.Post("/", formController.Create)
@@ -76,7 +80,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		forms.Delete("/:id/status", formController.UpdateStatus)
 	}
 
-	questions := api.Group("/questions")
+	questions := protectedRoutes.Group("/questions")
 	{
 		questions.Get("/", questionController.Get)
 		questions.Post("/", questionController.Create)
@@ -84,7 +88,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		questions.Delete("/:id", questionController.Delete)
 	}
 
-	edges := api.Group("/edges")
+	edges := protectedRoutes.Group("/edges")
 	{
 		edges.Get("/", edgeController.Get)
 		edges.Post("/", edgeController.Create)
@@ -92,7 +96,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		edges.Delete("/:id", edgeController.Delete)
 	}
 
-	dash := api.Group("/dashboard")
+	dash := protectedRoutes.Group("/dashboard")
 	{
 		dash.Get("/:formId/analytics", dashController.GetAnalytics)
 		dash.Get("/:formId/questions", dashController.GetQuestions)

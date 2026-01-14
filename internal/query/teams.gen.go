@@ -30,11 +30,11 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 	_team.ALL = field.NewAsterisk(tableName)
 	_team.ID = field.NewString(tableName, "id")
 	_team.Name = field.NewString(tableName, "name")
-	_team.OwnerID = field.NewString(tableName, "owner_id")
-	_team.PlanID = field.NewString(tableName, "plan_id")
+	_team.OwnerID = field.NewString(tableName, "ownerId")
+	_team.PlanID = field.NewString(tableName, "planId")
 	_team.Valid = field.NewBool(tableName, "valid")
-	_team.CreatedAt = field.NewTime(tableName, "created_at")
-	_team.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_team.CreatedAt = field.NewTime(tableName, "createdAt")
+	_team.UpdatedAt = field.NewTime(tableName, "updatedAt")
 	_team.Forms = teamHasManyForms{
 		db: db.Session(&gorm.Session{}),
 
@@ -378,11 +378,11 @@ func (t *team) updateTableName(table string) *team {
 	t.ALL = field.NewAsterisk(table)
 	t.ID = field.NewString(table, "id")
 	t.Name = field.NewString(table, "name")
-	t.OwnerID = field.NewString(table, "owner_id")
-	t.PlanID = field.NewString(table, "plan_id")
+	t.OwnerID = field.NewString(table, "ownerId")
+	t.PlanID = field.NewString(table, "planId")
 	t.Valid = field.NewBool(table, "valid")
-	t.CreatedAt = field.NewTime(table, "created_at")
-	t.UpdatedAt = field.NewTime(table, "updated_at")
+	t.CreatedAt = field.NewTime(table, "createdAt")
+	t.UpdatedAt = field.NewTime(table, "updatedAt")
 
 	t.fillFieldMap()
 
@@ -402,11 +402,11 @@ func (t *team) fillFieldMap() {
 	t.fieldMap = make(map[string]field.Expr, 11)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["name"] = t.Name
-	t.fieldMap["owner_id"] = t.OwnerID
-	t.fieldMap["plan_id"] = t.PlanID
+	t.fieldMap["ownerId"] = t.OwnerID
+	t.fieldMap["planId"] = t.PlanID
 	t.fieldMap["valid"] = t.Valid
-	t.fieldMap["created_at"] = t.CreatedAt
-	t.fieldMap["updated_at"] = t.UpdatedAt
+	t.fieldMap["createdAt"] = t.CreatedAt
+	t.fieldMap["updatedAt"] = t.UpdatedAt
 
 }
 

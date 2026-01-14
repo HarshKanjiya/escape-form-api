@@ -1,8 +1,10 @@
 package middlewares
 
 import (
+	"fmt"
 	"strings"
 
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/clerk/clerk-sdk-go/v2/jwt"
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,12 +23,11 @@ func ClerkAuth() fiber.Handler {
 			Token: sessionToken,
 		})
 		if err != nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Invalid session",
-			})
+			return utils.Unauthorized(c, "Invalid or expired token")
 		}
-
+		fmt.Printf("Clerk claims: %+v\n", claims)
 		c.Locals("user_claims", claims)
+		c.Locals("user_id", claims.Subject)
 
 		return c.Next()
 	}

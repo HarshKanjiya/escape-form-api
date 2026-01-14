@@ -29,13 +29,13 @@ func newFeature(db *gorm.DB, opts ...gen.DOOption) feature {
 	tableName := _feature.featureDo.TableName()
 	_feature.ALL = field.NewAsterisk(tableName)
 	_feature.ID = field.NewString(tableName, "id")
-	_feature.PlanID = field.NewString(tableName, "plan_id")
+	_feature.PlanID = field.NewString(tableName, "planId")
 	_feature.Key = field.NewString(tableName, "key")
 	_feature.Name = field.NewString(tableName, "name")
 	_feature.Description = field.NewString(tableName, "description")
 	_feature.Valid = field.NewBool(tableName, "valid")
-	_feature.CreatedAt = field.NewTime(tableName, "created_at")
-	_feature.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_feature.CreatedAt = field.NewTime(tableName, "createdAt")
+	_feature.UpdatedAt = field.NewTime(tableName, "updatedAt")
 	_feature.Plan = featureBelongsToPlan{
 		db: db.Session(&gorm.Session{}),
 
@@ -403,13 +403,13 @@ func (f feature) As(alias string) *feature {
 func (f *feature) updateTableName(table string) *feature {
 	f.ALL = field.NewAsterisk(table)
 	f.ID = field.NewString(table, "id")
-	f.PlanID = field.NewString(table, "plan_id")
+	f.PlanID = field.NewString(table, "planId")
 	f.Key = field.NewString(table, "key")
 	f.Name = field.NewString(table, "name")
 	f.Description = field.NewString(table, "description")
 	f.Valid = field.NewBool(table, "valid")
-	f.CreatedAt = field.NewTime(table, "created_at")
-	f.UpdatedAt = field.NewTime(table, "updated_at")
+	f.CreatedAt = field.NewTime(table, "createdAt")
+	f.UpdatedAt = field.NewTime(table, "updatedAt")
 
 	f.fillFieldMap()
 
@@ -428,13 +428,13 @@ func (f *feature) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (f *feature) fillFieldMap() {
 	f.fieldMap = make(map[string]field.Expr, 9)
 	f.fieldMap["id"] = f.ID
-	f.fieldMap["plan_id"] = f.PlanID
+	f.fieldMap["planId"] = f.PlanID
 	f.fieldMap["key"] = f.Key
 	f.fieldMap["name"] = f.Name
 	f.fieldMap["description"] = f.Description
 	f.fieldMap["valid"] = f.Valid
-	f.fieldMap["created_at"] = f.CreatedAt
-	f.fieldMap["updated_at"] = f.UpdatedAt
+	f.fieldMap["createdAt"] = f.CreatedAt
+	f.fieldMap["updatedAt"] = f.UpdatedAt
 
 }
 

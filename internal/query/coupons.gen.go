@@ -30,10 +30,10 @@ func newCoupon(db *gorm.DB, opts ...gen.DOOption) coupon {
 	_coupon.ALL = field.NewAsterisk(tableName)
 	_coupon.ID = field.NewString(tableName, "id")
 	_coupon.Type = field.NewString(tableName, "type")
-	_coupon.DiscountType = field.NewString(tableName, "discount_type")
-	_coupon.PlanID = field.NewString(tableName, "plan_id")
+	_coupon.DiscountType = field.NewString(tableName, "discountType")
+	_coupon.PlanID = field.NewString(tableName, "planId")
 	_coupon.Amount = field.NewFloat64(tableName, "amount")
-	_coupon.UseLeft = field.NewInt(tableName, "use_left")
+	_coupon.UseLeft = field.NewInt(tableName, "useLeft")
 	_coupon.Plan = couponBelongsToPlan{
 		db: db.Session(&gorm.Session{}),
 
@@ -400,10 +400,10 @@ func (c *coupon) updateTableName(table string) *coupon {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewString(table, "id")
 	c.Type = field.NewString(table, "type")
-	c.DiscountType = field.NewString(table, "discount_type")
-	c.PlanID = field.NewString(table, "plan_id")
+	c.DiscountType = field.NewString(table, "discountType")
+	c.PlanID = field.NewString(table, "planId")
 	c.Amount = field.NewFloat64(table, "amount")
-	c.UseLeft = field.NewInt(table, "use_left")
+	c.UseLeft = field.NewInt(table, "useLeft")
 
 	c.fillFieldMap()
 
@@ -423,10 +423,10 @@ func (c *coupon) fillFieldMap() {
 	c.fieldMap = make(map[string]field.Expr, 7)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["type"] = c.Type
-	c.fieldMap["discount_type"] = c.DiscountType
-	c.fieldMap["plan_id"] = c.PlanID
+	c.fieldMap["discountType"] = c.DiscountType
+	c.fieldMap["planId"] = c.PlanID
 	c.fieldMap["amount"] = c.Amount
-	c.fieldMap["use_left"] = c.UseLeft
+	c.fieldMap["useLeft"] = c.UseLeft
 
 }
 

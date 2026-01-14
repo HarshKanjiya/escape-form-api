@@ -31,10 +31,10 @@ func newProject(db *gorm.DB, opts ...gen.DOOption) project {
 	_project.ID = field.NewString(tableName, "id")
 	_project.Name = field.NewString(tableName, "name")
 	_project.Description = field.NewString(tableName, "description")
-	_project.TeamID = field.NewString(tableName, "team_id")
+	_project.TeamID = field.NewString(tableName, "teamId")
 	_project.Valid = field.NewBool(tableName, "valid")
-	_project.CreatedAt = field.NewTime(tableName, "created_at")
-	_project.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_project.CreatedAt = field.NewTime(tableName, "createdAt")
+	_project.UpdatedAt = field.NewTime(tableName, "updatedAt")
 	_project.Forms = projectHasManyForms{
 		db: db.Session(&gorm.Session{}),
 
@@ -363,10 +363,10 @@ func (p *project) updateTableName(table string) *project {
 	p.ID = field.NewString(table, "id")
 	p.Name = field.NewString(table, "name")
 	p.Description = field.NewString(table, "description")
-	p.TeamID = field.NewString(table, "team_id")
+	p.TeamID = field.NewString(table, "teamId")
 	p.Valid = field.NewBool(table, "valid")
-	p.CreatedAt = field.NewTime(table, "created_at")
-	p.UpdatedAt = field.NewTime(table, "updated_at")
+	p.CreatedAt = field.NewTime(table, "createdAt")
+	p.UpdatedAt = field.NewTime(table, "updatedAt")
 
 	p.fillFieldMap()
 
@@ -387,10 +387,10 @@ func (p *project) fillFieldMap() {
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["name"] = p.Name
 	p.fieldMap["description"] = p.Description
-	p.fieldMap["team_id"] = p.TeamID
+	p.fieldMap["teamId"] = p.TeamID
 	p.fieldMap["valid"] = p.Valid
-	p.fieldMap["created_at"] = p.CreatedAt
-	p.fieldMap["updated_at"] = p.UpdatedAt
+	p.fieldMap["createdAt"] = p.CreatedAt
+	p.fieldMap["updatedAt"] = p.UpdatedAt
 
 }
 

@@ -32,9 +32,9 @@ func newTransaction(db *gorm.DB, opts ...gen.DOOption) transaction {
 	_transaction.Type = field.NewString(tableName, "type")
 	_transaction.Amount = field.NewFloat64(tableName, "amount")
 	_transaction.Description = field.NewString(tableName, "description")
-	_transaction.CreatedAt = field.NewTime(tableName, "created_at")
-	_transaction.CreatedBy = field.NewString(tableName, "created_by")
-	_transaction.TeamID = field.NewString(tableName, "team_id")
+	_transaction.CreatedAt = field.NewTime(tableName, "createdAt")
+	_transaction.CreatedBy = field.NewString(tableName, "createdBy")
+	_transaction.TeamID = field.NewString(tableName, "teamId")
 	_transaction.Team = transactionBelongsToTeam{
 		db: db.Session(&gorm.Session{}),
 
@@ -350,9 +350,9 @@ func (t *transaction) updateTableName(table string) *transaction {
 	t.Type = field.NewString(table, "type")
 	t.Amount = field.NewFloat64(table, "amount")
 	t.Description = field.NewString(table, "description")
-	t.CreatedAt = field.NewTime(table, "created_at")
-	t.CreatedBy = field.NewString(table, "created_by")
-	t.TeamID = field.NewString(table, "team_id")
+	t.CreatedAt = field.NewTime(table, "createdAt")
+	t.CreatedBy = field.NewString(table, "createdBy")
+	t.TeamID = field.NewString(table, "teamId")
 
 	t.fillFieldMap()
 
@@ -374,9 +374,9 @@ func (t *transaction) fillFieldMap() {
 	t.fieldMap["type"] = t.Type
 	t.fieldMap["amount"] = t.Amount
 	t.fieldMap["description"] = t.Description
-	t.fieldMap["created_at"] = t.CreatedAt
-	t.fieldMap["created_by"] = t.CreatedBy
-	t.fieldMap["team_id"] = t.TeamID
+	t.fieldMap["createdAt"] = t.CreatedAt
+	t.fieldMap["createdBy"] = t.CreatedBy
+	t.fieldMap["teamId"] = t.TeamID
 
 }
 

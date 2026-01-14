@@ -6,27 +6,27 @@ type Form struct {
 	ID                  string           `gorm:"primaryKey;type:uuid;default:uuid_generate_v4();column:id" json:"id"`
 	Name                string           `gorm:"column:name" json:"name"`
 	Description         *string          `gorm:"column:description" json:"description"`
-	TeamID              string           `gorm:"type:uuid;index;column:team_id" json:"teamId"`
-	ProjectID           string           `gorm:"type:uuid;index;column:project_id" json:"projectId"`
+	TeamID              string           `gorm:"type:uuid;index;column:teamId" json:"teamId"`
+	ProjectID           string           `gorm:"type:uuid;index;column:projectId" json:"projectId"`
 	Theme               *string          `gorm:"column:theme" json:"theme"`
-	LogoURL             *string          `gorm:"column:logo_url" json:"logoUrl"`
-	MaxResponses        *int             `gorm:"column:max_responses" json:"maxResponses"`
-	OpenAt              *time.Time       `gorm:"type:timestamptz(6);column:open_at" json:"openAt"`
-	CloseAt             *time.Time       `gorm:"type:timestamptz(6);column:close_at" json:"closeAt"`
+	LogoURL             *string          `gorm:"column:logoUrl" json:"logoUrl"`
+	MaxResponses        *int             `gorm:"column:maxResponses" json:"maxResponses"`
+	OpenAt              *time.Time       `gorm:"type:timestamptz(6);column:openAt" json:"openAt"`
+	CloseAt             *time.Time       `gorm:"type:timestamptz(6);column:closeAt" json:"closeAt"`
 	Status              *FormStatus      `gorm:"column:status" json:"status"`
-	UniqueSubdomain     *string          `gorm:"column:unique_subdomain" json:"uniqueSubdomain"`
-	CustomDomain        *string          `gorm:"column:custom_domain" json:"customDomain"`
-	RequireConsent      *bool            `gorm:"column:require_consent" json:"requireConsent"`
-	AllowAnonymous      *bool            `gorm:"column:allow_anonymous" json:"allowAnonymous"`
-	MultipleSubmissions *bool            `gorm:"default:false;column:multiple_submissions" json:"multipleSubmissions"`
-	PasswordProtected   *bool            `gorm:"default:false;column:password_protected" json:"passwordProtected"`
-	AnalyticsEnabled    *bool            `gorm:"default:true;column:analytics_enabled" json:"analyticsEnabled"`
+	UniqueSubdomain     *string          `gorm:"column:uniqueSubdomain" json:"uniqueSubdomain"`
+	CustomDomain        *string          `gorm:"column:customDomain" json:"customDomain"`
+	RequireConsent      *bool            `gorm:"column:requireConsent" json:"requireConsent"`
+	AllowAnonymous      *bool            `gorm:"column:allowAnonymous" json:"allowAnonymous"`
+	MultipleSubmissions *bool            `gorm:"default:false;column:multipleSubmissions" json:"multipleSubmissions"`
+	PasswordProtected   *bool            `gorm:"default:false;column:passwordProtected" json:"passwordProtected"`
+	AnalyticsEnabled    *bool            `gorm:"default:true;column:analyticsEnabled" json:"analyticsEnabled"`
 	Valid               bool             `gorm:"default:true;column:valid" json:"valid"`
 	Metadata            *string          `gorm:"type:jsonb;default:'{}';column:metadata" json:"metadata"`
-	CreatedBy           string           `gorm:"column:created_by" json:"createdBy"`
-	CreatedAt           *time.Time       `gorm:"type:timestamptz(6);column:created_at" json:"createdAt"`
-	UpdatedAt           *time.Time       `gorm:"type:timestamp(6);column:updated_at" json:"updatedAt"`
-	FormPageType        FormPageType     `gorm:"default:'STEPPER';column:form_page_type" json:"formPageType"`
+	CreatedBy           string           `gorm:"column:createdBy" json:"createdBy"`
+	CreatedAt           *time.Time       `gorm:"type:timestamptz(6);column:createdAt" json:"createdAt"`
+	UpdatedAt           *time.Time       `gorm:"type:timestamp(6);column:updatedAt" json:"updatedAt"`
+	FormPageType        FormPageType     `gorm:"default:'STEPPER';column:formPageType" json:"formPageType"`
 	ActivePasswords     []ActivePassword `gorm:"foreignKey:FormID" json:"activePasswords"`
 	Edges               []Edge           `gorm:"foreignKey:FormID" json:"edges"`
 	Project             Project          `gorm:"references:ID" json:"project"`

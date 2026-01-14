@@ -9,8 +9,8 @@ type Plan struct {
 	Price       float64   `gorm:"column:price" json:"price"`
 	Currency    string    `gorm:"type:varchar(3);default:'INR';column:currency" json:"currency"`
 	Valid       bool      `gorm:"default:true;column:valid" json:"valid"`
-	CreatedAt   time.Time `gorm:"type:timestamptz(6);default:now();column:created_at" json:"createdAt"`
-	UpdatedAt   *time.Time `gorm:"type:timestamptz(6);column:updated_at" json:"updatedAt"`
+	CreatedAt   time.Time `gorm:"type:timestamptz(6);default:now();column:createdAt" json:"createdAt"`
+	UpdatedAt   *time.Time `gorm:"type:timestamptz(6);column:updatedAt" json:"updatedAt"`
 	Coupons     []Coupon  `gorm:"foreignKey:PlanID" json:"coupons"`
 	Features    []Feature `gorm:"foreignKey:PlanID" json:"features"`
 	Teams       []Team    `gorm:"foreignKey:PlanID" json:"teams"`
