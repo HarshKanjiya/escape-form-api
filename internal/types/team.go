@@ -15,11 +15,12 @@ type UpdateTeamRequest struct {
 
 // Response structs
 type TeamResponse struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	OwnerId   string `json:"owner_id"`
-	PlanId    string `json:"plan_id"`
-	Valid     bool   `json:"valid"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	OwnerId      string `json:"ownerId"`
+	PlanId       string `json:"planId"`
+	Valid        bool   `json:"valid"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
+	ProjectCount int    `json:"projectCount,omitempty"`
 }

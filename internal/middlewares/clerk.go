@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"fmt"
+	"log"
 	"strings"
 
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
@@ -23,9 +23,10 @@ func ClerkAuth() fiber.Handler {
 			Token: sessionToken,
 		})
 		if err != nil {
+			log.Printf("JWT verification failed: %v", err)
 			return utils.Unauthorized(c, "Invalid or expired token")
 		}
-		fmt.Printf("Clerk claims: %+v\n", claims)
+		log.Print(claims)
 		c.Locals("user_claims", claims)
 		c.Locals("user_id", claims.Subject)
 

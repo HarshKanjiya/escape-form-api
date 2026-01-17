@@ -1,7 +1,8 @@
 package repositories
 
 import (
-	"github.com/HarshKanjiya/escape-form-api/internal/models"
+	"log"
+
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/gofiber/fiber/v2"
@@ -18,10 +19,13 @@ func NewTeamRepo(db *gorm.DB) *TeamRepo {
 	}
 }
 
-func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool) ([]*models.Team, error) {
+func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, error) {
 
 	t := r.q.Team
-	query := r.q.WithContext(ctx.Context()).Team.Where(t.OwnerID.Eq("123"), t.Valid.Is(valid))
+	userId := ctx.Locals("user_id").(string)
+	query := r.q.
+		WithContext(ctx.Context()).
+		Team.Where(t.OwnerID.Eq(userId), t.Valid.Is(valid))
 
 	if pagination.Search != "" {
 		query = query.Where(t.Name.Like("%" + pagination.Search + "%"))
@@ -32,8 +36,64 @@ func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 
 	teams, err := query.Find()
 	if err != nil {
+		log.Printf("Error fetching teams: %v", err)
 		return nil, err
 	}
 
-	return teams, nil
+	if len(teams) == 0 {
+		log.Printf("No teams found for user %s", userId)
+		return []*types.TeamResponse{}, nil
+	}
+
+	teamIDs := make([]string, len(teams))
+	for i, team := range teams {
+		teamIDs[i] = team.ID
+	}
+
+	projectCounts := make(map[string]int)
+	var results []struct {
+		TeamID string
+		Count  int
+	}
+	err = r.q.WithContext(ctx.Context()).
+		Project.Select(r.q.Project.TeamID, r.q.Project.ID.Count().As("count")).
+		Where(r.q.Project.TeamID.In(teamIDs...)).
+		Group(r.q.Project.TeamID).
+		Scan(&results)
+	if err != nil {
+		log.Printf("Error fetching project counts: %v", err)
+		// Continue without counts (set to 0)
+	} else {
+		for _, res := range results {
+			projectCounts[res.TeamID] = res.Count
+		}
+	}
+
+	var teamResponses []*types.TeamResponse
+	for _, team := range teams {
+		name := ""
+		if team.Name != nil {
+			name = *team.Name
+		}
+		ownerId := ""
+		if team.OwnerID != nil {
+			ownerId = *team.OwnerID
+		}
+		planId := ""
+		if team.PlanID != nil {
+			planId = *team.PlanID
+		}
+		teamResponses = append(teamResponses, &types.TeamResponse{
+			ID:           team.ID,
+			Name:         name,
+			OwnerId:      ownerId,
+			PlanId:       planId,
+			Valid:        team.Valid,
+			CreatedAt:    team.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
+			UpdatedAt:    team.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
+			ProjectCount: projectCounts[team.ID], // Use actual count
+		})
+	}
+
+	return teamResponses, nil
 }
