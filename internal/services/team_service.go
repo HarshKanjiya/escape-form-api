@@ -1,8 +1,6 @@
 package services
 
 import (
-	"log"
-
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +19,6 @@ func NewTeamService(teamRepo *repositories.TeamRepo) *TeamService {
 func (ts *TeamService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool) []*types.TeamResponse {
 
 	teams, err := ts.teamRepo.Get(ctx, pagination, valid)
-	log.Printf("Fetched teams: %+v", len(teams))
 	if err != nil {
 		return []*types.TeamResponse{}
 	}

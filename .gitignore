@@ -35,4 +35,5 @@ go.work.sum
 .vscode/
 
 
-.temp/
+*.temp/
+*.log

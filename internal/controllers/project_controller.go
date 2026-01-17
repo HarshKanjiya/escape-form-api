@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -26,9 +28,16 @@ func NewProjectController(service *services.ProjectService) *ProjectController {
 // @Success 200 {object} map[string]interface{}
 // @Router /projects [get]
 func (pc *ProjectController) Get(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "ProjectController Get method called",
-	})
+	pagination := &types.PaginationQuery{
+		Page:   c.QueryInt("page", 1),
+		Limit:  c.QueryInt("limit", 10),
+		Search: c.Query("search", ""),
+		SortBy: c.Query("sortBy", ""),
+		Order:  c.Query("order", ""),
+	}
+	teamId := c.Query("teamId", "")
+	projects := pc.projectService.Get(c, pagination, true, teamId)
+	return utils.Success(c, projects, "Projects fetched successfully")
 }
 
 // @Summary Create a new project

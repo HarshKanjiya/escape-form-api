@@ -5,6 +5,7 @@ import (
 
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -89,9 +90,9 @@ func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 			OwnerId:      ownerId,
 			PlanId:       planId,
 			Valid:        team.Valid,
-			CreatedAt:    team.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
-			UpdatedAt:    team.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00"),
 			ProjectCount: projectCounts[team.ID], // Use actual count
+			CreatedAt:    utils.GetIsoDateTime(&team.CreatedAt),
+			UpdatedAt:    utils.GetIsoDateTime(team.UpdatedAt),
 		})
 	}
 
