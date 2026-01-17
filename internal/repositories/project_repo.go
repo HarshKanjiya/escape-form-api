@@ -40,7 +40,7 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 			Project.Where(p.TeamID.Eq(teamId), p.Valid.Is(valid))
 
 		if pagination.Search != "" {
-			query = query.Where(p.Name.Like("%"+pagination.Search+"%"), p.Description.Like("%"+pagination.Search+"%"))
+			query = query.Where(p.Name.Like("%" + pagination.Search + "%"))
 		}
 
 		query.Limit(pagination.Limit)
@@ -198,4 +198,57 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 	}
 
 	return projectResponses, nil
+}
+
+func (r *ProjectRepo) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectResponse, error) {
+
+	userId := ctx.Locals("user_id").(string)
+
+	// Validate the project belongs to the user
+	project, err := r.q.WithContext(ctx.Context()).
+		Project.Where(r.q.Project.ID.Eq(projectId)).
+		Join(r.q.Team, r.q.Project.TeamID.EqCol(r.q.Team.ID)).
+		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Project.Valid.Is(true)).
+		First()
+	if err != nil {
+		log.Printf("Project not found or not owned by user: %v", err)
+		return nil, err
+	}
+
+	// Get form count for this project
+	var formCount int
+	err = r.q.WithContext(ctx.Context()).
+		Form.Select(r.q.Form.ID.Count()).
+		Where(r.q.Form.ProjectID.Eq(projectId), r.q.Form.Valid.Is(true)).
+		Scan(&formCount)
+	if err != nil {
+		log.Printf("Error fetching form count: %v", err)
+		formCount = 0
+	}
+
+	description := ""
+	if project.Description != nil {
+		description = *project.Description
+	}
+	createdAt := ""
+	if project.CreatedAt != nil {
+		createdAt = project.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00")
+	}
+	updatedAt := ""
+	if project.UpdatedAt != nil {
+		updatedAt = project.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00")
+	}
+
+	projectResponse := &types.ProjectResponse{
+		ID:          project.ID,
+		Name:        project.Name,
+		Description: description,
+		TeamID:      project.TeamID,
+		Valid:       project.Valid,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
+		FormCount:   formCount,
+	}
+
+	return projectResponse, nil
 }

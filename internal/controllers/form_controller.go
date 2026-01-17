@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -25,10 +27,22 @@ func NewFormController(service *services.FormService) *FormController {
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /forms [get]
-func (pc *FormController) Get(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "FormController Get method called",
-	})
+func (fc *FormController) Get(c *fiber.Ctx) error {
+	pagination := &types.PaginationQuery{
+		Page:   c.QueryInt("page", 1),
+		Limit:  c.QueryInt("limit", 10),
+		Search: c.Query("search", ""),
+		SortBy: c.Query("sortBy", ""),
+		Order:  c.Query("order", ""),
+	}
+	projectId := c.Query("projectId", "")
+	if projectId == "" {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "projectId is required",
+		})
+	}
+	forms := fc.formService.Get(c, pagination, true, projectId)
+	return utils.Success(c, forms, "Forms fetched successfully")
 }
 
 // @Summary Create a new form
@@ -38,9 +52,9 @@ func (pc *FormController) Get(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /forms [post]
-func (pc *FormController) Create(c *fiber.Ctx) error {
+func (fc *FormController) Create(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
-		"message": "FormController Get method called",
+		"message": "FormController Create method called",
 	})
 }
 

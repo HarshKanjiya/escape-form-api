@@ -26,6 +26,16 @@ func (ps *ProjectService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery,
 	return projects
 }
 
+func (ps *ProjectService) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectResponse, error) {
+
+	project, err := ps.projectRepo.GetById(ctx, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	return project, nil
+}
+
 func (ps *ProjectService) Create() types.ProjectResponse {
 	return types.ProjectResponse{}
 }

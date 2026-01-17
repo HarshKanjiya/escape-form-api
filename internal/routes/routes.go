@@ -66,6 +66,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	projects := protectedRoutes.Group("/projects")
 	{
 		projects.Get("/", projectController.Get)
+		projects.Get("/:projectId", projectController.GetById)
 		projects.Post("/", projectController.Create)
 		projects.Patch("/:id", projectController.Update)
 		projects.Delete("/:id", projectController.Delete)

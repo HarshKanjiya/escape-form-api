@@ -40,6 +40,23 @@ func (pc *ProjectController) Get(c *fiber.Ctx) error {
 	return utils.Success(c, projects, "Projects fetched successfully")
 }
 
+// @Summary Get a project by ID
+// @Description Retrieve a project by its ID
+// @Tags projects
+// @Accept json
+// @Produce json
+// @Param projectId path string true "Project ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /projects/{projectId} [get]
+func (pc *ProjectController) GetById(c *fiber.Ctx) error {
+	projectId := c.Params("projectId")
+	project, err := pc.projectService.GetById(c, projectId)
+	if err != nil {
+		return utils.NotFound(c, "Project not found")
+	}
+	return utils.Success(c, project, "Project fetched successfully")
+}
+
 // @Summary Create a new project
 // @Description Create a new project
 // @Tags projects
