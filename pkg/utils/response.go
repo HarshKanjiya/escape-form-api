@@ -5,11 +5,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Success(c *fiber.Ctx, data interface{}, message string) error {
+func Success(c *fiber.Ctx, data interface{}, message string, total ...int) error {
+	totalCount := 0
+	if len(total) > 0 {
+		totalCount = total[0]
+	}
 	return c.Status(fiber.StatusOK).JSON(types.ResponseObj{
-		Type:    "success",
-		Message: message,
-		Data:    data,
+		Type:       "success",
+		Message:    message,
+		Data:       data,
+		TotalCount: totalCount,
 	})
 }
 

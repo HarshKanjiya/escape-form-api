@@ -20,30 +20,37 @@ func NewTeamRepo(db *gorm.DB) *TeamRepo {
 	}
 }
 
-func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, error) {
+func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int, error) {
 
 	t := r.q.Team
 	userId := ctx.Locals("user_id").(string)
-	query := r.q.
+	baseQuery := r.q.
 		WithContext(ctx.Context()).
 		Team.Where(t.OwnerID.Eq(userId), t.Valid.Is(valid))
 
 	if pagination.Search != "" {
-		query = query.Where(t.Name.Like("%" + pagination.Search + "%"))
+		baseQuery = baseQuery.Where(t.Name.Like("%" + pagination.Search + "%"))
 	}
 
-	query.Limit(pagination.Limit)
-	query.Offset((pagination.Page - 1) * pagination.Limit)
+	// Get total count without pagination
+	totalCount, err := baseQuery.Count()
+	if err != nil {
+		log.Printf("Error counting teams: %v", err)
+		return nil, 0, err
+	}
+
+	// Apply pagination for fetching teams
+	query := baseQuery.Limit(pagination.Limit).Offset((pagination.Page - 1) * pagination.Limit)
 
 	teams, err := query.Find()
 	if err != nil {
 		log.Printf("Error fetching teams: %v", err)
-		return nil, err
+		return nil, 0, err
 	}
 
 	if len(teams) == 0 {
 		log.Printf("No teams found for user %s", userId)
-		return []*types.TeamResponse{}, nil
+		return []*types.TeamResponse{}, int(totalCount), nil
 	}
 
 	teamIDs := make([]string, len(teams))
@@ -96,5 +103,5 @@ func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 		})
 	}
 
-	return teamResponses, nil
+	return teamResponses, int(totalCount), nil
 }

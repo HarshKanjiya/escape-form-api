@@ -1,8 +1,6 @@
 package services
 
 import (
-	"log"
-
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/gofiber/fiber/v2"
@@ -18,15 +16,14 @@ func NewFormService(formRepo *repositories.FormRepo) *FormService {
 	}
 }
 
-func (fs *FormService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, projectId string) []*types.FormResponse {
+func (fs *FormService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, projectId string) ([]*types.FormResponse, int) {
 
-	forms, err := fs.formRepo.Get(ctx, pagination, valid, projectId)
-	log.Printf("Fetched forms: %+v", len(forms))
+	forms, total, err := fs.formRepo.Get(ctx, pagination, valid, projectId)
 	if err != nil {
-		return []*types.FormResponse{}
+		return []*types.FormResponse{}, 0
 	}
 
-	return forms
+	return forms, total
 }
 
 func (fs *FormService) Create() types.FormResponse {

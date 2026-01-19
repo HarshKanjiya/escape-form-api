@@ -40,18 +40,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	// API v1 routes
 	api := app.Group("/api/v1")
 
-	// Health check endpoint (no authentication required)
 	api.Get("/health", controllers.HealthCheck)
-
-	// Public auth routes (no JWT required)
-	// auth := api.Group("/auth")
-	// {
-	// 	auth.Post("/register", userController.Register)
-	// 	auth.Post("/login", userController.Login)
-	// }
-
-	// Protected user routes (JWT required)
-	// users := api.Group("/users", middlewares.JWTMiddleware(cfg.JWT.Secret))
 
 	protectedRoutes := api.Group("/", middlewares.ClerkAuth())
 
@@ -104,8 +93,6 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		dash.Get("/:formId/responses", dashController.GetResponses)
 		dash.Patch("/:formId/security", dashController.UpdateSecurity)
 		dash.Patch("/:formId/settings", dashController.UpdateSettings)
-
-		// Password management
 		dash.Get("/:formId/passwords", dashController.GetPasswords)
 		dash.Post("/:formId/passwords", dashController.CreatePasswords)
 		dash.Patch("/:formId/passwords/:passwordId", dashController.UpdatePasswords)

@@ -44,6 +44,6 @@ func (p *PaginationQuery) GetOffset() int {
 type ResponseObj struct {
 	Type       string      `json:"type" validate:"oneof=success warning error info"`
 	Message    string      `json:"message"`
-	TotalCount int         `json:"totalCount"`
+	TotalCount int         `json:"totalItems"`
 	Data       interface{} `json:"data"`
 }

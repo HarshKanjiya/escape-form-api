@@ -35,8 +35,8 @@ func (tc *TeamController) Get(c *fiber.Ctx) error {
 		SortBy: c.Query("sortBy", ""),
 		Order:  c.Query("order", ""),
 	}
-	teams := tc.teamService.Get(c, pagination, true)
-	return utils.Success(c, teams, "Teams fetched successfully")
+	teams, total := tc.teamService.Get(c, pagination, true)
+	return utils.Success(c, teams, "Teams fetched successfully", total)
 }
 
 // @Summary Create a new team

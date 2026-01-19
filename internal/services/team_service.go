@@ -16,14 +16,14 @@ func NewTeamService(teamRepo *repositories.TeamRepo) *TeamService {
 	}
 }
 
-func (ts *TeamService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool) []*types.TeamResponse {
+func (ts *TeamService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int) {
 
-	teams, err := ts.teamRepo.Get(ctx, pagination, valid)
+	teams, total, err := ts.teamRepo.Get(ctx, pagination, valid)
 	if err != nil {
-		return []*types.TeamResponse{}
+		return []*types.TeamResponse{}, 0
 	}
 
-	return teams
+	return teams, total
 }
 
 func (ts *TeamService) Create() types.TeamResponse {

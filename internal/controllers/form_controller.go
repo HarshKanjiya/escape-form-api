@@ -41,8 +41,8 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 			"error": "projectId is required",
 		})
 	}
-	forms := fc.formService.Get(c, pagination, true, projectId)
-	return utils.Success(c, forms, "Forms fetched successfully")
+	forms, total := fc.formService.Get(c, pagination, true, projectId)
+	return utils.Success(c, forms, "Forms fetched successfully", total)
 }
 
 // @Summary Create a new form

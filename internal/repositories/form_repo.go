@@ -2,9 +2,11 @@ package repositories
 
 import (
 	"log"
+	"strings"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -19,11 +21,10 @@ func NewFormRepo(db *gorm.DB) *FormRepo {
 	}
 }
 
-func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, projectId string) ([]*types.FormResponse, error) {
+func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, projectId string) ([]*types.FormResponse, int, error) {
 
 	userId := ctx.Locals("user_id").(string)
 
-	// First, validate the project belongs to the user
 	project, err := r.q.WithContext(ctx.Context()).
 		Project.Where(r.q.Project.ID.Eq(projectId)).
 		Join(r.q.Team, r.q.Project.TeamID.EqCol(r.q.Team.ID)).
@@ -31,31 +32,37 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 		First()
 	if err != nil {
 		log.Printf("Project not found or not owned by user: %v", err)
-		return []*types.FormResponse{}, nil
+		return []*types.FormResponse{}, 0, nil
 	}
-	_ = project // ensure exists
+	_ = project
 
-	// Query forms for this project
 	f := r.q.Form
-	query := r.q.WithContext(ctx.Context()).
+	baseQuery := r.q.WithContext(ctx.Context()).
 		Form.Where(f.ProjectID.Eq(projectId), f.Valid.Is(valid))
 
 	if pagination.Search != "" {
-		query = query.Where(f.Name.Like("%" + pagination.Search + "%"))
+		baseQuery = baseQuery.Where(f.Name.Lower().Like("%" + strings.ToLower(pagination.Search) + "%"))
 	}
 
-	query.Limit(pagination.Limit)
-	query.Offset((pagination.Page - 1) * pagination.Limit)
+	// Get total count without pagination
+	totalCount, err := baseQuery.Count()
+	if err != nil {
+		log.Printf("Error counting forms: %v", err)
+		return nil, 0, err
+	}
+
+	// Apply pagination for fetching forms
+	query := baseQuery.Limit(pagination.Limit).Offset((pagination.Page - 1) * pagination.Limit)
 
 	forms, err := query.Find()
 	if err != nil {
 		log.Printf("Error fetching forms: %v", err)
-		return nil, err
+		return nil, 0, err
 	}
 
 	if len(forms) == 0 {
 		log.Printf("No forms found for project %s", projectId)
-		return []*types.FormResponse{}, nil
+		return []*types.FormResponse{}, int(totalCount), nil
 	}
 
 	formIDs := make([]string, len(forms))
@@ -63,7 +70,6 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 		formIDs[i] = form.ID
 	}
 
-	// Optimized: Single query to count responses per form
 	responseCounts := make(map[string]int)
 	var results []struct {
 		FormID string
@@ -76,7 +82,6 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 		Scan(&results)
 	if err != nil {
 		log.Printf("Error fetching response counts: %v", err)
-		// Continue without counts (set to 0)
 	} else {
 		for _, res := range results {
 			responseCounts[res.FormID] = res.Count
@@ -97,14 +102,6 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 		if form.LogoURL != nil {
 			logoURL = *form.LogoURL
 		}
-		openAt := ""
-		if form.OpenAt != nil {
-			openAt = form.OpenAt.UTC().Format("2006-01-02T15:04:05Z07:00")
-		}
-		closeAt := ""
-		if form.CloseAt != nil {
-			closeAt = form.CloseAt.UTC().Format("2006-01-02T15:04:05Z07:00")
-		}
 		status := ""
 		if form.Status != nil {
 			status = string(*form.Status)
@@ -121,14 +118,7 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 		if form.Metadata != nil {
 			metadata = *form.Metadata
 		}
-		createdAt := ""
-		if form.CreatedAt != nil {
-			createdAt = form.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00")
-		}
-		updatedAt := ""
-		if form.UpdatedAt != nil {
-			updatedAt = form.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00")
-		}
+
 		formResponses = append(formResponses, &types.FormResponse{
 			ID:                  form.ID,
 			Name:                form.Name,
@@ -138,8 +128,8 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 			Theme:               theme,
 			LogoURL:             logoURL,
 			MaxResponses:        form.MaxResponses,
-			OpenAt:              openAt,
-			CloseAt:             closeAt,
+			OpenAt:              utils.GetIsoDateTime(form.OpenAt),
+			CloseAt:             utils.GetIsoDateTime(form.CloseAt),
 			Status:              status,
 			UniqueSubdomain:     uniqueSubdomain,
 			CustomDomain:        customDomain,
@@ -151,12 +141,12 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 			Valid:               form.Valid,
 			Metadata:            metadata,
 			CreatedBy:           form.CreatedBy,
-			CreatedAt:           createdAt,
-			UpdatedAt:           updatedAt,
+			CreatedAt:           utils.GetIsoDateTime(form.CreatedAt),
+			UpdatedAt:           utils.GetIsoDateTime(form.UpdatedAt),
 			FormPageType:        string(form.FormPageType),
 			ResponseCount:       responseCounts[form.ID],
 		})
 	}
 
-	return formResponses, nil
+	return formResponses, int(totalCount), nil
 }
