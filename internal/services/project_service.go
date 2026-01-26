@@ -16,14 +16,14 @@ func NewProjectService(projectRepo *repositories.ProjectRepo) *ProjectService {
 	}
 }
 
-func (ps *ProjectService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, teamId string) []*types.ProjectResponse {
+func (ps *ProjectService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, teamId string) ([]*types.ProjectResponse, int, error) {
 
-	projects, err := ps.projectRepo.Get(ctx, pagination, valid, teamId)
+	projects, total, err := ps.projectRepo.Get(ctx, pagination, valid, teamId)
 	if err != nil {
-		return []*types.ProjectResponse{}
+		return []*types.ProjectResponse{}, 0, err
 	}
 
-	return projects
+	return projects, total, nil
 }
 
 func (ps *ProjectService) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectResponse, error) {

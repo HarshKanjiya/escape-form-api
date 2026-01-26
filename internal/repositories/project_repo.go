@@ -20,7 +20,7 @@ func NewProjectRepo(db *gorm.DB) *ProjectRepo {
 	}
 }
 
-func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, teamId string) ([]*types.ProjectResponse, error) {
+func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, teamId string) ([]*types.ProjectResponse, int, error) {
 
 	userId := ctx.Locals("user_id").(string)
 
@@ -31,30 +31,37 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 			First()
 		if err != nil {
 			log.Printf("Team not found or not owned by user: %v", err)
-			return []*types.ProjectResponse{}, nil
+			return []*types.ProjectResponse{}, 0, nil
 		}
 
 		// Query Projects
 		p := r.q.Project
-		query := r.q.WithContext(ctx.Context()).
+		baseQuery := r.q.WithContext(ctx.Context()).
 			Project.Where(p.TeamID.Eq(teamId), p.Valid.Is(valid))
 
 		if pagination.Search != "" {
-			query = query.Where(p.Name.Like("%" + pagination.Search + "%"))
+			baseQuery = baseQuery.Where(p.Name.Like("%" + pagination.Search + "%"))
 		}
 
-		query.Limit(pagination.Limit)
-		query.Offset((pagination.Page - 1) * pagination.Limit)
+		// Get total count without pagination
+		totalCount, err := baseQuery.Count()
+		if err != nil {
+			log.Printf("Error counting projects: %v", err)
+			return nil, 0, err
+		}
+
+		// Apply pagination for fetching projects
+		query := baseQuery.Limit(pagination.Limit).Offset((pagination.Page - 1) * pagination.Limit)
 
 		projects, err := query.Find()
 		if err != nil {
 			log.Printf("Error fetching projects: %v", err)
-			return nil, err
+			return nil, 0, err
 		}
 
 		if len(projects) == 0 {
 			log.Printf("No projects found for team %s", teamId)
-			return []*types.ProjectResponse{}, nil
+			return []*types.ProjectResponse{}, int(totalCount), nil
 		}
 
 		projectIDs := make([]string, len(projects))
@@ -99,7 +106,7 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 			})
 		}
 
-		return projectResponses, nil
+		return projectResponses, int(totalCount), nil
 	}
 
 	// Original logic: fetch for all user's teams
@@ -110,12 +117,12 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 	userTeams, err := teamQuery.Find()
 	if err != nil {
 		log.Printf("Error fetching user teams: %v", err)
-		return nil, err
+		return nil, 0, err
 	}
 
 	if len(userTeams) == 0 {
 		log.Printf("No teams found for user %s", userId)
-		return []*types.ProjectResponse{}, nil
+		return []*types.ProjectResponse{}, 0, nil
 	}
 
 	teamIDs := make([]string, len(userTeams))
@@ -125,25 +132,32 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 
 	// Now, query projects
 	p := r.q.Project
-	query := r.q.WithContext(ctx.Context()).
+	baseQuery := r.q.WithContext(ctx.Context()).
 		Project.Where(p.TeamID.In(teamIDs...), p.Valid.Is(valid))
 
 	if pagination.Search != "" {
-		query = query.Where(p.Name.Like("%" + pagination.Search + "%"))
+		baseQuery = baseQuery.Where(p.Name.Like("%" + pagination.Search + "%"))
 	}
 
-	query.Limit(pagination.Limit)
-	query.Offset((pagination.Page - 1) * pagination.Limit)
+	// Get total count without pagination
+	totalCount, err := baseQuery.Count()
+	if err != nil {
+		log.Printf("Error counting projects: %v", err)
+		return nil, 0, err
+	}
+
+	// Apply pagination for fetching projects
+	query := baseQuery.Limit(pagination.Limit).Offset((pagination.Page - 1) * pagination.Limit)
 
 	projects, err := query.Find()
 	if err != nil {
 		log.Printf("Error fetching projects: %v", err)
-		return nil, err
+		return nil, 0, err
 	}
 
 	if len(projects) == 0 {
 		log.Printf("No projects found for user %s", userId)
-		return []*types.ProjectResponse{}, nil
+		return []*types.ProjectResponse{}, int(totalCount), nil
 	}
 
 	projectIDs := make([]string, len(projects))
@@ -197,7 +211,7 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 		})
 	}
 
-	return projectResponses, nil
+	return projectResponses, int(totalCount), nil
 }
 
 func (r *ProjectRepo) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectResponse, error) {
