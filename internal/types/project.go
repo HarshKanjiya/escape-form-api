@@ -27,3 +27,10 @@ type ProjectResponse struct {
 	UpdatedAt   string `json:"updatedAt"`
 	FormCount   int    `json:"formCount,omitempty"`
 }
+
+type ProjectDto struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name" validate:"required,min=3,max=100"`
+	Description *string `json:"description"`
+	TeamID      string  `json:"teamId" validate:"required"`
+}

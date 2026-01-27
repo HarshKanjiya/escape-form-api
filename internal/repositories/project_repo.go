@@ -3,10 +3,12 @@ package repositories
 import (
 	"log"
 
+	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -265,4 +267,42 @@ func (r *ProjectRepo) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectR
 	}
 
 	return projectResponse, nil
+}
+
+func (r *ProjectRepo) Create(ctx *fiber.Ctx, project *types.ProjectDto) (*models.Project, error) {
+
+	projectModel := &models.Project{
+		ID:          uuid.New().String(),
+		Name:        project.Name,
+		Description: project.Description,
+		TeamID:      project.TeamID,
+		Valid:       true,
+	}
+
+	err := r.q.WithContext(ctx.Context()).Project.Create(projectModel)
+	if err != nil {
+		return nil, err
+	}
+	return projectModel, nil
+}
+
+func (r *ProjectRepo) Update(ctx *fiber.Ctx, project *models.Project) (bool, error) {
+	p := r.q.Project
+	_, err := r.q.WithContext(ctx.Context()).
+		Project.Where(p.ID.Eq(project.ID)).
+		Updates(project)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (r *ProjectRepo) Delete(ctx *fiber.Ctx, projectId string) (bool, error) {
+	_, err := r.q.WithContext(ctx.Context()).
+		Project.Where(r.q.Project.ID.Eq(projectId)).
+		UpdateColumn(r.q.Project.Valid, false)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

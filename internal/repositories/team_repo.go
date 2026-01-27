@@ -8,6 +8,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -110,6 +111,7 @@ func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 func (r *TeamRepo) Create(ctx *fiber.Ctx, team *types.TeamDto) (*models.Team, error) {
 
 	teamModel := &models.Team{
+		ID:     uuid.New().String(),
 		Name:   &team.Name,
 		PlanID: nil,
 		Valid:  true,

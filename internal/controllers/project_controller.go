@@ -68,9 +68,21 @@ func (pc *ProjectController) GetById(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /projects [post]
 func (pc *ProjectController) Create(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "ProjectController Create method called",
-	})
+	projectDto := new(types.ProjectDto)
+	if err := c.BodyParser(projectDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+
+	if err := pc.validator.Struct(projectDto); err != nil {
+		return utils.BadRequest(c, "Validation failed")
+	}
+
+	createdProject, err := pc.projectService.Create(c, projectDto)
+	if err != nil {
+		return utils.BadRequest(c, "Failed to create project")
+	}
+
+	return utils.Success(c, createdProject, "Project created successfully", 0)
 }
 
 // @Summary Update a project
@@ -82,9 +94,25 @@ func (pc *ProjectController) Create(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /projects/{id} [patch]
 func (pc *ProjectController) Update(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "ProjectController Update method called",
+	projectDto := new(types.ProjectDto)
+	if err := c.BodyParser(projectDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+
+	if err := pc.validator.Struct(projectDto); err != nil {
+		return utils.BadRequest(c, "Validation failed")
+	}
+
+	ok, err := pc.projectService.Update(c, &types.ProjectDto{
+		ID:          c.Params("id"),
+		Name:        projectDto.Name,
+		Description: projectDto.Description,
+		TeamID:      projectDto.TeamID,
 	})
+	if err != nil || !ok {
+		return utils.BadRequest(c, "Failed to update project")
+	}
+	return utils.Success(c, nil, "Project updated successfully")
 }
 
 // @Summary Delete a project
@@ -96,7 +124,15 @@ func (pc *ProjectController) Update(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /projects/{id} [delete]
 func (pc *ProjectController) Delete(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "ProjectController Delete method called",
-	})
+	projectId := c.Params("id")
+
+	if projectId == "" {
+		return utils.BadRequest(c, "Project ID is required")
+	}
+
+	ok, err := pc.projectService.Delete(c, projectId)
+	if err != nil || !ok {
+		return utils.BadRequest(c, "Failed to delete project")
+	}
+	return utils.Success(c, nil, "Project deleted successfully")
 }
