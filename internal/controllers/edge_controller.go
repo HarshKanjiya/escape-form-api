@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -26,10 +28,15 @@ func NewEdgeController(service *services.EdgeService) *EdgeController {
 // @Success 200 {object} map[string]interface{}
 // @Router /edges [get]
 func (ec *EdgeController) Get(c *fiber.Ctx) error {
-	// Placeholder for Get method implementation
-	return c.JSON(fiber.Map{
-		"message": "EdgeController Get method called",
-	})
+	formId := c.Query("formId")
+	if formId == "" {
+		return utils.BadRequest(c, "formId is required")
+	}
+	edges, err := ec.edgeService.Get(c, formId)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to fetch edges")
+	}
+	return utils.Success(c, edges, "Edges fetched successfully")
 }
 
 // @Summary Create a new edge
@@ -40,9 +47,18 @@ func (ec *EdgeController) Get(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /edges [post]
 func (ec *EdgeController) Create(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "EdgeController Create method called",
-	})
+	var edgeDto types.EdgeDto
+	if err := c.BodyParser(&edgeDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+	if err := ec.validator.Struct(&edgeDto); err != nil {
+		return utils.BadRequest(c, "Validation failed: "+err.Error())
+	}
+	edge, err := ec.edgeService.Create(c, &edgeDto)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to create edge")
+	}
+	return utils.Created(c, edge, "Edge created successfully")
 }
 
 // @Summary Update an edge
@@ -54,9 +70,20 @@ func (ec *EdgeController) Create(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /edges/{id} [patch]
 func (ec *EdgeController) Update(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "EdgeController Update method called",
-	})
+	id := c.Params("id")
+	var edgeDto types.EdgeDto
+	if err := c.BodyParser(&edgeDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+	edgeDto.ID = id
+	if err := ec.validator.Struct(&edgeDto); err != nil {
+		return utils.BadRequest(c, "Validation failed: "+err.Error())
+	}
+	edge, err := ec.edgeService.Update(c, &edgeDto)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to update edge")
+	}
+	return utils.Success(c, edge, "Edge updated successfully")
 }
 
 // @Summary Delete an edge
@@ -68,7 +95,10 @@ func (ec *EdgeController) Update(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /edges/{id} [delete]
 func (ec *EdgeController) Delete(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "EdgeController Delete method called",
-	})
+	id := c.Params("id")
+	err := ec.edgeService.Delete(c, id)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to delete edge")
+	}
+	return utils.NoContent(c)
 }
