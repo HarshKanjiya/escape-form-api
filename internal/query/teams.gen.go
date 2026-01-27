@@ -67,12 +67,6 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 				Projects struct {
 					field.RelationField
 				}
-				Transactions struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
-				}
 			}
 			Forms struct {
 				field.RelationField
@@ -104,12 +98,6 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 				}
 				Projects struct {
 					field.RelationField
-				}
-				Transactions struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
 				}
 			}{
 				RelationField: field.NewRelation("Forms.Project.Team", "models.Team"),
@@ -173,19 +161,6 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 					field.RelationField
 				}{
 					RelationField: field.NewRelation("Forms.Project.Team.Projects", "models.Project"),
-				},
-				Transactions: struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("Forms.Project.Team.Transactions", "models.Transaction"),
-					Team: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("Forms.Project.Team.Transactions.Team", "models.Team"),
-					},
 				},
 			},
 			Forms: struct {
@@ -325,12 +300,6 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 		RelationField: field.NewRelation("Projects", "models.Project"),
 	}
 
-	_team.Transactions = teamHasManyTransactions{
-		db: db.Session(&gorm.Session{}),
-
-		RelationField: field.NewRelation("Transactions", "models.Transaction"),
-	}
-
 	_team.Plan = teamBelongsToPlan{
 		db: db.Session(&gorm.Session{}),
 
@@ -356,8 +325,6 @@ type team struct {
 	Forms     teamHasManyForms
 
 	Projects teamHasManyProjects
-
-	Transactions teamHasManyTransactions
 
 	Plan teamBelongsToPlan
 
@@ -399,7 +366,7 @@ func (t *team) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *team) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 11)
+	t.fieldMap = make(map[string]field.Expr, 10)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["name"] = t.Name
 	t.fieldMap["ownerId"] = t.OwnerID
@@ -416,8 +383,6 @@ func (t team) clone(db *gorm.DB) team {
 	t.Forms.db.Statement.ConnPool = db.Statement.ConnPool
 	t.Projects.db = db.Session(&gorm.Session{Initialized: true})
 	t.Projects.db.Statement.ConnPool = db.Statement.ConnPool
-	t.Transactions.db = db.Session(&gorm.Session{Initialized: true})
-	t.Transactions.db.Statement.ConnPool = db.Statement.ConnPool
 	t.Plan.db = db.Session(&gorm.Session{Initialized: true})
 	t.Plan.db.Statement.ConnPool = db.Statement.ConnPool
 	return t
@@ -427,7 +392,6 @@ func (t team) replaceDB(db *gorm.DB) team {
 	t.teamDo.ReplaceDB(db)
 	t.Forms.db = db.Session(&gorm.Session{})
 	t.Projects.db = db.Session(&gorm.Session{})
-	t.Transactions.db = db.Session(&gorm.Session{})
 	t.Plan.db = db.Session(&gorm.Session{})
 	return t
 }
@@ -464,12 +428,6 @@ type teamHasManyForms struct {
 			}
 			Projects struct {
 				field.RelationField
-			}
-			Transactions struct {
-				field.RelationField
-				Team struct {
-					field.RelationField
-				}
 			}
 		}
 		Forms struct {
@@ -675,87 +633,6 @@ func (a teamHasManyProjectsTx) Count() int64 {
 }
 
 func (a teamHasManyProjectsTx) Unscoped() *teamHasManyProjectsTx {
-	a.tx = a.tx.Unscoped()
-	return &a
-}
-
-type teamHasManyTransactions struct {
-	db *gorm.DB
-
-	field.RelationField
-}
-
-func (a teamHasManyTransactions) Where(conds ...field.Expr) *teamHasManyTransactions {
-	if len(conds) == 0 {
-		return &a
-	}
-
-	exprs := make([]clause.Expression, 0, len(conds))
-	for _, cond := range conds {
-		exprs = append(exprs, cond.BeCond().(clause.Expression))
-	}
-	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
-	return &a
-}
-
-func (a teamHasManyTransactions) WithContext(ctx context.Context) *teamHasManyTransactions {
-	a.db = a.db.WithContext(ctx)
-	return &a
-}
-
-func (a teamHasManyTransactions) Session(session *gorm.Session) *teamHasManyTransactions {
-	a.db = a.db.Session(session)
-	return &a
-}
-
-func (a teamHasManyTransactions) Model(m *models.Team) *teamHasManyTransactionsTx {
-	return &teamHasManyTransactionsTx{a.db.Model(m).Association(a.Name())}
-}
-
-func (a teamHasManyTransactions) Unscoped() *teamHasManyTransactions {
-	a.db = a.db.Unscoped()
-	return &a
-}
-
-type teamHasManyTransactionsTx struct{ tx *gorm.Association }
-
-func (a teamHasManyTransactionsTx) Find() (result []*models.Transaction, err error) {
-	return result, a.tx.Find(&result)
-}
-
-func (a teamHasManyTransactionsTx) Append(values ...*models.Transaction) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Append(targetValues...)
-}
-
-func (a teamHasManyTransactionsTx) Replace(values ...*models.Transaction) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Replace(targetValues...)
-}
-
-func (a teamHasManyTransactionsTx) Delete(values ...*models.Transaction) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Delete(targetValues...)
-}
-
-func (a teamHasManyTransactionsTx) Clear() error {
-	return a.tx.Clear()
-}
-
-func (a teamHasManyTransactionsTx) Count() int64 {
-	return a.tx.Count()
-}
-
-func (a teamHasManyTransactionsTx) Unscoped() *teamHasManyTransactionsTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

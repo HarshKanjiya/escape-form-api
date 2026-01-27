@@ -22,15 +22,15 @@ type Form struct {
 	PasswordProtected   *bool            `gorm:"default:false;column:passwordProtected" json:"passwordProtected"`
 	AnalyticsEnabled    *bool            `gorm:"default:true;column:analyticsEnabled" json:"analyticsEnabled"`
 	Valid               bool             `gorm:"default:true;column:valid" json:"valid"`
-	Metadata            *string          `gorm:"type:jsonb;default:'{}';column:metadata" json:"metadata"`
+	Metadata            *interface{}     `gorm:"type:jsonb;default:'{}';column:metadata" json:"metadata"`
 	CreatedBy           string           `gorm:"column:createdBy" json:"createdBy"`
 	CreatedAt           *time.Time       `gorm:"type:timestamptz(6);column:createdAt" json:"createdAt"`
-	UpdatedAt           *time.Time       `gorm:"type:timestamp(6);column:updatedAt" json:"updatedAt"`
+	UpdatedAt           *time.Time       `gorm:"type:timestamp(6);autoUpdateTime;column:updatedAt" json:"updatedAt"`
 	FormPageType        FormPageType     `gorm:"default:'STEPPER';column:formPageType" json:"formPageType"`
 	ActivePasswords     []ActivePassword `gorm:"foreignKey:FormID" json:"activePasswords"`
 	Edges               []Edge           `gorm:"foreignKey:FormID" json:"edges"`
-	Project             Project          `gorm:"references:ID" json:"project"`
-	Team                Team             `gorm:"references:ID" json:"team"`
+	Project             Project          `gorm:"foreignKey:ProjectID;references:ID;onDelete:CASCADE" json:"project"`
+	Team                Team             `gorm:"foreignKey:TeamID;references:ID;onDelete:CASCADE" json:"team"`
 	Questions           []Question       `gorm:"foreignKey:FormID" json:"questions"`
 	Responses           []Response       `gorm:"foreignKey:FormID" json:"responses"`
 }

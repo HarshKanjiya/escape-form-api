@@ -6,9 +6,9 @@ type QuestionOption struct {
 	Label      string   `gorm:"column:label" json:"label"`
 	Value      string   `gorm:"column:value" json:"value"`
 	SortOrder  int      `gorm:"default:0;column:sortOrder" json:"sortOrder"`
-	Question   Question `gorm:"references:ID" json:"question"`
+	Question   Question `gorm:"foreignKey:QuestionID;references:ID;onDelete:CASCADE" json:"question"`
 }
 
 func (QuestionOption) TableName() string {
-	return "question_options"
+	return "questions_options"
 }

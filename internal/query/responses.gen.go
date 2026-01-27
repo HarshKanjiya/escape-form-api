@@ -31,8 +31,8 @@ func newResponse(db *gorm.DB, opts ...gen.DOOption) response {
 	_response.ID = field.NewString(tableName, "id")
 	_response.FormID = field.NewString(tableName, "formId")
 	_response.UserID = field.NewString(tableName, "userId")
-	_response.Data = field.NewString(tableName, "data")
-	_response.MetaData = field.NewString(tableName, "metaData")
+	_response.Data = field.NewField(tableName, "data")
+	_response.MetaData = field.NewField(tableName, "metaData")
 	_response.Tags = field.NewField(tableName, "tags")
 	_response.Status = field.NewString(tableName, "status")
 	_response.PartialSave = field.NewBool(tableName, "partialSave")
@@ -73,12 +73,6 @@ func newResponse(db *gorm.DB, opts ...gen.DOOption) response {
 				Projects struct {
 					field.RelationField
 				}
-				Transactions struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
-				}
 			}
 			Forms struct {
 				field.RelationField
@@ -110,12 +104,6 @@ func newResponse(db *gorm.DB, opts ...gen.DOOption) response {
 				}
 				Projects struct {
 					field.RelationField
-				}
-				Transactions struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
 				}
 			}{
 				RelationField: field.NewRelation("Form.Project.Team", "models.Team"),
@@ -179,19 +167,6 @@ func newResponse(db *gorm.DB, opts ...gen.DOOption) response {
 					field.RelationField
 				}{
 					RelationField: field.NewRelation("Form.Project.Team.Projects", "models.Project"),
-				},
-				Transactions: struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("Form.Project.Team.Transactions", "models.Transaction"),
-					Team: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("Form.Project.Team.Transactions.Team", "models.Team"),
-					},
 				},
 			},
 			Forms: struct {
@@ -337,8 +312,8 @@ type response struct {
 	ID          field.String
 	FormID      field.String
 	UserID      field.String
-	Data        field.String
-	MetaData    field.String
+	Data        field.Field
+	MetaData    field.Field
 	Tags        field.Field
 	Status      field.String
 	PartialSave field.Bool
@@ -367,8 +342,8 @@ func (r *response) updateTableName(table string) *response {
 	r.ID = field.NewString(table, "id")
 	r.FormID = field.NewString(table, "formId")
 	r.UserID = field.NewString(table, "userId")
-	r.Data = field.NewString(table, "data")
-	r.MetaData = field.NewString(table, "metaData")
+	r.Data = field.NewField(table, "data")
+	r.MetaData = field.NewField(table, "metaData")
 	r.Tags = field.NewField(table, "tags")
 	r.Status = field.NewString(table, "status")
 	r.PartialSave = field.NewBool(table, "partialSave")
@@ -455,12 +430,6 @@ type responseBelongsToForm struct {
 			}
 			Projects struct {
 				field.RelationField
-			}
-			Transactions struct {
-				field.RelationField
-				Team struct {
-					field.RelationField
-				}
 			}
 		}
 		Forms struct {

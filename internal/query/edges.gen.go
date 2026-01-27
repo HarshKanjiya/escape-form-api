@@ -32,7 +32,7 @@ func newEdge(db *gorm.DB, opts ...gen.DOOption) edge {
 	_edge.FormID = field.NewString(tableName, "formId")
 	_edge.SourceNodeID = field.NewString(tableName, "sourceNodeId")
 	_edge.TargetNodeID = field.NewString(tableName, "targetNodeId")
-	_edge.Condition = field.NewString(tableName, "condition")
+	_edge.Condition = field.NewField(tableName, "condition")
 	_edge.Form = edgeBelongsToForm{
 		db: db.Session(&gorm.Session{}),
 
@@ -65,12 +65,6 @@ func newEdge(db *gorm.DB, opts ...gen.DOOption) edge {
 				Projects struct {
 					field.RelationField
 				}
-				Transactions struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
-				}
 			}
 			Forms struct {
 				field.RelationField
@@ -102,12 +96,6 @@ func newEdge(db *gorm.DB, opts ...gen.DOOption) edge {
 				}
 				Projects struct {
 					field.RelationField
-				}
-				Transactions struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
 				}
 			}{
 				RelationField: field.NewRelation("Form.Project.Team", "models.Team"),
@@ -171,19 +159,6 @@ func newEdge(db *gorm.DB, opts ...gen.DOOption) edge {
 					field.RelationField
 				}{
 					RelationField: field.NewRelation("Form.Project.Team.Projects", "models.Project"),
-				},
-				Transactions: struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("Form.Project.Team.Transactions", "models.Transaction"),
-					Team: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("Form.Project.Team.Transactions.Team", "models.Team"),
-					},
 				},
 			},
 			Forms: struct {
@@ -342,7 +317,7 @@ type edge struct {
 	FormID       field.String
 	SourceNodeID field.String
 	TargetNodeID field.String
-	Condition    field.String
+	Condition    field.Field
 	Form         edgeBelongsToForm
 
 	SourceNode edgeBelongsToSourceNode
@@ -368,7 +343,7 @@ func (e *edge) updateTableName(table string) *edge {
 	e.FormID = field.NewString(table, "formId")
 	e.SourceNodeID = field.NewString(table, "sourceNodeId")
 	e.TargetNodeID = field.NewString(table, "targetNodeId")
-	e.Condition = field.NewString(table, "condition")
+	e.Condition = field.NewField(table, "condition")
 
 	e.fillFieldMap()
 
@@ -445,12 +420,6 @@ type edgeBelongsToForm struct {
 			}
 			Projects struct {
 				field.RelationField
-			}
-			Transactions struct {
-				field.RelationField
-				Team struct {
-					field.RelationField
-				}
 			}
 		}
 		Forms struct {

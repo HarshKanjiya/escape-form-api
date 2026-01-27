@@ -8,8 +8,10 @@ import (
 	"context"
 	"database/sql"
 
-	"gorm.io/gen"
 	"gorm.io/gorm"
+
+	"gorm.io/gen"
+
 	"gorm.io/plugin/dbresolver"
 )
 
@@ -26,8 +28,6 @@ var (
 	QuestionOption *questionOption
 	Response       *response
 	Team           *team
-	Transaction    *transaction
-	User           *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -43,8 +43,6 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	QuestionOption = &Q.QuestionOption
 	Response = &Q.Response
 	Team = &Q.Team
-	Transaction = &Q.Transaction
-	User = &Q.User
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
@@ -61,8 +59,6 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		QuestionOption: newQuestionOption(db, opts...),
 		Response:       newResponse(db, opts...),
 		Team:           newTeam(db, opts...),
-		Transaction:    newTransaction(db, opts...),
-		User:           newUser(db, opts...),
 	}
 }
 
@@ -80,8 +76,6 @@ type Query struct {
 	QuestionOption questionOption
 	Response       response
 	Team           team
-	Transaction    transaction
-	User           user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -100,8 +94,6 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		QuestionOption: q.QuestionOption.clone(db),
 		Response:       q.Response.clone(db),
 		Team:           q.Team.clone(db),
-		Transaction:    q.Transaction.clone(db),
-		User:           q.User.clone(db),
 	}
 }
 
@@ -127,8 +119,6 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		QuestionOption: q.QuestionOption.replaceDB(db),
 		Response:       q.Response.replaceDB(db),
 		Team:           q.Team.replaceDB(db),
-		Transaction:    q.Transaction.replaceDB(db),
-		User:           q.User.replaceDB(db),
 	}
 }
 
@@ -144,8 +134,6 @@ type queryCtx struct {
 	QuestionOption IQuestionOptionDo
 	Response       IResponseDo
 	Team           ITeamDo
-	Transaction    ITransactionDo
-	User           IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -161,12 +149,10 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		QuestionOption: q.QuestionOption.WithContext(ctx),
 		Response:       q.Response.WithContext(ctx),
 		Team:           q.Team.WithContext(ctx),
-		Transaction:    q.Transaction.WithContext(ctx),
-		User:           q.User.WithContext(ctx),
 	}
 }
 
-func (q *Query) Tx(fc func(tx *Query) error, opts ...*sql.TxOptions) error {
+func (q *Query) Transaction(fc func(tx *Query) error, opts ...*sql.TxOptions) error {
 	return q.db.Transaction(func(tx *gorm.DB) error { return fc(q.clone(tx)) }, opts...)
 }
 

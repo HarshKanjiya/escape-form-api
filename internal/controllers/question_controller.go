@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -70,4 +72,88 @@ func (pc *QuestionController) Delete(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "QuestionController Delete method called",
 	})
+}
+
+// @Summary Get question options
+// @Description Retrieve options for a question
+// @Tags questions
+// @Accept json
+// @Produce json
+// @Param questionId path string true "Question ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /questions/{questionId}/options [get]
+func (pc *QuestionController) GetOptions(c *fiber.Ctx) error {
+	questionId := c.Params("questionId")
+	options, err := pc.questionService.GetOptions(c, questionId)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to fetch options")
+	}
+	return utils.Success(c, options, "Options fetched successfully")
+}
+
+// @Summary Create a new question option
+// @Description Create a new option for a question
+// @Tags questions
+// @Accept json
+// @Produce json
+// @Param questionId path string true "Question ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /questions/{questionId}/options [post]
+func (pc *QuestionController) CreateOption(c *fiber.Ctx) error {
+	questionId := c.Params("questionId")
+	var optionDto types.QuestionOptionDto
+	if err := c.BodyParser(&optionDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+	optionDto.QuestionID = questionId
+	if err := pc.validator.Struct(&optionDto); err != nil {
+		return utils.BadRequest(c, "Validation failed: "+err.Error())
+	}
+	option, err := pc.questionService.CreateOption(c, &optionDto)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to create option")
+	}
+	return utils.Created(c, option, "Option created successfully")
+}
+
+// @Summary Update a question option
+// @Description Update an existing option by ID
+// @Tags questions
+// @Accept json
+// @Produce json
+// @Param optionId path string true "Option ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /questions/options/{optionId} [patch]
+func (pc *QuestionController) UpdateOption(c *fiber.Ctx) error {
+	optionId := c.Params("optionId")
+	var optionDto types.QuestionOptionDto
+	if err := c.BodyParser(&optionDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+	optionDto.ID = optionId
+	if err := pc.validator.Struct(&optionDto); err != nil {
+		return utils.BadRequest(c, "Validation failed: "+err.Error())
+	}
+	option, err := pc.questionService.UpdateOption(c, &optionDto)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to update option")
+	}
+	return utils.Success(c, option, "Option updated successfully")
+}
+
+// @Summary Delete a question option
+// @Description Delete an option by ID
+// @Tags questions
+// @Accept json
+// @Produce json
+// @Param optionId path string true "Option ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /questions/options/{optionId} [delete]
+func (pc *QuestionController) DeleteOption(c *fiber.Ctx) error {
+	optionId := c.Params("optionId")
+	err := pc.questionService.DeleteOption(c, optionId)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to delete option")
+	}
+	return utils.NoContent(c)
 }

@@ -35,7 +35,7 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 	_question.Description = field.NewString(tableName, "description")
 	_question.Required = field.NewBool(tableName, "required")
 	_question.Type = field.NewString(tableName, "type")
-	_question.Metadata = field.NewString(tableName, "metadata")
+	_question.Metadata = field.NewField(tableName, "metadata")
 	_question.PosX = field.NewInt(tableName, "posX")
 	_question.PosY = field.NewInt(tableName, "posY")
 	_question.SortOrder = field.NewInt(tableName, "sortOrder")
@@ -74,12 +74,6 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 						}
 						Projects struct {
 							field.RelationField
-						}
-						Transactions struct {
-							field.RelationField
-							Team struct {
-								field.RelationField
-							}
 						}
 					}
 					Forms struct {
@@ -158,12 +152,6 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 						Projects struct {
 							field.RelationField
 						}
-						Transactions struct {
-							field.RelationField
-							Team struct {
-								field.RelationField
-							}
-						}
 					}
 					Forms struct {
 						field.RelationField
@@ -229,12 +217,6 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 						Projects struct {
 							field.RelationField
 						}
-						Transactions struct {
-							field.RelationField
-							Team struct {
-								field.RelationField
-							}
-						}
 					}
 					Forms struct {
 						field.RelationField
@@ -266,12 +248,6 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 						}
 						Projects struct {
 							field.RelationField
-						}
-						Transactions struct {
-							field.RelationField
-							Team struct {
-								field.RelationField
-							}
 						}
 					}{
 						RelationField: field.NewRelation("Options.Question.Form.Project.Team", "models.Team"),
@@ -335,19 +311,6 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 							field.RelationField
 						}{
 							RelationField: field.NewRelation("Options.Question.Form.Project.Team.Projects", "models.Project"),
-						},
-						Transactions: struct {
-							field.RelationField
-							Team struct {
-								field.RelationField
-							}
-						}{
-							RelationField: field.NewRelation("Options.Question.Form.Project.Team.Transactions", "models.Transaction"),
-							Team: struct {
-								field.RelationField
-							}{
-								RelationField: field.NewRelation("Options.Question.Form.Project.Team.Transactions.Team", "models.Team"),
-							},
 						},
 					},
 					Forms: struct {
@@ -474,7 +437,7 @@ type question struct {
 	Description field.String
 	Required    field.Bool
 	Type        field.String
-	Metadata    field.String
+	Metadata    field.Field
 	PosX        field.Int
 	PosY        field.Int
 	SortOrder   field.Int
@@ -508,7 +471,7 @@ func (q *question) updateTableName(table string) *question {
 	q.Description = field.NewString(table, "description")
 	q.Required = field.NewBool(table, "required")
 	q.Type = field.NewString(table, "type")
-	q.Metadata = field.NewString(table, "metadata")
+	q.Metadata = field.NewField(table, "metadata")
 	q.PosX = field.NewInt(table, "posX")
 	q.PosY = field.NewInt(table, "posY")
 	q.SortOrder = field.NewInt(table, "sortOrder")
@@ -601,12 +564,6 @@ type questionHasManyOptions struct {
 					}
 					Projects struct {
 						field.RelationField
-					}
-					Transactions struct {
-						field.RelationField
-						Team struct {
-							field.RelationField
-						}
 					}
 				}
 				Forms struct {

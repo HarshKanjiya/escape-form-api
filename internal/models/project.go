@@ -9,9 +9,9 @@ type Project struct {
 	TeamID      string     `gorm:"type:uuid;index;column:teamId" json:"teamId"`
 	Valid       bool       `gorm:"default:true;column:valid" json:"valid"`
 	CreatedAt   *time.Time `gorm:"type:timestamptz(6);column:createdAt" json:"createdAt"`
-	UpdatedAt   *time.Time `gorm:"type:timestamp(6);column:updatedAt" json:"updatedAt"`
+	UpdatedAt   *time.Time `gorm:"type:timestamp(6);autoUpdateTime;column:updatedAt" json:"updatedAt"`
 	Forms       []Form     `gorm:"foreignKey:ProjectID" json:"forms"`
-	Team        Team       `gorm:"references:ID" json:"team"`
+	Team        Team       `gorm:"foreignKey:TeamID;references:ID;onDelete:CASCADE" json:"team"`
 }
 
 func (Project) TableName() string {

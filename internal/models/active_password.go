@@ -11,7 +11,7 @@ type ActivePassword struct {
 	ExpireAt   time.Time `gorm:"type:timestamptz(6);column:expireAt" json:"expireAt"`
 	CreatedAt  time.Time `gorm:"type:timestamptz(6);default:now();column:createdAt" json:"createdAt"`
 	UsableUpto int       `gorm:"default:1;column:usableUpto" json:"usableUpto"`
-	Form       Form      `gorm:"references:ID" json:"form"`
+	Form       Form      `gorm:"foreignKey:FormID;references:ID;onDelete:CASCADE" json:"form"`
 }
 
 func (ActivePassword) TableName() string {

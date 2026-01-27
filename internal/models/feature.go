@@ -10,8 +10,8 @@ type Feature struct {
 	Description *string   `gorm:"column:description" json:"description"`
 	Valid       bool      `gorm:"default:true;column:valid" json:"valid"`
 	CreatedAt   time.Time `gorm:"type:timestamptz(6);default:now();column:createdAt" json:"createdAt"`
-	UpdatedAt   *time.Time `gorm:"type:timestamptz(6);column:updatedAt" json:"updatedAt"`
-	Plan        Plan      `gorm:"references:ID" json:"plan"`
+	UpdatedAt   *time.Time `gorm:"type:timestamptz(6);autoUpdateTime;column:updatedAt" json:"updatedAt"`
+	Plan        Plan      `gorm:"foreignKey:PlanID;references:ID;onDelete:CASCADE" json:"plan"`
 }
 
 func (Feature) TableName() string {

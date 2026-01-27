@@ -8,14 +8,14 @@ type Question struct {
 	Description   string           `gorm:"default:'';column:description" json:"description"`
 	Required      bool             `gorm:"default:false;column:required" json:"required"`
 	Type          QuestionType     `gorm:"column:type" json:"type"`
-	Metadata      string           `gorm:"type:jsonb;default:'{}';column:metadata" json:"metadata"`
+	Metadata      interface{}      `gorm:"type:jsonb;default:'{}';column:metadata" json:"metadata"`
 	PosX          int              `gorm:"column:posX" json:"posX"`
 	PosY          int              `gorm:"column:posY" json:"posY"`
 	SortOrder     *int             `gorm:"default:0;column:sortOrder" json:"sortOrder"`
 	Options       []QuestionOption `gorm:"foreignKey:QuestionID" json:"options"`
 	OutgoingEdges []Edge           `gorm:"foreignKey:SourceNodeID" json:"outgoingEdges"`
 	IncomingEdges []Edge           `gorm:"foreignKey:TargetNodeID" json:"incomingEdges"`
-	Form          Form             `gorm:"references:ID" json:"form"`
+	Form          Form             `gorm:"foreignKey:FormID;references:ID;onDelete:CASCADE" json:"form"`
 }
 
 func (Question) TableName() string {

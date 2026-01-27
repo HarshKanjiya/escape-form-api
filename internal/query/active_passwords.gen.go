@@ -68,12 +68,6 @@ func newActivePassword(db *gorm.DB, opts ...gen.DOOption) activePassword {
 				Projects struct {
 					field.RelationField
 				}
-				Transactions struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
-				}
 			}
 			Forms struct {
 				field.RelationField
@@ -105,12 +99,6 @@ func newActivePassword(db *gorm.DB, opts ...gen.DOOption) activePassword {
 				}
 				Projects struct {
 					field.RelationField
-				}
-				Transactions struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
 				}
 			}{
 				RelationField: field.NewRelation("Form.Project.Team", "models.Team"),
@@ -174,19 +162,6 @@ func newActivePassword(db *gorm.DB, opts ...gen.DOOption) activePassword {
 					field.RelationField
 				}{
 					RelationField: field.NewRelation("Form.Project.Team.Projects", "models.Project"),
-				},
-				Transactions: struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
-				}{
-					RelationField: field.NewRelation("Form.Project.Team.Transactions", "models.Transaction"),
-					Team: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("Form.Project.Team.Transactions.Team", "models.Team"),
-					},
 				},
 			},
 			Forms: struct {
@@ -435,12 +410,6 @@ type activePasswordBelongsToForm struct {
 			}
 			Projects struct {
 				field.RelationField
-			}
-			Transactions struct {
-				field.RelationField
-				Team struct {
-					field.RelationField
-				}
 			}
 		}
 		Forms struct {

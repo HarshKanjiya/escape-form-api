@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"encoding/json"
 	"log"
 	"strings"
 
@@ -114,10 +115,14 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 		if form.CustomDomain != nil {
 			customDomain = *form.CustomDomain
 		}
-		metadata := ""
+		metadata := map[string]interface{}{}
 		if form.Metadata != nil {
-			metadata = *form.Metadata
+			if m, ok := (*form.Metadata).(map[string]interface{}); ok {
+				metadata = m
+			}
 		}
+		metadataBytes, _ := json.Marshal(metadata)
+		metadataStr := string(metadataBytes)
 
 		formResponses = append(formResponses, &types.FormResponse{
 			ID:                  form.ID,
@@ -139,7 +144,7 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 			PasswordProtected:   form.PasswordProtected,
 			AnalyticsEnabled:    form.AnalyticsEnabled,
 			Valid:               form.Valid,
-			Metadata:            metadata,
+			Metadata:            metadataStr,
 			CreatedBy:           form.CreatedBy,
 			CreatedAt:           utils.GetIsoDateTime(form.CreatedAt),
 			UpdatedAt:           utils.GetIsoDateTime(form.UpdatedAt),
@@ -201,10 +206,14 @@ func (r *FormRepo) GetById(ctx *fiber.Ctx, formId string) (*types.FormResponse, 
 	if form.CustomDomain != nil {
 		customDomain = *form.CustomDomain
 	}
-	metadata := ""
+	metadata := map[string]interface{}{}
 	if form.Metadata != nil {
-		metadata = *form.Metadata
+		if m, ok := (*form.Metadata).(map[string]interface{}); ok {
+			metadata = m
+		}
 	}
+	metadataBytes, _ := json.Marshal(metadata)
+	metadataStr := string(metadataBytes)
 
 	formResponse := &types.FormResponse{
 		ID:                  form.ID,
@@ -226,7 +235,7 @@ func (r *FormRepo) GetById(ctx *fiber.Ctx, formId string) (*types.FormResponse, 
 		PasswordProtected:   form.PasswordProtected,
 		AnalyticsEnabled:    form.AnalyticsEnabled,
 		Valid:               form.Valid,
-		Metadata:            metadata,
+		Metadata:            metadataStr,
 		CreatedBy:           form.CreatedBy,
 		CreatedAt:           utils.GetIsoDateTime(form.CreatedAt),
 		UpdatedAt:           utils.GetIsoDateTime(form.UpdatedAt),

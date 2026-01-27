@@ -76,6 +76,11 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		questions.Post("/", questionController.Create)
 		questions.Patch("/:id", questionController.Update)
 		questions.Delete("/:id", questionController.Delete)
+
+		questions.Get("/:questionId/options", questionController.GetOptions)
+		questions.Post("/:questionId/options", questionController.CreateOption)
+		questions.Patch("/options/:optionId", questionController.UpdateOption)
+		questions.Delete("/options/:optionId", questionController.DeleteOption)
 	}
 
 	edges := protectedRoutes.Group("/edges")

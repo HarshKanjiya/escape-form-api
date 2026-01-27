@@ -47,7 +47,7 @@ func newForm(db *gorm.DB, opts ...gen.DOOption) form {
 	_form.PasswordProtected = field.NewBool(tableName, "passwordProtected")
 	_form.AnalyticsEnabled = field.NewBool(tableName, "analyticsEnabled")
 	_form.Valid = field.NewBool(tableName, "valid")
-	_form.Metadata = field.NewString(tableName, "metadata")
+	_form.Metadata = field.NewField(tableName, "metadata")
 	_form.CreatedBy = field.NewString(tableName, "createdBy")
 	_form.CreatedAt = field.NewTime(tableName, "createdAt")
 	_form.UpdatedAt = field.NewTime(tableName, "updatedAt")
@@ -85,12 +85,6 @@ func newForm(db *gorm.DB, opts ...gen.DOOption) form {
 					}
 					Projects struct {
 						field.RelationField
-					}
-					Transactions struct {
-						field.RelationField
-						Team struct {
-							field.RelationField
-						}
 					}
 				}
 				Forms struct {
@@ -169,12 +163,6 @@ func newForm(db *gorm.DB, opts ...gen.DOOption) form {
 					Projects struct {
 						field.RelationField
 					}
-					Transactions struct {
-						field.RelationField
-						Team struct {
-							field.RelationField
-						}
-					}
 				}
 				Forms struct {
 					field.RelationField
@@ -206,12 +194,6 @@ func newForm(db *gorm.DB, opts ...gen.DOOption) form {
 					}
 					Projects struct {
 						field.RelationField
-					}
-					Transactions struct {
-						field.RelationField
-						Team struct {
-							field.RelationField
-						}
 					}
 				}{
 					RelationField: field.NewRelation("ActivePasswords.Form.Project.Team", "models.Team"),
@@ -275,19 +257,6 @@ func newForm(db *gorm.DB, opts ...gen.DOOption) form {
 						field.RelationField
 					}{
 						RelationField: field.NewRelation("ActivePasswords.Form.Project.Team.Projects", "models.Project"),
-					},
-					Transactions: struct {
-						field.RelationField
-						Team struct {
-							field.RelationField
-						}
-					}{
-						RelationField: field.NewRelation("ActivePasswords.Form.Project.Team.Transactions", "models.Transaction"),
-						Team: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("ActivePasswords.Form.Project.Team.Transactions.Team", "models.Team"),
-						},
 					},
 				},
 				Forms: struct {
@@ -472,7 +441,7 @@ type form struct {
 	PasswordProtected   field.Bool
 	AnalyticsEnabled    field.Bool
 	Valid               field.Bool
-	Metadata            field.String
+	Metadata            field.Field
 	CreatedBy           field.String
 	CreatedAt           field.Time
 	UpdatedAt           field.Time
@@ -523,7 +492,7 @@ func (f *form) updateTableName(table string) *form {
 	f.PasswordProtected = field.NewBool(table, "passwordProtected")
 	f.AnalyticsEnabled = field.NewBool(table, "analyticsEnabled")
 	f.Valid = field.NewBool(table, "valid")
-	f.Metadata = field.NewString(table, "metadata")
+	f.Metadata = field.NewField(table, "metadata")
 	f.CreatedBy = field.NewString(table, "createdBy")
 	f.CreatedAt = field.NewTime(table, "createdAt")
 	f.UpdatedAt = field.NewTime(table, "updatedAt")
@@ -634,12 +603,6 @@ type formHasManyActivePasswords struct {
 				}
 				Projects struct {
 					field.RelationField
-				}
-				Transactions struct {
-					field.RelationField
-					Team struct {
-						field.RelationField
-					}
 				}
 			}
 			Forms struct {

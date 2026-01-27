@@ -131,12 +131,6 @@ func newFeature(db *gorm.DB, opts ...gen.DOOption) feature {
 			Projects struct {
 				field.RelationField
 			}
-			Transactions struct {
-				field.RelationField
-				Team struct {
-					field.RelationField
-				}
-			}
 		}{
 			RelationField: field.NewRelation("Plan.Teams", "models.Team"),
 			Plan: struct {
@@ -352,19 +346,6 @@ func newFeature(db *gorm.DB, opts ...gen.DOOption) feature {
 			}{
 				RelationField: field.NewRelation("Plan.Teams.Projects", "models.Project"),
 			},
-			Transactions: struct {
-				field.RelationField
-				Team struct {
-					field.RelationField
-				}
-			}{
-				RelationField: field.NewRelation("Plan.Teams.Transactions", "models.Transaction"),
-				Team: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("Plan.Teams.Transactions.Team", "models.Team"),
-				},
-			},
 		},
 	}
 
@@ -532,12 +513,6 @@ type featureBelongsToPlan struct {
 		}
 		Projects struct {
 			field.RelationField
-		}
-		Transactions struct {
-			field.RelationField
-			Team struct {
-				field.RelationField
-			}
 		}
 	}
 }
