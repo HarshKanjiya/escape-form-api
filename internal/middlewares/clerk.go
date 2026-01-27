@@ -26,7 +26,7 @@ func ClerkAuth() fiber.Handler {
 			log.Printf("JWT verification failed: %v", err)
 			return utils.Unauthorized(c, "Invalid or expired token")
 		}
-		log.Print(claims)
+		// log.Print(claims)
 		c.Locals("user_claims", claims)
 		c.Locals("user_id", claims.Subject)
 

@@ -150,3 +150,107 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 
 	return formResponses, int(totalCount), nil
 }
+
+func (r *FormRepo) GetById(ctx *fiber.Ctx, formId string) (*types.FormResponse, error) {
+
+	userId := ctx.Locals("user_id").(string)
+
+	// Validate the form belongs to the user
+	form, err := r.q.WithContext(ctx.Context()).
+		Form.Where(r.q.Form.ID.Eq(formId)).
+		Join(r.q.Team, r.q.Form.TeamID.EqCol(r.q.Team.ID)).
+		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Form.Valid.Is(true)).
+		Preload(r.q.Form.Questions).
+		Preload(r.q.Form.Edges).
+		First()
+	if err != nil {
+		log.Printf("Form not found or not owned by user: %v", err)
+		return nil, err
+	}
+
+	// Get response count for this form
+	responseCount, err := r.q.WithContext(ctx.Context()).
+		Response.Where(r.q.Response.FormID.Eq(formId)).
+		Count()
+	if err != nil {
+		log.Printf("Error fetching response count: %v", err)
+		responseCount = 0
+	}
+
+	description := ""
+	if form.Description != nil {
+		description = *form.Description
+	}
+	theme := ""
+	if form.Theme != nil {
+		theme = *form.Theme
+	}
+	logoURL := ""
+	if form.LogoURL != nil {
+		logoURL = *form.LogoURL
+	}
+	status := ""
+	if form.Status != nil {
+		status = string(*form.Status)
+	}
+	uniqueSubdomain := ""
+	if form.UniqueSubdomain != nil {
+		uniqueSubdomain = *form.UniqueSubdomain
+	}
+	customDomain := ""
+	if form.CustomDomain != nil {
+		customDomain = *form.CustomDomain
+	}
+	metadata := ""
+	if form.Metadata != nil {
+		metadata = *form.Metadata
+	}
+
+	formResponse := &types.FormResponse{
+		ID:                  form.ID,
+		Name:                form.Name,
+		Description:         description,
+		TeamID:              form.TeamID,
+		ProjectID:           form.ProjectID,
+		Theme:               theme,
+		LogoURL:             logoURL,
+		MaxResponses:        form.MaxResponses,
+		OpenAt:              utils.GetIsoDateTime(form.OpenAt),
+		CloseAt:             utils.GetIsoDateTime(form.CloseAt),
+		Status:              status,
+		UniqueSubdomain:     uniqueSubdomain,
+		CustomDomain:        customDomain,
+		RequireConsent:      form.RequireConsent,
+		AllowAnonymous:      form.AllowAnonymous,
+		MultipleSubmissions: form.MultipleSubmissions,
+		PasswordProtected:   form.PasswordProtected,
+		AnalyticsEnabled:    form.AnalyticsEnabled,
+		Valid:               form.Valid,
+		Metadata:            metadata,
+		CreatedBy:           form.CreatedBy,
+		CreatedAt:           utils.GetIsoDateTime(form.CreatedAt),
+		UpdatedAt:           utils.GetIsoDateTime(form.UpdatedAt),
+		FormPageType:        string(form.FormPageType),
+		ResponseCount:       int(responseCount),
+	}
+
+	// Convert Questions to []any
+	if len(form.Questions) > 0 {
+		questions := make([]any, len(form.Questions))
+		for i, q := range form.Questions {
+			questions[i] = q
+		}
+		formResponse.Questions = questions
+	}
+
+	// Convert Edges to []any
+	if len(form.Edges) > 0 {
+		edges := make([]any, len(form.Edges))
+		for i, e := range form.Edges {
+			edges[i] = e
+		}
+		formResponse.Edges = edges
+	}
+
+	return formResponse, nil
+}

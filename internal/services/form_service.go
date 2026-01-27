@@ -26,6 +26,16 @@ func (fs *FormService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, va
 	return forms, total
 }
 
+func (fs *FormService) GetById(ctx *fiber.Ctx, formId string) (*types.FormResponse, error) {
+
+	form, err := fs.formRepo.GetById(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
+
+	return form, nil
+}
+
 func (fs *FormService) Create() types.FormResponse {
 	return types.FormResponse{}
 }

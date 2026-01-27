@@ -67,9 +67,12 @@ func (fc *FormController) Create(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms/{id} [get]
 func (pc *FormController) GetById(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "FormController GetById method called",
-	})
+	formId := c.Params("id")
+	form, err := pc.formService.GetById(c, formId)
+	if err != nil {
+		return utils.NotFound(c, "Form not found")
+	}
+	return utils.Success(c, form, "Form fetched successfully")
 }
 
 // @Summary Update form status
