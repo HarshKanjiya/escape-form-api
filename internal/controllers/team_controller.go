@@ -46,10 +46,22 @@ func (tc *TeamController) Get(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /teams [post]
-func (ts *TeamController) Create(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "TeamController Get method called",
-	})
+func (tc *TeamController) Create(c *fiber.Ctx) error {
+	teamDto := new(types.TeamDto)
+	if err := c.BodyParser(teamDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+
+	if err := tc.validator.Struct(teamDto); err != nil {
+		return utils.BadRequest(c, "Validation failed")
+	}
+
+	createdTeam, err := tc.teamService.Create(c, teamDto)
+	if err != nil {
+		return utils.BadRequest(c, "Failed to create team")
+	}
+
+	return utils.Success(c, createdTeam, "Team created successfully", 0)
 }
 
 // @Summary Update a team
@@ -61,9 +73,23 @@ func (ts *TeamController) Create(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /teams/{id} [patch]
 func (tc *TeamController) Update(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "TeamController Get method called",
+	teamDto := new(types.TeamDto)
+	if err := c.BodyParser(teamDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+
+	if err := tc.validator.Struct(teamDto); err != nil {
+		return utils.BadRequest(c, "Validation failed")
+	}
+
+	ok, err := tc.teamService.Update(c, &types.TeamDto{
+		ID:   c.Params("id"),
+		Name: teamDto.Name,
 	})
+	if err != nil || !ok {
+		return utils.BadRequest(c, "Failed to update team")
+	}
+	return utils.Success(c, nil, "Team updated successfully")
 }
 
 // @Summary Delete a team
@@ -75,7 +101,15 @@ func (tc *TeamController) Update(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /teams/{id} [delete]
 func (tc *TeamController) Delete(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "TeamController Get method called",
-	})
+	teamId := c.Params("id")
+
+	if teamId == "" {
+		return utils.BadRequest(c, "Team ID is required")
+	}
+
+	ok, err := tc.teamService.Delete(c, teamId)
+	if err != nil || !ok {
+		return utils.BadRequest(c, "Failed to delete team")
+	}
+	return utils.Success(c, nil, "Team deleted successfully")
 }

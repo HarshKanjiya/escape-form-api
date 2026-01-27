@@ -24,3 +24,8 @@ type TeamResponse struct {
 	UpdatedAt    string `json:"updatedAt"`
 	ProjectCount int    `json:"projectCount,omitempty"`
 }
+
+type TeamDto struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}

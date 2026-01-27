@@ -3,6 +3,7 @@ package repositories
 import (
 	"log"
 
+	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
@@ -104,4 +105,40 @@ func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 	}
 
 	return teamResponses, int(totalCount), nil
+}
+
+func (r *TeamRepo) Create(ctx *fiber.Ctx, team *types.TeamDto) (*models.Team, error) {
+
+	teamModel := &models.Team{
+		Name:   &team.Name,
+		PlanID: nil,
+		Valid:  true,
+	}
+
+	err := r.q.WithContext(ctx.Context()).Team.Create(teamModel)
+	if err != nil {
+		return nil, err
+	}
+	return teamModel, nil
+}
+
+func (r *TeamRepo) Update(ctx *fiber.Ctx, team *models.Team) (bool, error) {
+	t := r.q.Team
+	_, err := r.q.WithContext(ctx.Context()).
+		Team.Where(t.ID.Eq(team.ID)).
+		Updates(team)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (r *TeamRepo) Delete(ctx *fiber.Ctx, teamId string) (bool, error) {
+	_, err := r.q.WithContext(ctx.Context()).
+		Team.Where(r.q.Team.ID.Eq(teamId)).
+		UpdateColumn(r.q.Team.Valid, false)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
