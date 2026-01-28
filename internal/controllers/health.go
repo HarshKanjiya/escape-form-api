@@ -14,6 +14,6 @@ import (
 func HealthCheck(c *fiber.Ctx) error {
 	// Simple health check
 	return c.JSON(fiber.Map{
-		"status": "healthy",
+		"status": "true",
 	})
 }

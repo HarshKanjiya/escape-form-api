@@ -96,25 +96,17 @@ func (pc *FormController) GetById(c *fiber.Ctx) error {
 // @Router /forms/{id}/status [patch]
 // @Router /forms/{id}/status [delete]
 func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "FormController UpdateStatus method called",
-	})
+	return utils.Success(c, nil, "FormController UpdateStatus method called")
 }
 
 func (pc *FormController) Update(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "FormController Update method called",
-	})
+	return utils.Success(c, nil, "FormController Update method called")
 }
 
 func (pc *FormController) Delete(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "FormController Delete method called",
-	})
+	return utils.Success(c, nil, "FormController Delete method called")
 }
 
 func (pc *FormController) UpdateSequence(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "FormController UpdateSequence method called",
-	})
+	return utils.Success(c, nil, "FormController UpdateSequence method called")
 }

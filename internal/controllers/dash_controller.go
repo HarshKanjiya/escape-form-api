@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -37,10 +38,7 @@ func (pc *DashController) GetAnalytics(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Analytics fetched successfully",
-		"data":    analytics,
-	})
+	return utils.Success(c, analytics, "Analytics fetched successfully")
 }
 
 // @Summary Get form questions
@@ -62,10 +60,7 @@ func (pc *DashController) GetQuestions(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Questions fetched successfully",
-		"data":    questions,
-	})
+	return utils.Success(c, questions, "Questions fetched successfully")
 }
 
 // @Summary Get form responses
@@ -87,10 +82,7 @@ func (pc *DashController) GetResponses(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Responses fetched successfully",
-		"data":    responses,
-	})
+	return utils.Success(c, responses, "Responses fetched successfully")
 }
 
 // @Summary Get form passwords
@@ -112,10 +104,7 @@ func (pc *DashController) GetPasswords(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Passwords fetched successfully",
-		"data":    passwords,
-	})
+	return utils.Success(c, passwords, "Passwords fetched successfully")
 }
 
 // @Summary Update form passwords
@@ -144,10 +133,7 @@ func (pc *DashController) UpdatePasswords(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Password updated successfully",
-		"data":    password,
-	})
+	return utils.Success(c, password, "Password updated successfully")
 }
 
 // @Summary Create form passwords
@@ -174,10 +160,7 @@ func (pc *DashController) CreatePasswords(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "Password created successfully",
-		"data":    password,
-	})
+	return utils.Success(c, password, "Password created successfully")
 }
 
 // @Summary Delete form passwords
@@ -201,27 +184,19 @@ func (pc *DashController) DeletePasswords(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Password deleted successfully",
-	})
+	return utils.Success(c, nil, "Password deleted successfully")
 }
 
 func (pc *DashController) Create(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "DashController Create method called",
-	})
+	return utils.Success(c, nil, "DashController Create method called")
 }
 
 func (pc *DashController) Update(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "DashController Update method called",
-	})
+	return utils.Success(c, nil, "DashController Update method called")
 }
 
 func (pc *DashController) Delete(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "DashController Delete method called",
-	})
+	return utils.Success(c, nil, "DashController Delete method called")
 }
 
 // @Summary Update form security
@@ -248,10 +223,7 @@ func (pc *DashController) UpdateSecurity(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Security updated successfully",
-		"data":    form,
-	})
+	return utils.Success(c, form, "Security updated successfully")
 }
 
 // @Summary Update form settings
@@ -278,8 +250,5 @@ func (pc *DashController) UpdateSettings(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Settings updated successfully",
-		"data":    form,
-	})
+	return utils.Success(c, form, "Settings updated successfully")
 }
