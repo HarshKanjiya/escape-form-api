@@ -69,6 +69,12 @@ func newCoupon(db *gorm.DB, opts ...gen.DOOption) coupon {
 			Plan struct {
 				field.RelationField
 			}
+			TeamUsage struct {
+				field.RelationField
+				Team struct {
+					field.RelationField
+				}
+			}
 			Forms struct {
 				field.RelationField
 				Project struct {
@@ -135,6 +141,19 @@ func newCoupon(db *gorm.DB, opts ...gen.DOOption) coupon {
 				field.RelationField
 			}{
 				RelationField: field.NewRelation("Plan.Teams.Plan", "models.Plan"),
+			},
+			TeamUsage: struct {
+				field.RelationField
+				Team struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("Plan.Teams.TeamUsage", "models.TeamUsage"),
+				Team: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Plan.Teams.TeamUsage.Team", "models.Team"),
+				},
 			},
 			Forms: struct {
 				field.RelationField
@@ -445,6 +464,12 @@ type couponBelongsToPlan struct {
 		field.RelationField
 		Plan struct {
 			field.RelationField
+		}
+		TeamUsage struct {
+			field.RelationField
+			Team struct {
+				field.RelationField
+			}
 		}
 		Forms struct {
 			field.RelationField

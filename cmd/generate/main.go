@@ -52,6 +52,7 @@ func main() {
 		models.Feature{},
 		models.ActivePassword{},
 		models.QuestionOption{},
+		models.TeamUsage{},
 	)
 
 	// Generate the code

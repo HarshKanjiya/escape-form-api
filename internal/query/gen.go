@@ -28,6 +28,7 @@ var (
 	QuestionOption *questionOption
 	Response       *response
 	Team           *team
+	TeamUsage      *teamUsage
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -43,6 +44,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	QuestionOption = &Q.QuestionOption
 	Response = &Q.Response
 	Team = &Q.Team
+	TeamUsage = &Q.TeamUsage
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
@@ -59,6 +61,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		QuestionOption: newQuestionOption(db, opts...),
 		Response:       newResponse(db, opts...),
 		Team:           newTeam(db, opts...),
+		TeamUsage:      newTeamUsage(db, opts...),
 	}
 }
 
@@ -76,6 +79,7 @@ type Query struct {
 	QuestionOption questionOption
 	Response       response
 	Team           team
+	TeamUsage      teamUsage
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -94,6 +98,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		QuestionOption: q.QuestionOption.clone(db),
 		Response:       q.Response.clone(db),
 		Team:           q.Team.clone(db),
+		TeamUsage:      q.TeamUsage.clone(db),
 	}
 }
 
@@ -119,6 +124,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		QuestionOption: q.QuestionOption.replaceDB(db),
 		Response:       q.Response.replaceDB(db),
 		Team:           q.Team.replaceDB(db),
+		TeamUsage:      q.TeamUsage.replaceDB(db),
 	}
 }
 
@@ -134,6 +140,7 @@ type queryCtx struct {
 	QuestionOption IQuestionOptionDo
 	Response       IResponseDo
 	Team           ITeamDo
+	TeamUsage      ITeamUsageDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -149,6 +156,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		QuestionOption: q.QuestionOption.WithContext(ctx),
 		Response:       q.Response.WithContext(ctx),
 		Team:           q.Team.WithContext(ctx),
+		TeamUsage:      q.TeamUsage.WithContext(ctx),
 	}
 }
 

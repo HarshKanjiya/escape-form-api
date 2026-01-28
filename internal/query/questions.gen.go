@@ -69,6 +69,12 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 								field.RelationField
 							}
 						}
+						TeamUsage struct {
+							field.RelationField
+							Team struct {
+								field.RelationField
+							}
+						}
 						Forms struct {
 							field.RelationField
 						}
@@ -146,6 +152,12 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 								field.RelationField
 							}
 						}
+						TeamUsage struct {
+							field.RelationField
+							Team struct {
+								field.RelationField
+							}
+						}
 						Forms struct {
 							field.RelationField
 						}
@@ -211,6 +223,12 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 								field.RelationField
 							}
 						}
+						TeamUsage struct {
+							field.RelationField
+							Team struct {
+								field.RelationField
+							}
+						}
 						Forms struct {
 							field.RelationField
 						}
@@ -240,6 +258,12 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 								}
 							}
 							Teams struct {
+								field.RelationField
+							}
+						}
+						TeamUsage struct {
+							field.RelationField
+							Team struct {
 								field.RelationField
 							}
 						}
@@ -300,6 +324,19 @@ func newQuestion(db *gorm.DB, opts ...gen.DOOption) question {
 								field.RelationField
 							}{
 								RelationField: field.NewRelation("Options.Question.Form.Project.Team.Plan.Teams", "models.Team"),
+							},
+						},
+						TeamUsage: struct {
+							field.RelationField
+							Team struct {
+								field.RelationField
+							}
+						}{
+							RelationField: field.NewRelation("Options.Question.Form.Project.Team.TeamUsage", "models.TeamUsage"),
+							Team: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Options.Question.Form.Project.Team.TeamUsage.Team", "models.Team"),
 							},
 						},
 						Forms: struct {
@@ -556,6 +593,12 @@ type questionHasManyOptions struct {
 							}
 						}
 						Teams struct {
+							field.RelationField
+						}
+					}
+					TeamUsage struct {
+						field.RelationField
+						Team struct {
 							field.RelationField
 						}
 					}

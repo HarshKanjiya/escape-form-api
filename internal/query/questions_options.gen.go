@@ -61,6 +61,12 @@ func newQuestionOption(db *gorm.DB, opts ...gen.DOOption) questionOption {
 							field.RelationField
 						}
 					}
+					TeamUsage struct {
+						field.RelationField
+						Team struct {
+							field.RelationField
+						}
+					}
 					Forms struct {
 						field.RelationField
 					}
@@ -126,6 +132,12 @@ func newQuestionOption(db *gorm.DB, opts ...gen.DOOption) questionOption {
 							field.RelationField
 						}
 					}
+					TeamUsage struct {
+						field.RelationField
+						Team struct {
+							field.RelationField
+						}
+					}
 					Forms struct {
 						field.RelationField
 					}
@@ -155,6 +167,12 @@ func newQuestionOption(db *gorm.DB, opts ...gen.DOOption) questionOption {
 							}
 						}
 						Teams struct {
+							field.RelationField
+						}
+					}
+					TeamUsage struct {
+						field.RelationField
+						Team struct {
 							field.RelationField
 						}
 					}
@@ -215,6 +233,19 @@ func newQuestionOption(db *gorm.DB, opts ...gen.DOOption) questionOption {
 							field.RelationField
 						}{
 							RelationField: field.NewRelation("Question.Form.Project.Team.Plan.Teams", "models.Team"),
+						},
+					},
+					TeamUsage: struct {
+						field.RelationField
+						Team struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("Question.Form.Project.Team.TeamUsage", "models.TeamUsage"),
+						Team: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Question.Form.Project.Team.TeamUsage.Team", "models.Team"),
 						},
 					},
 					Forms: struct {
@@ -425,6 +456,12 @@ type questionOptionBelongsToQuestion struct {
 						}
 					}
 					Teams struct {
+						field.RelationField
+					}
+				}
+				TeamUsage struct {
+					field.RelationField
+					Team struct {
 						field.RelationField
 					}
 				}

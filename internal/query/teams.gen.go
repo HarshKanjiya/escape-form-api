@@ -35,6 +35,7 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 	_team.Valid = field.NewBool(tableName, "valid")
 	_team.CreatedAt = field.NewTime(tableName, "createdAt")
 	_team.UpdatedAt = field.NewTime(tableName, "updatedAt")
+	_team.TeamUsageID = field.NewString(tableName, "teamUsageId")
 	_team.Forms = teamHasManyForms{
 		db: db.Session(&gorm.Session{}),
 
@@ -58,6 +59,12 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 						}
 					}
 					Teams struct {
+						field.RelationField
+					}
+				}
+				TeamUsage struct {
+					field.RelationField
+					Team struct {
 						field.RelationField
 					}
 				}
@@ -90,6 +97,12 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 						}
 					}
 					Teams struct {
+						field.RelationField
+					}
+				}
+				TeamUsage struct {
+					field.RelationField
+					Team struct {
 						field.RelationField
 					}
 				}
@@ -150,6 +163,19 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 						field.RelationField
 					}{
 						RelationField: field.NewRelation("Forms.Project.Team.Plan.Teams", "models.Team"),
+					},
+				},
+				TeamUsage: struct {
+					field.RelationField
+					Team struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("Forms.Project.Team.TeamUsage", "models.TeamUsage"),
+					Team: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Forms.Project.Team.TeamUsage.Team", "models.Team"),
 					},
 				},
 				Forms: struct {
@@ -306,6 +332,12 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 		RelationField: field.NewRelation("Plan", "models.Plan"),
 	}
 
+	_team.TeamUsage = teamBelongsToTeamUsage{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("TeamUsage", "models.TeamUsage"),
+	}
+
 	_team.fillFieldMap()
 
 	return _team
@@ -314,19 +346,22 @@ func newTeam(db *gorm.DB, opts ...gen.DOOption) team {
 type team struct {
 	teamDo
 
-	ALL       field.Asterisk
-	ID        field.String
-	Name      field.String
-	OwnerID   field.String
-	PlanID    field.String
-	Valid     field.Bool
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	Forms     teamHasManyForms
+	ALL         field.Asterisk
+	ID          field.String
+	Name        field.String
+	OwnerID     field.String
+	PlanID      field.String
+	Valid       field.Bool
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	TeamUsageID field.String
+	Forms       teamHasManyForms
 
 	Projects teamHasManyProjects
 
 	Plan teamBelongsToPlan
+
+	TeamUsage teamBelongsToTeamUsage
 
 	fieldMap map[string]field.Expr
 }
@@ -350,6 +385,7 @@ func (t *team) updateTableName(table string) *team {
 	t.Valid = field.NewBool(table, "valid")
 	t.CreatedAt = field.NewTime(table, "createdAt")
 	t.UpdatedAt = field.NewTime(table, "updatedAt")
+	t.TeamUsageID = field.NewString(table, "teamUsageId")
 
 	t.fillFieldMap()
 
@@ -366,7 +402,7 @@ func (t *team) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *team) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 10)
+	t.fieldMap = make(map[string]field.Expr, 12)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["name"] = t.Name
 	t.fieldMap["ownerId"] = t.OwnerID
@@ -374,6 +410,7 @@ func (t *team) fillFieldMap() {
 	t.fieldMap["valid"] = t.Valid
 	t.fieldMap["createdAt"] = t.CreatedAt
 	t.fieldMap["updatedAt"] = t.UpdatedAt
+	t.fieldMap["teamUsageId"] = t.TeamUsageID
 
 }
 
@@ -385,6 +422,8 @@ func (t team) clone(db *gorm.DB) team {
 	t.Projects.db.Statement.ConnPool = db.Statement.ConnPool
 	t.Plan.db = db.Session(&gorm.Session{Initialized: true})
 	t.Plan.db.Statement.ConnPool = db.Statement.ConnPool
+	t.TeamUsage.db = db.Session(&gorm.Session{Initialized: true})
+	t.TeamUsage.db.Statement.ConnPool = db.Statement.ConnPool
 	return t
 }
 
@@ -393,6 +432,7 @@ func (t team) replaceDB(db *gorm.DB) team {
 	t.Forms.db = db.Session(&gorm.Session{})
 	t.Projects.db = db.Session(&gorm.Session{})
 	t.Plan.db = db.Session(&gorm.Session{})
+	t.TeamUsage.db = db.Session(&gorm.Session{})
 	return t
 }
 
@@ -420,6 +460,12 @@ type teamHasManyForms struct {
 					}
 				}
 				Teams struct {
+					field.RelationField
+				}
+			}
+			TeamUsage struct {
+				field.RelationField
+				Team struct {
 					field.RelationField
 				}
 			}
@@ -714,6 +760,87 @@ func (a teamBelongsToPlanTx) Count() int64 {
 }
 
 func (a teamBelongsToPlanTx) Unscoped() *teamBelongsToPlanTx {
+	a.tx = a.tx.Unscoped()
+	return &a
+}
+
+type teamBelongsToTeamUsage struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a teamBelongsToTeamUsage) Where(conds ...field.Expr) *teamBelongsToTeamUsage {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a teamBelongsToTeamUsage) WithContext(ctx context.Context) *teamBelongsToTeamUsage {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a teamBelongsToTeamUsage) Session(session *gorm.Session) *teamBelongsToTeamUsage {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a teamBelongsToTeamUsage) Model(m *models.Team) *teamBelongsToTeamUsageTx {
+	return &teamBelongsToTeamUsageTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a teamBelongsToTeamUsage) Unscoped() *teamBelongsToTeamUsage {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type teamBelongsToTeamUsageTx struct{ tx *gorm.Association }
+
+func (a teamBelongsToTeamUsageTx) Find() (result *models.TeamUsage, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a teamBelongsToTeamUsageTx) Append(values ...*models.TeamUsage) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a teamBelongsToTeamUsageTx) Replace(values ...*models.TeamUsage) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a teamBelongsToTeamUsageTx) Delete(values ...*models.TeamUsage) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a teamBelongsToTeamUsageTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a teamBelongsToTeamUsageTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a teamBelongsToTeamUsageTx) Unscoped() *teamBelongsToTeamUsageTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

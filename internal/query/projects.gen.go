@@ -61,6 +61,12 @@ func newProject(db *gorm.DB, opts ...gen.DOOption) project {
 						field.RelationField
 					}
 				}
+				TeamUsage struct {
+					field.RelationField
+					Team struct {
+						field.RelationField
+					}
+				}
 				Forms struct {
 					field.RelationField
 				}
@@ -90,6 +96,12 @@ func newProject(db *gorm.DB, opts ...gen.DOOption) project {
 						}
 					}
 					Teams struct {
+						field.RelationField
+					}
+				}
+				TeamUsage struct {
+					field.RelationField
+					Team struct {
 						field.RelationField
 					}
 				}
@@ -150,6 +162,19 @@ func newProject(db *gorm.DB, opts ...gen.DOOption) project {
 						field.RelationField
 					}{
 						RelationField: field.NewRelation("Forms.Project.Team.Plan.Teams", "models.Team"),
+					},
+				},
+				TeamUsage: struct {
+					field.RelationField
+					Team struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("Forms.Project.Team.TeamUsage", "models.TeamUsage"),
+					Team: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Forms.Project.Team.TeamUsage.Team", "models.Team"),
 					},
 				},
 				Forms: struct {
@@ -409,6 +434,12 @@ type projectHasManyForms struct {
 					}
 				}
 				Teams struct {
+					field.RelationField
+				}
+			}
+			TeamUsage struct {
+				field.RelationField
+				Team struct {
 					field.RelationField
 				}
 			}

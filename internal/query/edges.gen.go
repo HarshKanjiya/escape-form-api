@@ -59,6 +59,12 @@ func newEdge(db *gorm.DB, opts ...gen.DOOption) edge {
 						field.RelationField
 					}
 				}
+				TeamUsage struct {
+					field.RelationField
+					Team struct {
+						field.RelationField
+					}
+				}
 				Forms struct {
 					field.RelationField
 				}
@@ -88,6 +94,12 @@ func newEdge(db *gorm.DB, opts ...gen.DOOption) edge {
 						}
 					}
 					Teams struct {
+						field.RelationField
+					}
+				}
+				TeamUsage struct {
+					field.RelationField
+					Team struct {
 						field.RelationField
 					}
 				}
@@ -148,6 +160,19 @@ func newEdge(db *gorm.DB, opts ...gen.DOOption) edge {
 						field.RelationField
 					}{
 						RelationField: field.NewRelation("Form.Project.Team.Plan.Teams", "models.Team"),
+					},
+				},
+				TeamUsage: struct {
+					field.RelationField
+					Team struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("Form.Project.Team.TeamUsage", "models.TeamUsage"),
+					Team: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Form.Project.Team.TeamUsage.Team", "models.Team"),
 					},
 				},
 				Forms: struct {
@@ -412,6 +437,12 @@ type edgeBelongsToForm struct {
 					}
 				}
 				Teams struct {
+					field.RelationField
+				}
+			}
+			TeamUsage struct {
+				field.RelationField
+				Team struct {
 					field.RelationField
 				}
 			}
