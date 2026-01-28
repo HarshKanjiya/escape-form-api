@@ -19,6 +19,58 @@ func NewQuestionRepo(db *gorm.DB) *QuestionRepo {
 	}
 }
 
+func (r *QuestionRepo) Get(ctx *fiber.Ctx, formId string) ([]*models.Question, error) {
+	questions, err := r.q.WithContext(ctx.Context()).Question.Where(r.q.Question.FormID.Eq(formId)).Find()
+	if err != nil {
+		return nil, err
+	}
+
+	return questions, nil
+}
+
+func (r *QuestionRepo) Create(ctx *fiber.Ctx, question *types.QuestionDto) (*models.Question, error) {
+	questionModel := &models.Question{
+		ID:          uuid.New().String(),
+		FormID:      question.FormID,
+		Title:       question.Title,
+		Type:        question.Type,
+		Required:    question.Required,
+		SortOrder:   question.SortOrder,
+		Placeholder: question.Placeholder,
+		Description: question.Description,
+		Metadata:    question.Metadata,
+		PosX:        question.PosX,
+		PosY:        question.PosY,
+	}
+	if err := r.q.Question.Create(questionModel); err != nil {
+		return nil, err
+	}
+	return questionModel, nil
+}
+
+func (r *QuestionRepo) Update(ctx *fiber.Ctx, question *types.QuestionDto) (*models.Question, error) {
+	questionModel := &models.Question{
+		ID:          question.ID,
+		FormID:      question.FormID,
+		Title:       question.Title,
+		Type:        question.Type,
+		Required:    question.Required,
+		SortOrder:   question.SortOrder,
+		Placeholder: question.Placeholder,
+		Description: question.Description,
+		Metadata:    question.Metadata,
+		PosX:        question.PosX,
+		PosY:        question.PosY,
+	}
+	_, err := r.q.WithContext(ctx.Context()).
+		Question.Where(r.q.Question.ID.Eq(question.ID)).
+		Updates(questionModel)
+	if err != nil {
+		return nil, err
+	}
+	return questionModel, nil
+}
+
 func (r *QuestionRepo) GetOptions(ctx *fiber.Ctx, questionId string) ([]*models.QuestionOption, error) {
 	options, err := r.q.WithContext(ctx.Context()).QuestionOption.Where(r.q.QuestionOption.QuestionID.Eq(questionId)).Find()
 	if err != nil {

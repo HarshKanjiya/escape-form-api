@@ -17,6 +17,18 @@ func NewQuestionService(questionRepo *repositories.QuestionRepo) *QuestionServic
 	}
 }
 
+func (s *QuestionService) Get(ctx *fiber.Ctx, formId string) ([]*models.Question, error) {
+	return s.questionRepo.Get(ctx, formId)
+}
+
+func (s *QuestionService) Create(ctx *fiber.Ctx, question *types.QuestionDto) (*models.Question, error) {
+	return s.questionRepo.Create(ctx, question)
+}
+
+func (s *QuestionService) Update(ctx *fiber.Ctx, question *types.QuestionDto) (*models.Question, error) {
+	return s.questionRepo.Update(ctx, question)
+}
+
 func (s *QuestionService) GetOptions(ctx *fiber.Ctx, questionId string) ([]*models.QuestionOption, error) {
 	return s.questionRepo.GetOptions(ctx, questionId)
 }

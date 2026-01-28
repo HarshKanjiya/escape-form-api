@@ -68,6 +68,11 @@ func (fc *FormController) Create(c *fiber.Ctx) error {
 // @Router /forms/{id} [get]
 func (pc *FormController) GetById(c *fiber.Ctx) error {
 	formId := c.Params("id")
+
+	if formId == "" {
+		return utils.BadRequest(c, "Form ID is required")
+	}
+
 	form, err := pc.formService.GetById(c, formId)
 	if err != nil {
 		return utils.NotFound(c, "Form not found")

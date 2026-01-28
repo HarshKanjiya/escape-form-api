@@ -26,11 +26,19 @@ func NewQuestionController(service *services.QuestionService) *QuestionControlle
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /questions [get]
+// @Router /forms/{formId}/questions [get]
 func (pc *QuestionController) Get(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "QuestionController Get method called",
-	})
+
+	formId := c.Params("formId")
+
+	if formId == "" {
+		return utils.BadRequest(c, "Form ID is required")
+	}
+	questions, err := pc.questionService.Get(c, formId)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to fetch questions")
+	}
+	return utils.Success(c, questions, "Questions fetched successfully")
 }
 
 // @Summary Create a new question
@@ -39,11 +47,28 @@ func (pc *QuestionController) Get(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /questions [post]
+// @Router /forms/{formId}/questions [post]
 func (pc *QuestionController) Create(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "QuestionController Create method called",
-	})
+	formId := c.Params("formId")
+
+	if formId == "" {
+		return utils.BadRequest(c, "Form ID is required")
+	}
+
+	var questionDto types.QuestionDto
+	if err := c.BodyParser(&questionDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+	questionDto.FormID = formId
+
+	if err := pc.validator.Struct(&questionDto); err != nil {
+		return utils.BadRequest(c, "Validation failed: "+err.Error())
+	}
+	question, err := pc.questionService.Create(c, &questionDto)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to create question")
+	}
+	return utils.Created(c, question, "Question created successfully")
 }
 
 // @Summary Update a question
@@ -51,13 +76,30 @@ func (pc *QuestionController) Create(c *fiber.Ctx) error {
 // @Tags questions
 // @Accept json
 // @Produce json
-// @Param id path string true "Question ID"
+// @Param questionId path string true "Question ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /questions/{id} [patch]
+// @Router /questions/{questionId} [patch]
 func (pc *QuestionController) Update(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "QuestionController Update method called",
-	})
+	questionId := c.Params("questionId")
+
+	if questionId == "" {
+		return utils.BadRequest(c, "Question ID is required")
+	}
+
+	var questionDto types.QuestionDto
+	if err := c.BodyParser(&questionDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+	questionDto.ID = questionId
+
+	if err := pc.validator.Struct(&questionDto); err != nil {
+		return utils.BadRequest(c, "Validation failed: "+err.Error())
+	}
+	question, err := pc.questionService.Update(c, &questionDto)
+	if err != nil {
+		return utils.Error(c, fiber.StatusInternalServerError, "Failed to update question")
+	}
+	return utils.Success(c, question, "Question updated successfully")
 }
 
 // @Summary Delete a question
@@ -65,7 +107,7 @@ func (pc *QuestionController) Update(c *fiber.Ctx) error {
 // @Tags questions
 // @Accept json
 // @Produce json
-// @Param id path string true "Question ID"
+// @Param questionId path string true "Question ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /questions/{id} [delete]
 func (pc *QuestionController) Delete(c *fiber.Ctx) error {

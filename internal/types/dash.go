@@ -17,3 +17,13 @@ type FormAnalytics struct {
 	TodayResponseCount int                 `json:"todayResponseCount"`
 	SubmitDataPoints   []MonthlySubmitData `json:"submitDataPoints"`
 }
+
+type ActivePasswordDto struct {
+	ID         string `json:"id"`
+	FormID     string `json:"formId"`
+	Password   string `json:"password"`
+	Name       string `json:"name"`
+	IsValid    bool   `json:"isValid"`
+	UsableUpto int    `json:"usableUpto"`
+	ExpireAt   string `json:"expireAt"`
+}

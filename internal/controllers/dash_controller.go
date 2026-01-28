@@ -32,7 +32,7 @@ func (pc *DashController) GetAnalytics(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
 	}
 
-	analytics, err := pc.dashService.GetAnalytics(formId)
+	analytics, err := pc.dashService.GetAnalytics(c, formId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -57,7 +57,7 @@ func (pc *DashController) GetQuestions(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
 	}
 
-	questions, err := pc.dashService.GetQuestions(formId)
+	questions, err := pc.dashService.GetQuestions(c, formId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -82,7 +82,7 @@ func (pc *DashController) GetResponses(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
 	}
 
-	responses, err := pc.dashService.GetResponses(formId)
+	responses, err := pc.dashService.GetResponses(c, formId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -107,7 +107,7 @@ func (pc *DashController) GetPasswords(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
 	}
 
-	passwords, err := pc.dashService.GetPasswords(formId)
+	passwords, err := pc.dashService.GetPasswords(c, formId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -139,7 +139,7 @@ func (pc *DashController) UpdatePasswords(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	password, err := pc.dashService.UpdatePassword(formId, passwordId, body)
+	password, err := pc.dashService.UpdatePassword(c, formId, passwordId, body)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -169,7 +169,7 @@ func (pc *DashController) CreatePasswords(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	password, err := pc.dashService.CreatePassword(formId, body)
+	password, err := pc.dashService.CreatePassword(c, formId, body)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -196,7 +196,7 @@ func (pc *DashController) DeletePasswords(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID and Password ID are required"})
 	}
 
-	err := pc.dashService.DeletePassword(formId, passwordId)
+	err := pc.dashService.DeletePassword(c, formId, passwordId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -243,7 +243,7 @@ func (pc *DashController) UpdateSecurity(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	form, err := pc.dashService.UpdateSecurity(formId, body)
+	form, err := pc.dashService.UpdateSecurity(c, formId, body)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -273,7 +273,7 @@ func (pc *DashController) UpdateSettings(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	form, err := pc.dashService.UpdateSettings(formId, body)
+	form, err := pc.dashService.UpdateSettings(c, formId, body)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
