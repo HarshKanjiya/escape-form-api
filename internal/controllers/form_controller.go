@@ -53,9 +53,15 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms [post]
 func (fc *FormController) Create(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "FormController Create method called",
-	})
+	var formDto types.CreateFormDto
+	if err := c.BodyParser(&formDto); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+	newForm, err := fc.formService.Create(c, &formDto)
+	if err != nil {
+		return utils.InternalServerError(c, "Failed to create form")
+	}
+	return utils.Success(c, newForm, "Form created successfully")
 }
 
 // @Summary Get a form by ID
@@ -104,5 +110,11 @@ func (pc *FormController) Update(c *fiber.Ctx) error {
 func (pc *FormController) Delete(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "FormController Delete method called",
+	})
+}
+
+func (pc *FormController) UpdateSequence(c *fiber.Ctx) error {
+	return c.JSON(fiber.Map{
+		"message": "FormController UpdateSequence method called",
 	})
 }

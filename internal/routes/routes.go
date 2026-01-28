@@ -67,10 +67,12 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		forms.Post("/", formController.Create)
 		forms.Get("/:id", formController.GetById)
 		forms.Patch("/:id/status", formController.UpdateStatus)
-		forms.Delete("/:id/status", formController.UpdateStatus)
+		forms.Delete("/:id", formController.Delete)
 
 		forms.Get("/:formId/questions", questionController.Get)
 		forms.Post("/:formId/questions", questionController.Create)
+
+		forms.Post("/:formId/sequence", formController.UpdateSequence)
 	}
 
 	questions := protectedRoutes.Group("/questions")
@@ -99,6 +101,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		dash.Get("/:formId/responses", dashController.GetResponses)
 		dash.Patch("/:formId/security", dashController.UpdateSecurity)
 		dash.Patch("/:formId/settings", dashController.UpdateSettings)
+
 		dash.Get("/:formId/passwords", dashController.GetPasswords)
 		dash.Post("/:formId/passwords", dashController.CreatePasswords)
 		dash.Patch("/:formId/passwords/:passwordId", dashController.UpdatePasswords)

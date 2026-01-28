@@ -36,14 +36,16 @@ func (fs *FormService) GetById(ctx *fiber.Ctx, formId string) (*types.FormRespon
 	return form, nil
 }
 
-func (fs *FormService) Create() types.FormResponse {
-	return types.FormResponse{}
+func (fs *FormService) Create(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {
+	return fs.formRepo.Create(ctx, formDto)
 }
 
-func (fs *FormService) Update() types.FormResponse {
-	return types.FormResponse{}
+func (fs *FormService) Update(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {
+	return nil, nil
+
 }
 
-func (fs *FormService) Delete() types.FormResponse {
-	return types.FormResponse{}
+func (fs *FormService) Delete(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {
+	return nil, nil
+
 }

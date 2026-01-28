@@ -5,10 +5,12 @@ import (
 	"log"
 	"strings"
 
+	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -262,4 +264,39 @@ func (r *FormRepo) GetById(ctx *fiber.Ctx, formId string) (*types.FormResponse, 
 	}
 
 	return formResponse, nil
+}
+
+func (r *FormRepo) Create(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {
+	userId := ctx.Locals("user_id").(string)
+
+	project, err := r.q.WithContext(ctx.Context()).
+		Project.Where(r.q.Project.ID.Eq(formDto.ProjectID)).
+		Join(r.q.Team, r.q.Project.TeamID.EqCol(r.q.Team.ID)).
+		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Project.Valid.Is(true)).
+		First()
+
+	if err != nil {
+		log.Printf("Project not found or not owned by user: %v", err)
+		return nil, err
+	}
+
+	status := models.FormStatusDraft
+	form := &models.Form{
+		ID:           uuid.New().String(),
+		Name:         formDto.Name,
+		Description:  formDto.Description,
+		ProjectID:    formDto.ProjectID,
+		TeamID:       project.TeamID,
+		Valid:        true,
+		CreatedBy:    userId,
+		FormPageType: models.FormPageTypeSingle,
+		Status:       &status,
+	}
+
+	err = r.q.WithContext(ctx.Context()).Form.Create(form)
+	if err != nil {
+		log.Printf("Error creating form: %v", err)
+		return nil, err
+	}
+	return r.GetById(ctx, form.ID)
 }
