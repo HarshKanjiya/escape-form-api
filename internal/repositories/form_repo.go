@@ -300,3 +300,30 @@ func (r *FormRepo) Create(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.
 	}
 	return r.GetById(ctx, form.ID)
 }
+
+func (r *FormRepo) UpdateStatus(ctx *fiber.Ctx, formId string, status *models.FormStatus) (*types.FormResponse, error) {
+
+	userId := ctx.Locals("user_id").(string)
+	form, err := r.q.WithContext(ctx.Context()).
+		Form.Where(r.q.Form.ID.Eq(formId)).
+		Join(r.q.Team, r.q.Form.TeamID.EqCol(r.q.Team.ID)).
+		First()
+	if err != nil {
+		log.Printf("Form not found: %v", err)
+		return nil, err
+	}
+	if form.Team.OwnerID != &userId {
+		log.Printf("User %s does not own the form %s", userId, formId)
+		return nil, gorm.ErrRecordNotFound
+	}
+	newStatus := models.FormStatus(*status)
+
+	_, err = r.q.WithContext(ctx.Context()).
+		Form.Where(r.q.Form.ID.Eq(formId)).
+		UpdateColumn(r.q.Form.Status, newStatus)
+	if err != nil {
+		log.Printf("Error updating form status: %v", err)
+		return nil, err
+	}
+	return r.GetById(ctx, formId)
+}

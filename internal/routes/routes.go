@@ -66,7 +66,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		forms.Get("/", formController.Get)
 		forms.Post("/", formController.Create)
 		forms.Get("/:id", formController.GetById)
-		forms.Patch("/:id/status", formController.UpdateStatus)
+		forms.Post("/:id/status", formController.UpdateStatus)
 		forms.Delete("/:id", formController.Delete)
 
 		forms.Get("/:formId/questions", questionController.Get)

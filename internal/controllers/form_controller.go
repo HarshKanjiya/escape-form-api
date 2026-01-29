@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
@@ -96,7 +97,20 @@ func (pc *FormController) GetById(c *fiber.Ctx) error {
 // @Router /forms/{id}/status [patch]
 // @Router /forms/{id}/status [delete]
 func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
-	return utils.Success(c, nil, "FormController UpdateStatus method called")
+	formId := c.Params("id")
+
+	if formId == "" {
+		return utils.BadRequest(c, "Form ID is required")
+	}
+	var status models.FormStatus
+	if err := c.BodyParser(&status); err != nil {
+		return utils.BadRequest(c, "Invalid request body")
+	}
+	updatedForm, err := pc.formService.UpdateStatus(c, formId, &status)
+	if err != nil {
+		return utils.InternalServerError(c, "Failed to update form status")
+	}
+	return utils.Success(c, updatedForm, "Form status updated successfully")
 }
 
 func (pc *FormController) Update(c *fiber.Ctx) error {

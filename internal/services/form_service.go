@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/gofiber/fiber/v2"
@@ -48,4 +49,8 @@ func (fs *FormService) Update(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*ty
 func (fs *FormService) Delete(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {
 	return nil, nil
 
+}
+
+func (fs *FormService) UpdateStatus(ctx *fiber.Ctx, formId string, status *models.FormStatus) (*types.FormResponse, error) {
+	return fs.formRepo.UpdateStatus(ctx, formId, status)
 }
