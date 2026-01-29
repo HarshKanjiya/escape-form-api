@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"log"
+
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
@@ -123,6 +125,7 @@ func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
 	)
 
 	if err != nil {
+		log.Printf("qqqqqqqqqqqqqqqq %s", err.Error())
 		return err
 	}
 

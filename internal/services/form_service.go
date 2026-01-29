@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
@@ -79,18 +80,15 @@ func (fs *FormService) UpdateStatus(
 	status models.FormStatus,
 ) (*types.FormResponse, error) {
 
-	form, err := fs.formRepo.GetWithTeam(ctx, formId)
+	_, err := fs.formRepo.GetWithTeam(ctx, userId, formId)
 	if err != nil {
+		log.Printf("Error fetching form: %v", err)
 		return nil, utils.NewAppError("Form not found", fiber.StatusNotFound, err)
 	}
 
-	if *form.Team.OwnerID != userId {
-		return nil, utils.NewAppError("Forbidden: You do not own this form", fiber.StatusForbidden, nil)
-	}
-
 	if err := fs.formRepo.UpdateStatus(ctx, formId, status); err != nil {
+		log.Printf("Error updating form status: %v", err)
 		return nil, utils.NewAppError("Failed to update form status", fiber.StatusInternalServerError, err)
 	}
-
 	return fs.formRepo.GetById(ctx, formId)
 }

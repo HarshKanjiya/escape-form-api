@@ -304,10 +304,11 @@ func (r *FormRepo) UpdateStatus(
 	return err
 }
 
-func (r *FormRepo) GetWithTeam(ctx context.Context, formId string) (*models.Form, error) {
+func (r *FormRepo) GetWithTeam(ctx context.Context, userId string, formId string) (*models.Form, error) {
 	form, err := r.q.WithContext(ctx).
 		Form.Where(r.q.Form.ID.Eq(formId)).
 		Join(r.q.Team, r.q.Form.TeamID.EqCol(r.q.Team.ID)).
+		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Form.Valid.Is(true)).
 		First()
 	if err != nil {
 		log.Printf("Form not found or not owned by user: %v", err)
