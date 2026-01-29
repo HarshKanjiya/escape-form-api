@@ -95,18 +95,19 @@ func (pc *FormController) GetById(c *fiber.Ctx) error {
 // @Param id path string true "Form ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /forms/{id}/status [patch]
-// @Router /forms/{id}/status [delete]
 func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
 	formId := c.Params("id")
 
 	if formId == "" {
 		return utils.BadRequest(c, "Form ID is required")
 	}
-	var status models.FormStatus
-	if err := c.BodyParser(&status); err != nil {
+	var req struct {
+		Action models.FormStatus `json:"action"`
+	}
+	if err := c.BodyParser(&req); err != nil {
 		return utils.BadRequest(c, "Invalid request body")
 	}
-	updatedForm, err := pc.formService.UpdateStatus(c, formId, &status)
+	updatedForm, err := pc.formService.UpdateStatus(c, formId, &req.Action)
 	if err != nil {
 		return utils.InternalServerError(c, "Failed to update form status")
 	}

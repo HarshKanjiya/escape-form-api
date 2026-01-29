@@ -312,6 +312,8 @@ func (r *FormRepo) UpdateStatus(ctx *fiber.Ctx, formId string, status *models.Fo
 		log.Printf("Form not found: %v", err)
 		return nil, err
 	}
+	log.Printf("team owner id: %s", *form.Team.OwnerID)
+	log.Printf("user: %s", userId)
 	if form.Team.OwnerID != &userId {
 		log.Printf("User %s does not own the form %s", userId, formId)
 		return nil, gorm.ErrRecordNotFound
