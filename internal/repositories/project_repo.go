@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"log"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
@@ -267,6 +268,19 @@ func (r *ProjectRepo) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectR
 	}
 
 	return projectResponse, nil
+}
+
+func (r *ProjectRepo) GetWithTeam(ctx context.Context, userId string, projectId string) (*models.Project, error) {
+	project, err := r.q.WithContext(ctx).
+		Project.Where(r.q.Project.ID.Eq(projectId)).
+		Join(r.q.Team, r.q.Project.TeamID.EqCol(r.q.Team.ID)).
+		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Project.Valid.Is(true)).
+		First()
+	if err != nil {
+		log.Printf("Project not found or not owned by user: %v", err)
+		return nil, err
+	}
+	return project, nil
 }
 
 func (r *ProjectRepo) Create(ctx *fiber.Ctx, project *types.ProjectDto) (*models.Project, error) {

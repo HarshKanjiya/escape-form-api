@@ -24,7 +24,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	// Initialize services
 	teamService := services.NewTeamService(teamRepo)
 	projectService := services.NewProjectService(projectRepo)
-	formService := services.NewFormService(formRepo)
+	formService := services.NewFormService(formRepo, projectRepo)
 	questionService := services.NewQuestionService(questionRepo)
 	edgeService := services.NewEdgeService(edgeRepo)
 	dashService := services.NewDashService(dashRepo)

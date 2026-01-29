@@ -29,6 +29,7 @@ func NewFormController(service *services.FormService) *FormController {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms [get]
 func (fc *FormController) Get(c *fiber.Ctx) error {
+	userId := c.Locals("user_id").(string)
 	pagination := &types.PaginationQuery{
 		Page:   c.QueryInt("page", 1),
 		Limit:  c.QueryInt("limit", 10),
@@ -38,11 +39,12 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 	}
 	projectId := c.Query("projectId", "")
 	if projectId == "" {
-		return c.Status(400).JSON(fiber.Map{
-			"error": "projectId is required",
-		})
+		return utils.BadRequest(c, "projectId is required")
 	}
-	forms, total := fc.formService.Get(c, pagination, true, projectId)
+	forms, total, err := fc.formService.Get(c.Context(), userId, pagination, true, projectId)
+	if err != nil {
+		return err
+	}
 	return utils.Success(c, forms, "Forms fetched successfully", total)
 }
 
@@ -54,11 +56,12 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms [post]
 func (fc *FormController) Create(c *fiber.Ctx) error {
+	userId := c.Locals("user_id").(string)
 	var formDto types.CreateFormDto
 	if err := c.BodyParser(&formDto); err != nil {
 		return utils.BadRequest(c, "Invalid request body")
 	}
-	newForm, err := fc.formService.Create(c, &formDto)
+	newForm, err := fc.formService.Create(c.Context(), userId, &formDto)
 	if err != nil {
 		return err
 	}
@@ -74,13 +77,14 @@ func (fc *FormController) Create(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms/{id} [get]
 func (pc *FormController) GetById(c *fiber.Ctx) error {
+	userId := c.Locals("user_id").(string)
 	formId := c.Params("id")
 
 	if formId == "" {
 		return utils.BadRequest(c, "Form ID is required")
 	}
 
-	form, err := pc.formService.GetById(c, formId)
+	form, err := pc.formService.GetById(c.Context(), userId, formId)
 	if err != nil {
 		return err
 	}

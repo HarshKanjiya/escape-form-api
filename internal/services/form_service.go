@@ -11,28 +11,36 @@ import (
 )
 
 type FormService struct {
-	formRepo *repositories.FormRepo
+	formRepo    *repositories.FormRepo
+	projectRepo *repositories.ProjectRepo
 }
 
-func NewFormService(formRepo *repositories.FormRepo) *FormService {
+func NewFormService(formRepo *repositories.FormRepo, projectRepo *repositories.ProjectRepo) *FormService {
 	return &FormService{
-		formRepo: formRepo,
+		formRepo:    formRepo,
+		projectRepo: projectRepo,
 	}
 }
 
-func (fs *FormService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, projectId string) ([]*types.FormResponse, int) {
+func (fs *FormService) Get(ctx context.Context, userId string, pagination *types.PaginationQuery, valid bool, projectId string) ([]*types.FormResponse, int, error) {
+
+	// Check if user owns the project
+	_, err := fs.projectRepo.GetWithTeam(ctx, userId, projectId)
+	if err != nil {
+		return nil, 0, utils.HandleDatabaseError(err, "Project")
+	}
 
 	forms, total, err := fs.formRepo.Get(ctx, pagination, valid, projectId)
 	if err != nil {
-		return []*types.FormResponse{}, 0
+		return nil, 0, utils.NewAppError("Failed to fetch forms", fiber.StatusInternalServerError, err)
 	}
 
-	return forms, total
+	return forms, total, nil
 }
 
-func (fs *FormService) GetById(ctx *fiber.Ctx, formId string) (*types.FormResponse, error) {
+func (fs *FormService) GetById(ctx context.Context, userId string, formId string) (*types.FormResponse, error) {
 
-	form, err := fs.formRepo.GetById(ctx.Context(), formId)
+	form, err := fs.formRepo.GetById(ctx, formId)
 	if err != nil {
 		return nil, utils.HandleDatabaseError(err, "Form")
 	}
@@ -40,8 +48,14 @@ func (fs *FormService) GetById(ctx *fiber.Ctx, formId string) (*types.FormRespon
 	return form, nil
 }
 
-func (fs *FormService) Create(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {
-	form, err := fs.formRepo.Create(ctx.Context(), formDto)
+func (fs *FormService) Create(ctx context.Context, userId string, formDto *types.CreateFormDto) (*types.FormResponse, error) {
+	// Check if user owns the project
+	_, err := fs.projectRepo.GetWithTeam(ctx, userId, formDto.ProjectID)
+	if err != nil {
+		return nil, utils.HandleDatabaseError(err, "Project")
+	}
+
+	form, err := fs.formRepo.Create(ctx, userId, formDto)
 	if err != nil {
 		return nil, utils.NewAppError("Failed to create form", fiber.StatusInternalServerError, err)
 	}

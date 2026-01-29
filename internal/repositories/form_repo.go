@@ -10,7 +10,6 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -25,23 +24,19 @@ func NewFormRepo(db *gorm.DB) *FormRepo {
 	}
 }
 
-func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, projectId string) ([]*types.FormResponse, int, error) {
+func (r *FormRepo) Get(ctx context.Context, pagination *types.PaginationQuery, valid bool, projectId string) ([]*types.FormResponse, int, error) {
 
-	userId := ctx.Locals("user_id").(string)
-
-	project, err := r.q.WithContext(ctx.Context()).
+	project, err := r.q.WithContext(ctx).
 		Project.Where(r.q.Project.ID.Eq(projectId)).
-		Join(r.q.Team, r.q.Project.TeamID.EqCol(r.q.Team.ID)).
-		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Project.Valid.Is(true)).
 		First()
 	if err != nil {
-		log.Printf("Project not found or not owned by user: %v", err)
-		return []*types.FormResponse{}, 0, nil
+		log.Printf("Project not found: %v", err)
+		return []*types.FormResponse{}, 0, err
 	}
 	_ = project
 
 	f := r.q.Form
-	baseQuery := r.q.WithContext(ctx.Context()).
+	baseQuery := r.q.WithContext(ctx).
 		Form.Where(f.ProjectID.Eq(projectId), f.Valid.Is(valid))
 
 	if pagination.Search != "" {
@@ -79,7 +74,7 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 		FormID string
 		Count  int
 	}
-	err = r.q.WithContext(ctx.Context()).
+	err = r.q.WithContext(ctx).
 		Response.Select(r.q.Response.FormID, r.q.Response.ID.Count().As("count")).
 		Where(r.q.Response.FormID.In(formIDs...)).
 		Group(r.q.Response.FormID).
@@ -263,25 +258,14 @@ func (r *FormRepo) GetById(ctx context.Context, formId string) (*types.FormRespo
 	return formResponse, nil
 }
 
-func (r *FormRepo) GetWithTeam(ctx context.Context, formId string) (*models.Form, error) {
-	return r.q.WithContext(ctx).
-		Form.
-		Where(r.q.Form.ID.Eq(formId)).
-		Join(r.q.Team, r.q.Form.TeamID.EqCol(r.q.Team.ID)).
-		First()
-}
-
-func (r *FormRepo) Create(ctx context.Context, formDto *types.CreateFormDto) (*types.FormResponse, error) {
-	userId := ctx.Value("user_id").(string)
+func (r *FormRepo) Create(ctx context.Context, userId string, formDto *types.CreateFormDto) (*types.FormResponse, error) {
 
 	project, err := r.q.WithContext(ctx).
 		Project.Where(r.q.Project.ID.Eq(formDto.ProjectID)).
-		Join(r.q.Team, r.q.Project.TeamID.EqCol(r.q.Team.ID)).
-		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Project.Valid.Is(true)).
 		First()
 
 	if err != nil {
-		log.Printf("Project not found or not owned by user: %v", err)
+		log.Printf("Project not found: %v", err)
 		return nil, err
 	}
 
@@ -318,4 +302,16 @@ func (r *FormRepo) UpdateStatus(
 		UpdateColumn(r.q.Form.Status, status)
 
 	return err
+}
+
+func (r *FormRepo) GetWithTeam(ctx context.Context, formId string) (*models.Form, error) {
+	form, err := r.q.WithContext(ctx).
+		Form.Where(r.q.Form.ID.Eq(formId)).
+		Join(r.q.Team, r.q.Form.TeamID.EqCol(r.q.Team.ID)).
+		First()
+	if err != nil {
+		log.Printf("Form not found or not owned by user: %v", err)
+		return nil, err
+	}
+	return form, nil
 }
