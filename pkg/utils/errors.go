@@ -9,8 +9,8 @@ import (
 
 // AppError represents an application-level error
 type AppError struct {
-	Message    string
 	StatusCode int
+	Message    string
 	Err        error
 }
 
@@ -67,7 +67,7 @@ func HandleDatabaseError(err error, resourceName string) *AppError {
 			err,
 		)
 	}
-	
+
 	if IsDuplicateError(err) {
 		return NewAppError(
 			fmt.Sprintf("%s already exists", resourceName),
@@ -75,7 +75,7 @@ func HandleDatabaseError(err error, resourceName string) *AppError {
 			err,
 		)
 	}
-	
+
 	return NewAppError(
 		fmt.Sprintf("Database error while processing %s", resourceName),
 		500,

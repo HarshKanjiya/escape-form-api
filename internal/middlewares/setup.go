@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/config"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -34,13 +35,18 @@ func ErrorHandler(c *fiber.Ctx, err error) error {
 	code := fiber.StatusInternalServerError
 	message := "Internal Server Error"
 
-	if e, ok := err.(*fiber.Error); ok {
+	if appErr, ok := err.(*utils.AppError); ok {
+		code = appErr.StatusCode
+		message = appErr.Message
+	} else if e, ok := err.(*fiber.Error); ok {
 		code = e.Code
 		message = e.Message
 	}
 
 	return c.Status(code).JSON(fiber.Map{
-		"success": false,
-		"error":   message,
+		"type":       "error",
+		"data":       nil,
+		"message":    message,
+		"totalItems": 0,
 	})
 }

@@ -60,7 +60,7 @@ func (fc *FormController) Create(c *fiber.Ctx) error {
 	}
 	newForm, err := fc.formService.Create(c, &formDto)
 	if err != nil {
-		return utils.InternalServerError(c, "Failed to create form")
+		return err
 	}
 	return utils.Success(c, newForm, "Form created successfully")
 }
@@ -82,7 +82,7 @@ func (pc *FormController) GetById(c *fiber.Ctx) error {
 
 	form, err := pc.formService.GetById(c, formId)
 	if err != nil {
-		return utils.NotFound(c, "Form not found")
+		return err
 	}
 	return utils.Success(c, form, "Form fetched successfully")
 }
@@ -97,31 +97,46 @@ func (pc *FormController) GetById(c *fiber.Ctx) error {
 // @Router /forms/{id}/status [patch]
 func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
 	formId := c.Params("id")
-
 	if formId == "" {
 		return utils.BadRequest(c, "Form ID is required")
 	}
+
 	var req struct {
 		Action models.FormStatus `json:"action"`
 	}
+
 	if err := c.BodyParser(&req); err != nil {
 		return utils.BadRequest(c, "Invalid request body")
 	}
-	updatedForm, err := pc.formService.UpdateStatus(c, formId, &req.Action)
+
+	userId := c.Locals("user_id").(string)
+
+	updatedForm, err := pc.formService.UpdateStatus(
+		c.Context(),
+		userId,
+		formId,
+		req.Action,
+	)
+
 	if err != nil {
-		return utils.InternalServerError(c, "Failed to update form status")
+		return err
 	}
+
 	return utils.Success(c, updatedForm, "Form status updated successfully")
 }
 
-func (pc *FormController) Update(c *fiber.Ctx) error {
-	return utils.Success(c, nil, "FormController Update method called")
-}
-
+// @Summary Delete a form
+// @Description Delete a form by its ID
+// @Tags forms
+// @Accept json
+// @Produce json
+// @Param id path string true "Form ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /forms/{id} [delete]
 func (pc *FormController) Delete(c *fiber.Ctx) error {
-	return utils.Success(c, nil, "FormController Delete method called")
+	return utils.Success(c, nil, "Form deleted successfully")
 }
 
 func (pc *FormController) UpdateSequence(c *fiber.Ctx) error {
-	return utils.Success(c, nil, "FormController UpdateSequence method called")
+	return utils.Success(c, nil, "Form deleted successfully")
 }

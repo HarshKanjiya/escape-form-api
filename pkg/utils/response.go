@@ -41,6 +41,14 @@ func BadRequest(c *fiber.Ctx, message string) error {
 	return Error(c, fiber.StatusBadRequest, message)
 }
 
+func MapErrors(c *fiber.Ctx, errors interface{}, message string) error {
+	return c.Status(fiber.StatusBadRequest).JSON(types.ResponseObj{
+		Type:    "error",
+		Message: message,
+		Data:    errors,
+	})
+}
+
 func Unauthorized(c *fiber.Ctx, message string) error {
 	if message == "" {
 		message = "Unauthorized access"

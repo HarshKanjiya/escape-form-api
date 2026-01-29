@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"strings"
@@ -158,15 +159,11 @@ func (r *FormRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 	return formResponses, int(totalCount), nil
 }
 
-func (r *FormRepo) GetById(ctx *fiber.Ctx, formId string) (*types.FormResponse, error) {
-
-	userId := ctx.Locals("user_id").(string)
+func (r *FormRepo) GetById(ctx context.Context, formId string) (*types.FormResponse, error) {
 
 	// Validate the form belongs to the user
-	form, err := r.q.WithContext(ctx.Context()).
+	form, err := r.q.WithContext(ctx).
 		Form.Where(r.q.Form.ID.Eq(formId)).
-		Join(r.q.Team, r.q.Form.TeamID.EqCol(r.q.Team.ID)).
-		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Form.Valid.Is(true)).
 		Preload(r.q.Form.Questions).
 		Preload(r.q.Form.Edges).
 		First()
@@ -176,7 +173,7 @@ func (r *FormRepo) GetById(ctx *fiber.Ctx, formId string) (*types.FormResponse, 
 	}
 
 	// Get response count for this form
-	responseCount, err := r.q.WithContext(ctx.Context()).
+	responseCount, err := r.q.WithContext(ctx).
 		Response.Where(r.q.Response.FormID.Eq(formId)).
 		Count()
 	if err != nil {
@@ -266,10 +263,18 @@ func (r *FormRepo) GetById(ctx *fiber.Ctx, formId string) (*types.FormResponse, 
 	return formResponse, nil
 }
 
-func (r *FormRepo) Create(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {
-	userId := ctx.Locals("user_id").(string)
+func (r *FormRepo) GetWithTeam(ctx context.Context, formId string) (*models.Form, error) {
+	return r.q.WithContext(ctx).
+		Form.
+		Where(r.q.Form.ID.Eq(formId)).
+		Join(r.q.Team, r.q.Form.TeamID.EqCol(r.q.Team.ID)).
+		First()
+}
 
-	project, err := r.q.WithContext(ctx.Context()).
+func (r *FormRepo) Create(ctx context.Context, formDto *types.CreateFormDto) (*types.FormResponse, error) {
+	userId := ctx.Value("user_id").(string)
+
+	project, err := r.q.WithContext(ctx).
 		Project.Where(r.q.Project.ID.Eq(formDto.ProjectID)).
 		Join(r.q.Team, r.q.Project.TeamID.EqCol(r.q.Team.ID)).
 		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Project.Valid.Is(true)).
@@ -293,7 +298,7 @@ func (r *FormRepo) Create(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.
 		Status:       &status,
 	}
 
-	err = r.q.WithContext(ctx.Context()).Form.Create(form)
+	err = r.q.WithContext(ctx).Form.Create(form)
 	if err != nil {
 		log.Printf("Error creating form: %v", err)
 		return nil, err
@@ -301,31 +306,16 @@ func (r *FormRepo) Create(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.
 	return r.GetById(ctx, form.ID)
 }
 
-func (r *FormRepo) UpdateStatus(ctx *fiber.Ctx, formId string, status *models.FormStatus) (*types.FormResponse, error) {
+func (r *FormRepo) UpdateStatus(
+	ctx context.Context,
+	formId string,
+	status models.FormStatus,
+) error {
 
-	userId := ctx.Locals("user_id").(string)
-	form, err := r.q.WithContext(ctx.Context()).
-		Form.Where(r.q.Form.ID.Eq(formId)).
-		Join(r.q.Team, r.q.Form.TeamID.EqCol(r.q.Team.ID)).
-		First()
-	if err != nil {
-		log.Printf("Form not found: %v", err)
-		return nil, err
-	}
-	log.Printf("team owner id: %s", *form.Team.OwnerID)
-	log.Printf("user: %s", userId)
-	if form.Team.OwnerID != &userId {
-		log.Printf("User %s does not own the form %s", userId, formId)
-		return nil, gorm.ErrRecordNotFound
-	}
-	newStatus := models.FormStatus(*status)
+	_, err := r.q.WithContext(ctx).
+		Form.
+		Where(r.q.Form.ID.Eq(formId)).
+		UpdateColumn(r.q.Form.Status, status)
 
-	_, err = r.q.WithContext(ctx.Context()).
-		Form.Where(r.q.Form.ID.Eq(formId)).
-		UpdateColumn(r.q.Form.Status, newStatus)
-	if err != nil {
-		log.Printf("Error updating form status: %v", err)
-		return nil, err
-	}
-	return r.GetById(ctx, formId)
+	return err
 }
