@@ -9,6 +9,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type FormService struct {
@@ -51,16 +52,29 @@ func (fs *FormService) GetById(ctx context.Context, userId string, formId string
 
 func (fs *FormService) Create(ctx context.Context, userId string, formDto *types.CreateFormDto) (*types.FormResponse, error) {
 	// Check if user owns the project
-	_, err := fs.projectRepo.GetWithTeam(ctx, userId, formDto.ProjectID)
+	project, err := fs.projectRepo.GetWithTeam(ctx, userId, formDto.ProjectID)
 	if err != nil {
 		return nil, utils.HandleDatabaseError(err, "Project")
 	}
+	// Build the form model
+	status := models.FormStatusDraft
+	form := &models.Form{
+		ID:           uuid.New().String(),
+		Name:         formDto.Name,
+		Description:  formDto.Description,
+		ProjectID:    formDto.ProjectID,
+		TeamID:       project.TeamID,
+		Valid:        true,
+		CreatedBy:    userId,
+		FormPageType: models.FormPageTypeSingle,
+		Status:       &status,
+	}
 
-	form, err := fs.formRepo.Create(ctx, userId, formDto)
+	formResponse, err := fs.formRepo.Create(ctx, form)
 	if err != nil {
 		return nil, utils.NewAppError("Failed to create form", fiber.StatusInternalServerError, err)
 	}
-	return form, nil
+	return formResponse, nil
 }
 
 func (fs *FormService) Update(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {

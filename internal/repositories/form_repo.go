@@ -10,7 +10,6 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -258,31 +257,8 @@ func (r *FormRepo) GetById(ctx context.Context, formId string) (*types.FormRespo
 	return formResponse, nil
 }
 
-func (r *FormRepo) Create(ctx context.Context, userId string, formDto *types.CreateFormDto) (*types.FormResponse, error) {
-
-	project, err := r.q.WithContext(ctx).
-		Project.Where(r.q.Project.ID.Eq(formDto.ProjectID)).
-		First()
-
-	if err != nil {
-		log.Printf("Project not found: %v", err)
-		return nil, err
-	}
-
-	status := models.FormStatusDraft
-	form := &models.Form{
-		ID:           uuid.New().String(),
-		Name:         formDto.Name,
-		Description:  formDto.Description,
-		ProjectID:    formDto.ProjectID,
-		TeamID:       project.TeamID,
-		Valid:        true,
-		CreatedBy:    userId,
-		FormPageType: models.FormPageTypeSingle,
-		Status:       &status,
-	}
-
-	err = r.q.WithContext(ctx).Form.Create(form)
+func (r *FormRepo) Create(ctx context.Context, form *models.Form) (*types.FormResponse, error) {
+	err := r.q.WithContext(ctx).Form.Create(form)
 	if err != nil {
 		log.Printf("Error creating form: %v", err)
 		return nil, err
@@ -290,12 +266,7 @@ func (r *FormRepo) Create(ctx context.Context, userId string, formDto *types.Cre
 	return r.GetById(ctx, form.ID)
 }
 
-func (r *FormRepo) UpdateStatus(
-	ctx context.Context,
-	formId string,
-	status models.FormStatus,
-) error {
-
+func (r *FormRepo) UpdateStatus(ctx context.Context, formId string, status models.FormStatus) error {
 	_, err := r.q.WithContext(ctx).
 		Form.
 		Where(r.q.Form.ID.Eq(formId)).
