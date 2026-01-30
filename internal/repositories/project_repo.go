@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
-	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
@@ -14,12 +13,12 @@ import (
 )
 
 type ProjectRepo struct {
-	q *query.Query
+	db *gorm.DB
 }
 
 func NewProjectRepo(db *gorm.DB) *ProjectRepo {
 	return &ProjectRepo{
-		q: query.Use(db),
+		db: db,
 	}
 }
 
@@ -28,35 +27,32 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 	userId := ctx.Locals("user_id").(string)
 
 	if teamId != "" {
-		// Authorization Check
-		_, err := r.q.WithContext(ctx.Context()).
-			Team.Where(r.q.Team.ID.Eq(teamId), r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true)).
-			First()
+		// Authorization Check: ensure the team is owned by the user
+		var team models.Team
+		err := r.db.WithContext(ctx.Context()).Model(&models.Team{}).Where("id = ? AND owner_id = ? AND valid = ?", teamId, userId, true).First(&team).Error
 		if err != nil {
 			log.Printf("Team not found or not owned by user: %v", err)
 			return []*types.ProjectResponse{}, 0, nil
 		}
 
 		// Query Projects
-		p := r.q.Project
-		baseQuery := r.q.WithContext(ctx.Context()).
-			Project.Where(p.TeamID.Eq(teamId), p.Valid.Is(valid))
+		baseQuery := r.db.WithContext(ctx.Context()).Model(&models.Project{}).Where("team_id = ? AND valid = ?", teamId, valid)
 
 		if pagination.Search != "" {
-			baseQuery = baseQuery.Where(p.Name.Like("%" + pagination.Search + "%"))
+			baseQuery = baseQuery.Where("name LIKE ?", "%"+pagination.Search+"%")
 		}
 
 		// Get total count without pagination
-		totalCount, err := baseQuery.Count()
+		var totalCount int64
+		err = baseQuery.Count(&totalCount).Error
 		if err != nil {
 			log.Printf("Error counting projects: %v", err)
 			return nil, 0, err
 		}
 
 		// Apply pagination for fetching projects
-		query := baseQuery.Limit(pagination.Limit).Offset((pagination.Page - 1) * pagination.Limit)
-
-		projects, err := query.Find()
+		var projects []models.Project
+		err = baseQuery.Limit(pagination.Limit).Offset((pagination.Page - 1) * pagination.Limit).Find(&projects).Error
 		if err != nil {
 			log.Printf("Error fetching projects: %v", err)
 			return nil, 0, err
@@ -77,11 +73,7 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 			ProjectID string
 			Count     int
 		}
-		err = r.q.WithContext(ctx.Context()).
-			Form.Select(r.q.Form.ProjectID, r.q.Form.ID.Count().As("count")).
-			Where(r.q.Form.ProjectID.In(projectIDs...)).
-			Group(r.q.Form.ProjectID).
-			Scan(&results)
+		err = r.db.WithContext(ctx.Context()).Model(&models.Form{}).Select("project_id, count(*) as count").Where("project_id IN ? AND valid = ?", projectIDs, true).Group("project_id").Scan(&results).Error
 		if err != nil {
 			log.Printf("Error fetching form counts: %v", err)
 		} else {
@@ -114,10 +106,8 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 
 	// Original logic: fetch for all user's teams
 	// First, get user's team IDs
-	teamQuery := r.q.WithContext(ctx.Context()).
-		Team.Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true))
-
-	userTeams, err := teamQuery.Find()
+	var userTeams []models.Team
+	err := r.db.WithContext(ctx.Context()).Model(&models.Team{}).Where("owner_id = ? AND valid = ?", userId, true).Find(&userTeams).Error
 	if err != nil {
 		log.Printf("Error fetching user teams: %v", err)
 		return nil, 0, err
@@ -134,25 +124,23 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 	}
 
 	// Now, query projects
-	p := r.q.Project
-	baseQuery := r.q.WithContext(ctx.Context()).
-		Project.Where(p.TeamID.In(teamIDs...), p.Valid.Is(valid))
+	baseQuery := r.db.WithContext(ctx.Context()).Model(&models.Project{}).Where("team_id IN ? AND valid = ?", teamIDs, valid)
 
 	if pagination.Search != "" {
-		baseQuery = baseQuery.Where(p.Name.Like("%" + pagination.Search + "%"))
+		baseQuery = baseQuery.Where("name LIKE ?", "%"+pagination.Search+"%")
 	}
 
 	// Get total count without pagination
-	totalCount, err := baseQuery.Count()
+	var totalCount int64
+	err = baseQuery.Count(&totalCount).Error
 	if err != nil {
 		log.Printf("Error counting projects: %v", err)
 		return nil, 0, err
 	}
 
 	// Apply pagination for fetching projects
-	query := baseQuery.Limit(pagination.Limit).Offset((pagination.Page - 1) * pagination.Limit)
-
-	projects, err := query.Find()
+	var projects []models.Project
+	err = baseQuery.Limit(pagination.Limit).Offset((pagination.Page - 1) * pagination.Limit).Find(&projects).Error
 	if err != nil {
 		log.Printf("Error fetching projects: %v", err)
 		return nil, 0, err
@@ -174,11 +162,7 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 		ProjectID string
 		Count     int
 	}
-	err = r.q.WithContext(ctx.Context()).
-		Form.Select(r.q.Form.ProjectID, r.q.Form.ID.Count().As("count")).
-		Where(r.q.Form.ProjectID.In(projectIDs...)).
-		Group(r.q.Form.ProjectID).
-		Scan(&results)
+	err = r.db.WithContext(ctx.Context()).Model(&models.Form{}).Select("project_id, count(*) as count").Where("project_id IN ? AND valid = ?", projectIDs, true).Group("project_id").Scan(&results).Error
 	if err != nil {
 		log.Printf("Error fetching form counts: %v", err)
 		// Continue without counts (set to 0)
@@ -194,27 +178,20 @@ func (r *ProjectRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, val
 		if project.Description != nil {
 			description = *project.Description
 		}
-		createdAt := ""
-		if project.CreatedAt != nil {
-			createdAt = project.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00")
-		}
-		updatedAt := ""
-		if project.UpdatedAt != nil {
-			updatedAt = project.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00")
-		}
 		projectResponses = append(projectResponses, &types.ProjectResponse{
 			ID:          project.ID,
 			Name:        project.Name,
 			Description: description,
 			TeamID:      project.TeamID,
 			Valid:       project.Valid,
-			CreatedAt:   createdAt,
-			UpdatedAt:   updatedAt,
+			CreatedAt:   utils.GetIsoDateTime(project.CreatedAt),
+			UpdatedAt:   utils.GetIsoDateTime(project.UpdatedAt),
 			FormCount:   formCounts[project.ID],
 		})
 	}
 
 	return projectResponses, int(totalCount), nil
+
 }
 
 func (r *ProjectRepo) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectResponse, error) {
@@ -222,22 +199,16 @@ func (r *ProjectRepo) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectR
 	userId := ctx.Locals("user_id").(string)
 
 	// Validate the project belongs to the user
-	project, err := r.q.WithContext(ctx.Context()).
-		Project.Where(r.q.Project.ID.Eq(projectId)).
-		Join(r.q.Team, r.q.Project.TeamID.EqCol(r.q.Team.ID)).
-		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Project.Valid.Is(true)).
-		First()
+	var project models.Project
+	err := r.db.WithContext(ctx.Context()).Model(&models.Project{}).Joins("JOIN teams ON projects.team_id = teams.id").Where("projects.id = ? AND teams.owner_id = ? AND teams.valid = ? AND projects.valid = ?", projectId, userId, true, true).First(&project).Error
 	if err != nil {
 		log.Printf("Project not found or not owned by user: %v", err)
 		return nil, err
 	}
 
 	// Get form count for this project
-	var formCount int
-	err = r.q.WithContext(ctx.Context()).
-		Form.Select(r.q.Form.ID.Count()).
-		Where(r.q.Form.ProjectID.Eq(projectId), r.q.Form.Valid.Is(true)).
-		Scan(&formCount)
+	var formCount int64
+	err = r.db.WithContext(ctx.Context()).Model(&models.Form{}).Where("project_id = ? AND valid = ?", projectId, true).Count(&formCount).Error
 	if err != nil {
 		log.Printf("Error fetching form count: %v", err)
 		formCount = 0
@@ -247,14 +218,6 @@ func (r *ProjectRepo) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectR
 	if project.Description != nil {
 		description = *project.Description
 	}
-	createdAt := ""
-	if project.CreatedAt != nil {
-		createdAt = project.CreatedAt.UTC().Format("2006-01-02T15:04:05Z07:00")
-	}
-	updatedAt := ""
-	if project.UpdatedAt != nil {
-		updatedAt = project.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z07:00")
-	}
 
 	projectResponse := &types.ProjectResponse{
 		ID:          project.ID,
@@ -262,25 +225,22 @@ func (r *ProjectRepo) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectR
 		Description: description,
 		TeamID:      project.TeamID,
 		Valid:       project.Valid,
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
-		FormCount:   formCount,
+		CreatedAt:   utils.GetIsoDateTime(project.CreatedAt),
+		UpdatedAt:   utils.GetIsoDateTime(project.UpdatedAt),
+		FormCount:   int(formCount),
 	}
 
 	return projectResponse, nil
 }
 
 func (r *ProjectRepo) GetWithTeam(ctx context.Context, userId string, projectId string) (*models.Project, error) {
-	project, err := r.q.WithContext(ctx).
-		Project.Where(r.q.Project.ID.Eq(projectId)).
-		Join(r.q.Team, r.q.Project.TeamID.EqCol(r.q.Team.ID)).
-		Where(r.q.Team.OwnerID.Eq(userId), r.q.Team.Valid.Is(true), r.q.Project.Valid.Is(true)).
-		First()
+	var project models.Project
+	err := r.db.WithContext(ctx).Model(&models.Project{}).Joins("JOIN teams ON projects.team_id = teams.id").Where("projects.id = ? AND teams.owner_id = ? AND teams.valid = ? AND projects.valid = ?", projectId, userId, true, true).First(&project).Error
 	if err != nil {
 		log.Printf("Project not found or not owned by user: %v", err)
 		return nil, err
 	}
-	return project, nil
+	return &project, nil
 }
 
 func (r *ProjectRepo) Create(ctx *fiber.Ctx, project *types.ProjectDto) (*models.Project, error) {
@@ -293,7 +253,7 @@ func (r *ProjectRepo) Create(ctx *fiber.Ctx, project *types.ProjectDto) (*models
 		Valid:       true,
 	}
 
-	err := r.q.WithContext(ctx.Context()).Project.Create(projectModel)
+	err := r.db.WithContext(ctx.Context()).Create(projectModel).Error
 	if err != nil {
 		return nil, err
 	}
@@ -301,10 +261,7 @@ func (r *ProjectRepo) Create(ctx *fiber.Ctx, project *types.ProjectDto) (*models
 }
 
 func (r *ProjectRepo) Update(ctx *fiber.Ctx, project *models.Project) (bool, error) {
-	p := r.q.Project
-	_, err := r.q.WithContext(ctx.Context()).
-		Project.Where(p.ID.Eq(project.ID)).
-		Updates(project)
+	err := r.db.WithContext(ctx.Context()).Model(&models.Project{}).Where("id = ?", project.ID).Updates(project).Error
 	if err != nil {
 		return false, err
 	}
@@ -312,9 +269,7 @@ func (r *ProjectRepo) Update(ctx *fiber.Ctx, project *models.Project) (bool, err
 }
 
 func (r *ProjectRepo) Delete(ctx *fiber.Ctx, projectId string) (bool, error) {
-	_, err := r.q.WithContext(ctx.Context()).
-		Project.Where(r.q.Project.ID.Eq(projectId)).
-		UpdateColumn(r.q.Project.Valid, false)
+	err := r.db.WithContext(ctx.Context()).Model(&models.Project{}).Where("id = ?", projectId).Update("valid", false).Error
 	if err != nil {
 		return false, err
 	}
