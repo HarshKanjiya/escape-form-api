@@ -35,10 +35,13 @@ func (pc *ProjectController) Get(c *fiber.Ctx) error {
 		SortBy: c.Query("sortBy", ""),
 		Order:  c.Query("order", ""),
 	}
+
 	teamId := c.Query("teamId", "")
-	projects, totalCount, err := pc.projectService.Get(c, pagination, true, teamId)
+	userId := c.Locals("user_id").(string)
+
+	projects, totalCount, err := pc.projectService.Get(c.Context(), userId, pagination, teamId)
 	if err != nil {
-		return utils.InternalServerError(c, "Failed to fetch projects")
+		// 	return utils.InternalServerError(c, "Failed to fetch projects")
 	}
 	return utils.Success(c, projects, "Projects fetched successfully", totalCount)
 }

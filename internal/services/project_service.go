@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
@@ -9,18 +11,18 @@ import (
 )
 
 type ProjectService struct {
-	projectRepo *repositories.ProjectRepo
+	projectRepo repositories.IProjectRepo
 }
 
-func NewProjectService(projectRepo *repositories.ProjectRepo) *ProjectService {
+func NewProjectService(projectRepo repositories.IProjectRepo) *ProjectService {
 	return &ProjectService{
 		projectRepo: projectRepo,
 	}
 }
 
-func (ps *ProjectService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool, teamId string) ([]*types.ProjectResponse, int, error) {
+func (ps *ProjectService) Get(ctx context.Context, userId string, pagination *types.PaginationQuery, teamId string) ([]*types.ProjectResponse, int, error) {
 
-	projects, total, err := ps.projectRepo.Get(ctx, pagination, valid, teamId)
+	projects, total, err := ps.projectRepo.Get(ctx, userId, pagination, teamId)
 	if err != nil {
 		return []*types.ProjectResponse{}, 0, err
 	}
@@ -28,7 +30,7 @@ func (ps *ProjectService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery,
 	return projects, total, nil
 }
 
-func (ps *ProjectService) GetById(ctx *fiber.Ctx, projectId string) (*types.ProjectResponse, error) {
+func (ps *ProjectService) GetById(ctx context.Context, projectId string) (*types.ProjectResponse, error) {
 
 	project, err := ps.projectRepo.GetById(ctx, projectId)
 	if err != nil {

@@ -2,9 +2,10 @@ package middlewares
 
 import (
 	"strings"
+	"time"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/config"
-	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -24,29 +25,39 @@ func SetupMiddlewares(app *fiber.App, cfg *config.Config) {
 	}))
 
 	// Rate limiting
-	// app.Use(RateLimiter(RateLimiterConfig{
-	// 	Max:        cfg.RateLimit.Max,
-	// 	Expiration: time.Duration(cfg.RateLimit.Expiration) * time.Second,
-	// }))
+	app.Use(RateLimiter(RateLimiterConfig{
+		Max:        cfg.RateLimit.Max,
+		Expiration: time.Duration(cfg.RateLimit.Expiration) * time.Second,
+	}))
 }
 
 // ErrorHandler
 func ErrorHandler(c *fiber.Ctx, err error) error {
-	code := fiber.StatusInternalServerError
-	message := "Internal Server Error"
-
-	if appErr, ok := err.(*utils.AppError); ok {
-		code = appErr.StatusCode
-		message = appErr.Message
-	} else if e, ok := err.(*fiber.Error); ok {
-		code = e.Code
-		message = e.Message
+	// AppError
+	if appErr, ok := err.(*errors.AppError); ok {
+		return c.Status(appErr.StatusCode).JSON(fiber.Map{
+			"type":       "error",
+			"data":       nil,
+			"totalCount": 0,
+			"message":    appErr.Message,
+		})
 	}
 
-	return c.Status(code).JSON(fiber.Map{
+	// Fiber built-in HTTP errors (404, etc.)
+	if fiberErr, ok := err.(*fiber.Error); ok {
+		return c.Status(fiberErr.Code).JSON(fiber.Map{
+			"type":       "error",
+			"data":       nil,
+			"totalCount": 0,
+			"message":    fiberErr.Message,
+		})
+	}
+
+	// Unknown / panic / unhandled error
+	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 		"type":       "error",
 		"data":       nil,
-		"message":    message,
-		"totalItems": 0,
+		"totalCount": 0,
+		"message":    "Something went wrong",
 	})
 }
