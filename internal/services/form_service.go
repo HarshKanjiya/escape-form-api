@@ -2,17 +2,22 @@ package services
 
 import (
 	"context"
-	"log"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
-	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type IFormService interface {
+	Get(ctx context.Context, userId string, pagination *types.PaginationQuery, projectId string, status string) ([]*models.Form, int64, error)
+	GetById(ctx context.Context, userId string, formId string) (*models.Form, error)
+	Create(ctx context.Context, userId string, projectId string, form *types.CreateFormRequest) (*models.Form, error)
+	UpdateStatus(ctx context.Context, userId string, formId string, status models.FormStatus) error
+	Delete(ctx context.Context, userId string, formId string) error
+
+	UpdateSequence(ctx context.Context, userId string, formId string, sequences []*types.SequenceItem) error
 }
 
 type FormService struct {
@@ -27,85 +32,177 @@ func NewFormService(formRepo repositories.IFormRepo, projectRepo repositories.IP
 	}
 }
 
-func (fs *FormService) Get(ctx context.Context, userId string, pagination *types.PaginationQuery, valid bool, projectId string) ([]*types.FormResponse, int, error) {
+func (s *FormService) Get(ctx context.Context, userId string, pagination *types.PaginationQuery, projectId string, status string) ([]*models.Form, int64, error) {
 
-	// Check if user owns the project
-	_, err := fs.projectRepo.GetWithTeam(ctx, userId, projectId)
+	project, err := s.projectRepo.GetWithTeam(ctx, projectId)
 	if err != nil {
-		return nil, 0, utils.HandleDatabaseError(err, "Project")
+		return nil, 0, err
+	}
+	if project == nil {
+		return nil, 0, errors.NotFound("Project")
+	}
+	if project.Team.OwnerID == nil || *project.Team.OwnerID != userId {
+		return nil, 0, errors.Unauthorized("")
 	}
 
-	forms, total, err := fs.formRepo.Get(ctx, pagination, valid, projectId)
-	if err != nil {
-		return nil, 0, utils.NewAppError("Failed to fetch forms", fiber.StatusInternalServerError, err)
+	var statusPtr *models.FormStatus
+	if status != "" {
+		statusVal := models.FormStatus(status)
+		statusPtr = &statusVal
 	}
 
+	forms, total, err := s.formRepo.Get(ctx, pagination, projectId, statusPtr)
+	if err != nil {
+		return nil, 0, err
+	}
 	return forms, total, nil
+
 }
 
-func (fs *FormService) GetById(ctx context.Context, userId string, formId string) (*types.FormResponse, error) {
+func (s *FormService) GetById(ctx context.Context, userId string, formId string) (*models.Form, error) {
 
-	form, err := fs.formRepo.GetById(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
-		return nil, utils.HandleDatabaseError(err, "Form")
+		return nil, err
 	}
 
+	if form == nil {
+		return nil, errors.NotFound("Form")
+	}
+
+	if form.Team.OwnerID == nil || *form.Team.OwnerID != userId {
+		return nil, errors.Unauthorized("")
+	}
+
+	form, err = s.formRepo.GetById(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
 	return form, nil
 }
 
-func (fs *FormService) Create(ctx context.Context, userId string, formDto *types.CreateFormDto) (*types.FormResponse, error) {
-	// Check if user owns the project
-	project, err := fs.projectRepo.GetWithTeam(ctx, userId, formDto.ProjectID)
+func (s *FormService) Create(ctx context.Context, userId string, projectId string, form *types.CreateFormRequest) (*models.Form, error) {
+
+	project, err := s.projectRepo.GetWithTeam(ctx, projectId)
 	if err != nil {
-		return nil, utils.HandleDatabaseError(err, "Project")
+		return nil, err
 	}
-	// Build the form model
+	if project == nil {
+		return nil, errors.NotFound("Project")
+	}
+	if project.Team.OwnerID == nil || *project.Team.OwnerID != userId {
+		return nil, errors.Unauthorized("")
+	}
+
 	status := models.FormStatusDraft
-	form := &models.Form{
-		ID:           uuid.New().String(),
-		Name:         formDto.Name,
-		Description:  formDto.Description,
-		ProjectID:    formDto.ProjectID,
-		TeamID:       project.TeamID,
-		Valid:        true,
-		CreatedBy:    userId,
-		FormPageType: models.FormPageTypeSingle,
-		Status:       &status,
+	trueVal := true
+	falseVal := false
+
+	formModel := &models.Form{
+		ID:                  utils.GenerateUUID(),
+		ProjectID:           projectId,
+		TeamID:              project.TeamID,
+		Name:                form.Name,
+		Description:         form.Description,
+		Status:              &status,
+		LogoURL:             nil,
+		Theme:               nil,
+		OpenAt:              nil,
+		CloseAt:             nil,
+		CustomDomain:        nil,
+		MaxResponses:        nil,
+		Metadata:            nil,
+		AllowAnonymous:      &trueVal,
+		MultipleSubmissions: &trueVal,
+		RequireConsent:      &falseVal,
+		PasswordProtected:   &falseVal,
+		Valid:               true,
+		CreatedBy:           userId,
+		UniqueSubdomain:     utils.GenerateRandomString(6),
+		CreatedAt:           utils.GetCurrentTime(),
+		UpdatedAt:           utils.GetCurrentTime(),
 	}
 
-	formResponse, err := fs.formRepo.Create(ctx, form)
+	createdForm, err := s.formRepo.Create(ctx, formModel)
 	if err != nil {
-		return nil, utils.NewAppError("Failed to create form", fiber.StatusInternalServerError, err)
+		return nil, err
 	}
-	return formResponse, nil
+	return createdForm, nil
 }
 
-func (fs *FormService) Update(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {
-	return nil, nil
+// func (s *FormService) Update(ctx context.Context, userId string, formId string, updates *map[string]interface{}) error {
 
-}
+// 	form, err := s.formRepo.GetWithTeam(ctx, formId)
+// 	if err != nil {
+// 		return err
+// 	}
 
-func (fs *FormService) Delete(ctx *fiber.Ctx, formDto *types.CreateFormDto) (*types.FormResponse, error) {
-	return nil, nil
+// 	if form == nil {
+// 		return errors.NotFound("Form")
+// 	}
 
-}
+// 	if form.Team.OwnerID == nil || *form.Team.OwnerID != userId {
+// 		return errors.Unauthorized("")
+// 	}
 
-func (fs *FormService) UpdateStatus(
-	ctx context.Context,
-	userId string,
-	formId string,
-	status models.FormStatus,
-) (*types.FormResponse, error) {
+// 	(*updates)["updatedAt"] = utils.GetCurrentTime()
 
-	_, err := fs.formRepo.GetWithTeam(ctx, userId, formId)
+// 	return s.formRepo.Update(ctx, form.ID, updates)
+// }
+
+func (s *FormService) UpdateStatus(ctx context.Context, userId string, formId string, status models.FormStatus) error {
+
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
-		log.Printf("Error fetching form: %v", err)
-		return nil, utils.NewAppError("Form not found", fiber.StatusNotFound, err)
+		return err
 	}
 
-	if err := fs.formRepo.UpdateStatus(ctx, formId, status); err != nil {
-		log.Printf("Error updating form status: %v", err)
-		return nil, utils.NewAppError("Failed to update form status", fiber.StatusInternalServerError, err)
+	if form == nil {
+		return errors.NotFound("Form")
 	}
-	return fs.formRepo.GetById(ctx, formId)
+
+	if form.Team.OwnerID == nil || *form.Team.OwnerID != userId {
+		return errors.Unauthorized("")
+	}
+
+	return s.formRepo.UpdateStatus(ctx, form.ID, status)
+}
+
+func (s *FormService) Delete(ctx context.Context, userId string, formId string) error {
+
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
+	if err != nil {
+		return err
+	}
+
+	if form == nil {
+		return errors.NotFound("Form")
+	}
+
+	if form.Team.OwnerID == nil || *form.Team.OwnerID != userId {
+		return errors.Unauthorized("")
+	}
+
+	return s.formRepo.Delete(ctx, form.ID)
+}
+
+func (s *FormService) UpdateSequence(ctx context.Context, userId string, formId string, sequences []*types.SequenceItem) error {
+
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
+	if err != nil {
+		return err
+	}
+	if form == nil {
+		return errors.NotFound("Form")
+	}
+	if form.Team.OwnerID == nil || *form.Team.OwnerID != userId {
+		return errors.Unauthorized("")
+	}
+
+	err = s.formRepo.UpdateQuestionSequence(ctx, formId, sequences)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

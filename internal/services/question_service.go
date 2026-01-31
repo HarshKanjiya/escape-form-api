@@ -36,7 +36,7 @@ func NewQuestionService(questionRepo repositories.IQuestionRepo, formRepo reposi
 
 func (s *QuestionService) GetQuestions(ctx context.Context, userId string, formId string) ([]*models.Question, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (s *QuestionService) GetQuestions(ctx context.Context, userId string, formI
 
 func (s *QuestionService) CreateQuestion(ctx context.Context, userId string, formId string, question *types.QuestionRequest) (*models.Question, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (s *QuestionService) CreateQuestion(ctx context.Context, userId string, for
 
 func (s *QuestionService) UpdateQuestion(ctx context.Context, userId string, formId string, questionId string, question *types.QuestionRequest) error {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return err
 	}
@@ -146,7 +146,7 @@ func (s *QuestionService) UpdateQuestion(ctx context.Context, userId string, for
 
 func (s *QuestionService) DeleteQuestion(ctx context.Context, userId string, formId string, questionId string) error {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func (s *QuestionService) DeleteQuestion(ctx context.Context, userId string, for
 
 func (s *QuestionService) GetOptions(ctx context.Context, userId string, formId string, questionId string) ([]*models.QuestionOption, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func (s *QuestionService) GetOptions(ctx context.Context, userId string, formId 
 
 func (s *QuestionService) CreateOption(ctx context.Context, userId string, formId string, questionId string, option *types.QuestionOptionRequest) (*models.QuestionOption, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func (s *QuestionService) CreateOption(ctx context.Context, userId string, formI
 
 func (s *QuestionService) UpdateOption(ctx context.Context, userId string, formId string, questionId string, optionId string, option *types.QuestionOptionRequest) error {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return err
 	}
@@ -250,7 +250,7 @@ func (s *QuestionService) UpdateOption(ctx context.Context, userId string, formI
 
 func (s *QuestionService) DeleteOption(ctx context.Context, userId string, formId string, optionId string) error {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return err
 	}

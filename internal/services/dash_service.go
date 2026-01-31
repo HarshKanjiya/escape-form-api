@@ -42,7 +42,7 @@ func NewDashService(
 
 func (s *DashService) GetAnalytics(ctx context.Context, userId string, formId string) (*types.FormAnalytics, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (s *DashService) GetAnalytics(ctx context.Context, userId string, formId st
 
 func (s *DashService) GetResponses(ctx context.Context, userId string, formId string) ([]*models.Response, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (s *DashService) GetQuestions(ctx context.Context, formId string) ([]*model
 
 func (s *DashService) GetPasswords(ctx context.Context, userId string, formId string) ([]*models.ActivePassword, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (s *DashService) GetPasswords(ctx context.Context, userId string, formId st
 
 func (s *DashService) CreatePassword(ctx context.Context, userId string, formId string, password types.PasswordRequest) (*models.ActivePassword, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +168,7 @@ func (s *DashService) CreatePassword(ctx context.Context, userId string, formId 
 
 func (s *DashService) UpdatePassword(ctx context.Context, userId string, formId string, passwordId string, password types.PasswordRequest) (*models.ActivePassword, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +210,7 @@ func (s *DashService) UpdatePassword(ctx context.Context, userId string, formId 
 
 func (s *DashService) DeletePassword(ctx context.Context, userId string, formId string, passwordId string) error {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return err
 	}

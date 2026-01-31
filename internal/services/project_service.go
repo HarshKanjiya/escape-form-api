@@ -127,6 +127,7 @@ func (s *ProjectService) Update(ctx context.Context, userId string, project *typ
 }
 
 func (s *ProjectService) Delete(ctx context.Context, userId string, projectId string) (bool, error) {
+
 	existingProject, err := s.projectRepo.GetWithTeam(ctx, projectId)
 	if err != nil {
 		return false, errors.NotFound("Project")

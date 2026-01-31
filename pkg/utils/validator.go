@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
 )
 
 // Validator is a global validator instance
@@ -26,7 +25,7 @@ type ValidationErrorResponse struct {
 // ParseValidationErrors parses validator errors into a readable format
 func ParseValidationErrors(err error) []ValidationErrorResponse {
 	var errors []ValidationErrorResponse
-	
+
 	if validationErrors, ok := err.(validator.ValidationErrors); ok {
 		for _, fieldError := range validationErrors {
 			errors = append(errors, ValidationErrorResponse{
@@ -35,7 +34,7 @@ func ParseValidationErrors(err error) []ValidationErrorResponse {
 			})
 		}
 	}
-	
+
 	return errors
 }
 
@@ -49,7 +48,7 @@ func getJSONFieldName(fieldError validator.FieldError) string {
 // getErrorMessage generates a human-readable error message
 func getErrorMessage(fieldError validator.FieldError) string {
 	field := fieldError.Field()
-	
+
 	switch fieldError.Tag() {
 	case "required":
 		return fmt.Sprintf("%s is required", field)
@@ -87,20 +86,20 @@ func toSnakeCase(s string) string {
 }
 
 // ValidateRequest validates request body and returns error response if validation fails
-func ValidateRequest(c *fiber.Ctx, payload interface{}) error {
-	// Parse body into the payload struct
-	if err := c.BodyParser(payload); err != nil {
-		return BadRequest(c, "Invalid request body")
-	}
-	
-	// Validate the struct
-	if err := ValidateStruct(payload); err != nil {
-		validationErrors := ParseValidationErrors(err)
-		return ValidationError(c, validationErrors)
-	}
-	
-	return nil
-}
+// func ValidateRequest(c *fiber.Ctx, payload interface{}) error {
+// 	// Parse body into the payload struct
+// 	if err := c.BodyParser(payload); err != nil {
+// 		return BadRequest(c, "Invalid request body")
+// 	}
+
+// 	// Validate the struct
+// 	if err := ValidateStruct(payload); err != nil {
+// 		validationErrors := ParseValidationErrors(err)
+// 		return ValidationError(c, validationErrors)
+// 	}
+
+// 	return nil
+// }
 
 // GetStructTag returns the value of a struct tag
 func GetStructTag(s interface{}, fieldName, tagName string) string {
@@ -108,11 +107,11 @@ func GetStructTag(s interface{}, fieldName, tagName string) string {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
-	
+
 	field, found := t.FieldByName(fieldName)
 	if !found {
 		return ""
 	}
-	
+
 	return field.Tag.Get(tagName)
 }

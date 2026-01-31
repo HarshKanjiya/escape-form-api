@@ -3,7 +3,6 @@ package controllers
 import (
 	"log"
 
-	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
@@ -38,6 +37,11 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
+	projectId := c.Query("projectId", "")
+	if projectId == "" {
+		return errors.BadRequest("projectId is required")
+	}
+
 	pagination := &types.PaginationQuery{
 		Page:   c.QueryInt("page", 1),
 		Limit:  c.QueryInt("limit", 10),
@@ -45,15 +49,14 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 		SortBy: c.Query("sortBy", ""),
 		Order:  c.Query("order", ""),
 	}
-	projectId := c.Query("projectId", "")
-	if projectId == "" {
-		return errors.BadRequest("projectId is required")
-	}
-	forms, total, err := fc.formService.Get(c.Context(), userId, pagination, true, projectId)
+
+	status := c.Query("status", "")
+
+	forms, totalCount, err := fc.formService.Get(c.Context(), userId, pagination, projectId, status)
 	if err != nil {
 		return err
 	}
-	return utils.Success(c, forms, "Forms fetched successfully", total)
+	return utils.Success(c, forms, "Forms fetched successfully", totalCount)
 }
 
 // @Summary Create a new form
@@ -70,15 +73,20 @@ func (fc *FormController) Create(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
-	var formDto types.CreateFormDto
-	if err := c.BodyParser(&formDto); err != nil {
+	var createFormDto types.CreateFormRequest
+	if err := c.BodyParser(&createFormDto); err != nil {
+		log.Println("Error parsing body:", err)
 		return errors.BadRequest("Invalid request body")
 	}
-	newForm, err := fc.formService.Create(c.Context(), userId, &formDto)
+	if err := fc.validator.Struct(&createFormDto); err != nil {
+		return errors.BadRequest("Validation failed: " + err.Error())
+	}
+
+	form, err := fc.formService.Create(c.Context(), userId, createFormDto.ProjectID, &createFormDto)
 	if err != nil {
 		return err
 	}
-	return utils.Success(c, newForm, "Form created successfully")
+	return utils.Success(c, form, "Form created successfully")
 }
 
 // @Summary Get a form by ID
@@ -124,32 +132,24 @@ func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
-	formId := c.Params("id")
+	formId := c.Params("id", "")
 	if formId == "" {
 		return errors.BadRequest("Form ID is required")
 	}
 
-	var req struct {
-		Action models.FormStatus `json:"action"`
-	}
-
-	if err := c.BodyParser(&req); err != nil {
+	var statusDto types.UpdateFormStatusRequest
+	if err := c.BodyParser(&statusDto); err != nil {
+		log.Println("Error parsing body:", err)
 		return errors.BadRequest("Invalid request body")
 	}
-
-	updatedForm, err := pc.formService.UpdateStatus(
-		c.Context(),
-		userId,
-		formId,
-		req.Action,
-	)
-
+	if err := pc.validator.Struct(&statusDto); err != nil {
+		return errors.BadRequest("Validation failed: " + err.Error())
+	}
+	err := pc.formService.UpdateStatus(c.Context(), userId, formId, statusDto.Status)
 	if err != nil {
-		log.Printf("qqqqqqqqqqqqqqqq %s", err.Error())
 		return err
 	}
-
-	return utils.Success(c, updatedForm, "Form status updated successfully")
+	return utils.Success(c, nil, "Form status updated successfully")
 }
 
 // @Summary Delete a form
@@ -167,6 +167,14 @@ func (pc *FormController) Delete(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
+	formId := c.Params("id", "")
+	if formId == "" {
+		return errors.BadRequest("Form ID is required")
+	}
+	err := pc.formService.Delete(c.Context(), userId, formId)
+	if err != nil {
+		return err
+	}
 	return utils.Success(c, nil, "Form deleted successfully")
 }
 
@@ -177,5 +185,23 @@ func (pc *FormController) UpdateSequence(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
+	formId := c.Params("id", "")
+	if formId == "" {
+		return errors.BadRequest("Form ID is required")
+	}
+
+	var sequenceDto types.UpdateSequenceRequest
+	if err := c.BodyParser(&sequenceDto); err != nil {
+		log.Println("Error parsing body:", err)
+		return errors.BadRequest("Invalid request body")
+	}
+	if err := pc.validator.Struct(&sequenceDto); err != nil {
+		return errors.BadRequest("Validation failed: " + err.Error())
+	}
+
+	err := pc.formService.UpdateSequence(c.Context(), userId, formId, sequenceDto.Sequence)
+	if err != nil {
+		return err
+	}
 	return utils.Success(c, nil, "Form deleted successfully")
 }

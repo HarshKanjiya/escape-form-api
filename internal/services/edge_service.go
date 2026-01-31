@@ -31,7 +31,7 @@ func NewEdgeService(edgeRepo repositories.IEdgeRepo, formRepo repositories.IForm
 
 func (s *EdgeService) Get(ctx context.Context, userId string, formId string) ([]*models.Edge, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (s *EdgeService) Get(ctx context.Context, userId string, formId string) ([]
 
 func (s *EdgeService) Create(ctx context.Context, userId string, formId string, edge *types.CreateEdgeRequest) (*models.Edge, error) {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (s *EdgeService) Create(ctx context.Context, userId string, formId string, 
 
 func (s *EdgeService) Update(ctx context.Context, userId string, formId string, edgeId string, edge *types.UpdateEdgeRequest) error {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func (s *EdgeService) Update(ctx context.Context, userId string, formId string, 
 
 func (s *EdgeService) Delete(ctx context.Context, userId string, formId string, edgeId string) error {
 
-	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
 		return err
 	}
