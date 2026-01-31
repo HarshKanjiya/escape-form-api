@@ -1,24 +1,36 @@
 package repositories
 
 import (
+	"context"
 	"log"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
+type ITeamRepo interface {
+	Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int, error)
+	GetById(ctx context.Context, teamId string) (*models.Team, error)
+	Create(ctx *fiber.Ctx, team *types.TeamDto) (*models.Team, error)
+	Update(ctx *fiber.Ctx, team *models.Team) (bool, error)
+	Delete(ctx *fiber.Ctx, teamId string) (bool, error)
+}
+
 type TeamRepo struct {
-	q *query.Query
+	q  *query.Query
+	db *gorm.DB
 }
 
 func NewTeamRepo(db *gorm.DB) *TeamRepo {
 	return &TeamRepo{
-		q: query.Use(db),
+		q:  query.Use(db),
+		db: db,
 	}
 }
 
@@ -106,6 +118,14 @@ func (r *TeamRepo) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid 
 	}
 
 	return teamResponses, int(totalCount), nil
+}
+
+func (r *TeamRepo) GetById(ctx context.Context, teamId string) (*models.Team, error) {
+	var team models.Team
+	if err := r.db.WithContext(ctx).Where("id = ? AND valid = ?", teamId, true).First(&team).Error; err != nil {
+		return nil, errors.Internal(err)
+	}
+	return &team, nil
 }
 
 func (r *TeamRepo) Create(ctx *fiber.Ctx, team *types.TeamDto) (*models.Team, error) {

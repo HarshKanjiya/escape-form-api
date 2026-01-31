@@ -6,23 +6,41 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
-	"github.com/gofiber/fiber/v2"
 )
+
+type IProjectService interface {
+	Get(ctx context.Context, userId string, pagination *types.PaginationQuery, teamId string) ([]*types.ProjectResponse, int64, error)
+	GetById(ctx context.Context, userId string, projectId string) (*types.ProjectResponse, error)
+	Create(ctx context.Context, userId string, project *types.ProjectDto) (types.ProjectResponse, error)
+	Update(ctx context.Context, userId string, project *types.ProjectDto) (bool, error)
+	Delete(ctx context.Context, userId string, projectId string) (bool, error)
+}
 
 type ProjectService struct {
 	projectRepo repositories.IProjectRepo
+	teamRepo    repositories.ITeamRepo
 }
 
-func NewProjectService(projectRepo repositories.IProjectRepo) *ProjectService {
+func NewProjectService(projectRepo repositories.IProjectRepo, teamRepo repositories.ITeamRepo) *ProjectService {
 	return &ProjectService{
 		projectRepo: projectRepo,
+		teamRepo:    teamRepo,
 	}
 }
 
-func (ps *ProjectService) Get(ctx context.Context, userId string, pagination *types.PaginationQuery, teamId string) ([]*types.ProjectResponse, int, error) {
+func (s *ProjectService) Get(ctx context.Context, userId string, pagination *types.PaginationQuery, teamId string) ([]*types.ProjectResponse, int64, error) {
 
-	projects, total, err := ps.projectRepo.Get(ctx, userId, pagination, teamId)
+	team, err := s.teamRepo.GetById(ctx, teamId)
+	if err != nil {
+		return []*types.ProjectResponse{}, 0, errors.NotFound("Team")
+	}
+	if *team.OwnerID != userId {
+		return []*types.ProjectResponse{}, 0, errors.Unauthorized("team's projects")
+	}
+
+	projects, total, err := s.projectRepo.Get(ctx, pagination, teamId)
 	if err != nil {
 		return []*types.ProjectResponse{}, 0, err
 	}
@@ -30,31 +48,73 @@ func (ps *ProjectService) Get(ctx context.Context, userId string, pagination *ty
 	return projects, total, nil
 }
 
-func (ps *ProjectService) GetById(ctx context.Context, projectId string) (*types.ProjectResponse, error) {
+func (s *ProjectService) GetById(ctx context.Context, userId string, projectId string) (*types.ProjectResponse, error) {
 
-	project, err := ps.projectRepo.GetById(ctx, projectId)
+	project, err := s.projectRepo.GetWithTeam(ctx, projectId)
 	if err != nil {
-		return nil, err
+		return nil, errors.NotFound("Project")
 	}
 
-	return project, nil
+	if *project.Team.OwnerID != userId {
+		return nil, errors.Unauthorized("project")
+	}
+
+	return &types.ProjectResponse{
+		ID:          project.ID,
+		Name:        project.Name,
+		Description: "",
+		TeamID:      project.TeamID,
+		Valid:       project.Valid,
+		CreatedAt:   utils.GetIsoDateTime(project.CreatedAt),
+		UpdatedAt:   utils.GetIsoDateTime(project.UpdatedAt),
+	}, nil
 }
 
-func (ps *ProjectService) Create(ctx *fiber.Ctx, project *types.ProjectDto) (types.ProjectResponse, error) {
-	createdProject, err := ps.projectRepo.Create(ctx, project)
+func (s *ProjectService) Create(ctx context.Context, userId string, project *types.ProjectDto) (types.ProjectResponse, error) {
+	// createdProject, err := s.projectRepo.Create(ctx, project)
+	// if err != nil {
+	// 	return types.ProjectResponse{}, err
+	// }
+
+	// description := ""
+	// if createdProject.Description != nil {
+	// 	description = *createdProject.Description
+	// }
+
+	// return types.ProjectResponse{
+	// 	ID:          createdProject.ID,
+	// 	Name:        createdProject.Name,
+	// 	Description: description,
+	// 	TeamID:      createdProject.TeamID,
+	// 	Valid:       createdProject.Valid,
+	// 	CreatedAt:   utils.GetIsoDateTime(createdProject.CreatedAt),
+	// 	UpdatedAt:   utils.GetIsoDateTime(createdProject.UpdatedAt),
+	// }, nil
+
+	team, err := s.teamRepo.GetById(ctx, project.TeamID)
 	if err != nil {
-		return types.ProjectResponse{}, err
+		return types.ProjectResponse{}, errors.NotFound("Team")
 	}
 
-	description := ""
-	if createdProject.Description != nil {
-		description = *createdProject.Description
+	if *team.OwnerID != userId {
+		return types.ProjectResponse{}, errors.Unauthorized("team")
+	}
+
+	createdProject, err := s.projectRepo.Create(ctx, &models.Project{
+		ID:          utils.GenerateUUID(),
+		Name:        project.Name,
+		Description: project.Description,
+		TeamID:      project.TeamID,
+		Valid:       true,
+	})
+	if err != nil {
+		return types.ProjectResponse{}, err
 	}
 
 	return types.ProjectResponse{
 		ID:          createdProject.ID,
 		Name:        createdProject.Name,
-		Description: description,
+		Description: *createdProject.Description,
 		TeamID:      createdProject.TeamID,
 		Valid:       createdProject.Valid,
 		CreatedAt:   utils.GetIsoDateTime(createdProject.CreatedAt),
@@ -62,8 +122,17 @@ func (ps *ProjectService) Create(ctx *fiber.Ctx, project *types.ProjectDto) (typ
 	}, nil
 }
 
-func (ps *ProjectService) Update(ctx *fiber.Ctx, project *types.ProjectDto) (bool, error) {
-	ok, err := ps.projectRepo.Update(ctx, &models.Project{
+func (s *ProjectService) Update(ctx context.Context, userId string, project *types.ProjectDto) (bool, error) {
+
+	existingProject, err := s.projectRepo.GetWithTeam(ctx, project.ID)
+	if err != nil {
+		return false, errors.NotFound("Project")
+	}
+	if *existingProject.Team.OwnerID != userId {
+		return false, errors.Unauthorized("project")
+	}
+
+	ok, err := s.projectRepo.Update(ctx, &models.Project{
 		ID:          project.ID,
 		Name:        project.Name,
 		Description: project.Description,
@@ -74,8 +143,15 @@ func (ps *ProjectService) Update(ctx *fiber.Ctx, project *types.ProjectDto) (boo
 	return true, nil
 }
 
-func (ps *ProjectService) Delete(ctx *fiber.Ctx, projectId string) (bool, error) {
-	ok, err := ps.projectRepo.Delete(ctx, projectId)
+func (s *ProjectService) Delete(ctx context.Context, userId string, projectId string) (bool, error) {
+	existingProject, err := s.projectRepo.GetWithTeam(ctx, projectId)
+	if err != nil {
+		return false, errors.NotFound("Project")
+	}
+	if *existingProject.Team.OwnerID != userId {
+		return false, errors.Unauthorized("project")
+	}
+	ok, err := s.projectRepo.Delete(ctx, projectId)
 	if err != nil || !ok {
 		return false, err
 	}

@@ -10,10 +10,10 @@ import (
 
 type ProjectController struct {
 	validator      *validator.Validate
-	projectService *services.ProjectService
+	projectService services.IProjectService
 }
 
-func NewProjectController(service *services.ProjectService) *ProjectController {
+func NewProjectController(service services.IProjectService) *ProjectController {
 	return &ProjectController{
 		validator:      validator.New(),
 		projectService: service,
@@ -56,7 +56,8 @@ func (pc *ProjectController) Get(c *fiber.Ctx) error {
 // @Router /projects/{projectId} [get]
 func (pc *ProjectController) GetById(c *fiber.Ctx) error {
 	projectId := c.Params("projectId")
-	project, err := pc.projectService.GetById(c, projectId)
+	userId := c.Locals("user_id").(string)
+	project, err := pc.projectService.GetById(c.Context(), userId, projectId)
 	if err != nil {
 		return utils.NotFound(c, "Project not found")
 	}
@@ -80,7 +81,8 @@ func (pc *ProjectController) Create(c *fiber.Ctx) error {
 		return utils.BadRequest(c, "Validation failed")
 	}
 
-	createdProject, err := pc.projectService.Create(c, projectDto)
+	userId := c.Locals("user_id").(string)
+	createdProject, err := pc.projectService.Create(c.Context(), userId, projectDto)
 	if err != nil {
 		return utils.BadRequest(c, "Failed to create project")
 	}
@@ -106,7 +108,8 @@ func (pc *ProjectController) Update(c *fiber.Ctx) error {
 		return utils.BadRequest(c, "Validation failed")
 	}
 
-	ok, err := pc.projectService.Update(c, &types.ProjectDto{
+	userId := c.Locals("user_id").(string)
+	ok, err := pc.projectService.Update(c.Context(), userId, &types.ProjectDto{
 		ID:          c.Params("id"),
 		Name:        projectDto.Name,
 		Description: projectDto.Description,
@@ -133,7 +136,8 @@ func (pc *ProjectController) Delete(c *fiber.Ctx) error {
 		return utils.BadRequest(c, "Project ID is required")
 	}
 
-	ok, err := pc.projectService.Delete(c, projectId)
+	userId := c.Locals("user_id").(string)
+	ok, err := pc.projectService.Delete(c.Context(), userId, projectId)
 	if err != nil || !ok {
 		return utils.BadRequest(c, "Failed to delete project")
 	}

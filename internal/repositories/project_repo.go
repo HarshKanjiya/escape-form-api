@@ -10,12 +10,12 @@ import (
 )
 
 type IProjectRepo interface {
-	Get(ctx context.Context, userId string, pagination *types.PaginationQuery, teamId string) ([]*models.Project, int, error)
+	Get(ctx context.Context, pagination *types.PaginationQuery, teamId string) ([]*types.ProjectResponse, int64, error)
 	GetById(ctx context.Context, projectId string) (*models.Project, error)
-	Create(ctx context.Context, project *types.ProjectDto) (*models.Project, error)
+	Create(ctx context.Context, project *models.Project) (*models.Project, error)
 	Update(ctx context.Context, project *models.Project) (bool, error)
 	Delete(ctx context.Context, projectId string) (bool, error)
-	GetWithTeam(ctx context.Context, userId string, projectId string) (*models.Project, error)
+	GetWithTeam(ctx context.Context, projectId string) (*models.Project, error)
 }
 
 type ProjectRepo struct {
@@ -73,9 +73,9 @@ func (r *ProjectRepo) Get(ctx context.Context, pagination *types.PaginationQuery
 	return projects, totalCount, nil
 }
 
-func (r *ProjectRepo) GetById(ctx context.Context, projectId string) (*types.ProjectResponse, error) {
+func (r *ProjectRepo) GetById(ctx context.Context, projectId string) (*models.Project, error) {
 
-	var project types.ProjectResponse
+	var project models.Project
 
 	if err := r.db.Model(&models.Project{}).WithContext(ctx).
 		Select(`
@@ -100,40 +100,36 @@ func (r *ProjectRepo) GetById(ctx context.Context, projectId string) (*types.Pro
 	return &project, nil
 }
 
-func (r *ProjectRepo) GetWithTeam(ctx context.Context, userId string, projectId string) (*models.Project, error) {
+func (r *ProjectRepo) GetWithTeam(ctx context.Context, projectId string) (*models.Project, error) {
 	var project models.Project
-
+	if err := r.db.WithContext(ctx).Preload("Team").Where("id = ? AND valid = ?", projectId, true).First(&project).Error; err != nil {
+		return nil, errors.Internal(err)
+	}
+	return &project, nil
 }
 
-func (r *ProjectRepo) Create(ctx context.Context, project *types.ProjectDto) (*models.Project, error) {
+func (r *ProjectRepo) Create(ctx context.Context, project *models.Project) (*models.Project, error) {
 
-	// projectModel := &models.Project{
-	// 	ID:          uuid.New().String(),
-	// 	Name:        project.Name,
-	// 	Description: project.Description,
-	// 	TeamID:      project.TeamID,
-	// 	Valid:       true,
-	// }
-
-	// err := r.db.WithContext(ctx.Context()).Create(projectModel).Error
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return projectModel, nil
+	if err := r.db.Model(&models.Project{}).Create(project).Error; err != nil {
+		return nil, errors.Internal(err)
+	}
+	return project, nil
 }
 
 func (r *ProjectRepo) Update(ctx context.Context, project *models.Project) (bool, error) {
-	// err := r.db.WithContext(ctx.Context()).Model(&models.Project{}).Where("id = ?", project.ID).Updates(project).Error
-	// if err != nil {
-	// 	return false, err
-	// }
-	// return true, nil
+	if err := r.db.WithContext(ctx).Model(&models.Project{}).Where("id = ? AND valid = ?", project.ID, true).Updates(map[string]interface{}{
+		"name":        project.Name,
+		"description": project.Description,
+	}).Error; err != nil {
+		return false, errors.Internal(err)
+	}
+	return true, nil
 }
 
 func (r *ProjectRepo) Delete(ctx context.Context, projectId string) (bool, error) {
-	// err := r.db.WithContext(ctx.Context()).Model(&models.Project{}).Where("id = ?", projectId).Update("valid", false).Error
-	// if err != nil {
-	// 	return false, err
-	// }
-	// return true, nil
+
+	if err := r.db.WithContext(ctx).Model(&models.Project{}).Where("id = ?", projectId).Update("valid", false).Error; err != nil {
+		return false, errors.Internal(err)
+	}
+	return true, nil
 }

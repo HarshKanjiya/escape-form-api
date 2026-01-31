@@ -5,8 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Success(c *fiber.Ctx, data interface{}, message string, total ...int) error {
-	totalCount := 0
+func Success(c *fiber.Ctx, data interface{}, message string, total ...int64) error {
+	totalCount := int64(0)
 	if len(total) > 0 {
 		totalCount = total[0]
 	}
