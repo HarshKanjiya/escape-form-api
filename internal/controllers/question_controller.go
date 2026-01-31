@@ -40,7 +40,7 @@ func (pc *QuestionController) Get(c *fiber.Ctx) error {
 	if formId == "" {
 		return errors.BadRequest("Form ID is required")
 	}
-	questions, err := pc.questionService.Get(c, formId)
+	questions, err := pc.questionService.GetQuestions(c.Context(), userId, formId)
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func (pc *QuestionController) Create(c *fiber.Ctx) error {
 	if err := pc.validator.Struct(&questionDto); err != nil {
 		return errors.BadRequest("Validation failed: " + err.Error())
 	}
-	question, err := pc.questionService.Create(c, &questionDto)
+	question, err := pc.questionService.CreateQuestion(c.Context(), userId, formId, &questionDto)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func (pc *QuestionController) Update(c *fiber.Ctx) error {
 	if err := pc.validator.Struct(&questionDto); err != nil {
 		return errors.BadRequest("Validation failed: " + err.Error())
 	}
-	question, err := pc.questionService.Update(c, &questionDto)
+	question, err := pc.questionService.UpdateQuestion(c.Context(), userId, questionDto.FormID, &questionDto)
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (pc *QuestionController) GetOptions(c *fiber.Ctx) error {
 	}
 
 	questionId := c.Params("questionId")
-	options, err := pc.questionService.GetOptions(c, questionId)
+	options, err := pc.questionService.GetOptions(c.Context(), userId, questionId)
 	if err != nil {
 		return err
 	}
@@ -187,7 +187,7 @@ func (pc *QuestionController) CreateOption(c *fiber.Ctx) error {
 	if err := pc.validator.Struct(&optionDto); err != nil {
 		return errors.BadRequest("Validation failed: " + err.Error())
 	}
-	option, err := pc.questionService.CreateOption(c, &optionDto)
+	option, err := pc.questionService.CreateOption(c.Context(), userId, optionDto.QuestionID, &optionDto)
 	if err != nil {
 		return err
 	}
@@ -218,7 +218,7 @@ func (pc *QuestionController) UpdateOption(c *fiber.Ctx) error {
 	if err := pc.validator.Struct(&optionDto); err != nil {
 		return errors.BadRequest("Validation failed: " + err.Error())
 	}
-	option, err := pc.questionService.UpdateOption(c, &optionDto)
+	option, err := pc.questionService.UpdateOption(c.Context(), userId, optionDto.QuestionID, &optionDto)
 	if err != nil {
 		return err
 	}
@@ -241,7 +241,7 @@ func (pc *QuestionController) DeleteOption(c *fiber.Ctx) error {
 	}
 
 	optionId := c.Params("optionId")
-	err := pc.questionService.DeleteOption(c, optionId)
+	err := pc.questionService.DeleteOption(c.Context(), userId, optionId)
 	if err != nil {
 		return utils.Error(c, fiber.StatusInternalServerError, "Failed to delete option")
 	}
