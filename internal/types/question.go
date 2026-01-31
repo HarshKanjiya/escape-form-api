@@ -2,7 +2,7 @@ package types
 
 import "github.com/HarshKanjiya/escape-form-api/internal/models"
 
-type QuestionOptionDto struct {
+type QuestionOptionRequest struct {
 	ID         string `json:"id"`
 	QuestionID string `json:"questionId" validate:"required"`
 	Label      string `json:"label" validate:"required"`
@@ -10,7 +10,7 @@ type QuestionOptionDto struct {
 	SortOrder  int    `json:"sortOrder"`
 }
 
-type QuestionDto struct {
+type QuestionRequest struct {
 	ID          string              `json:"id"`
 	FormID      string              `json:"formId"`
 	Title       string              `json:"title"`

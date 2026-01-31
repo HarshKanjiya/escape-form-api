@@ -11,12 +11,12 @@ import (
 type IQuestionRepo interface {
 	GetQuestions(ctx context.Context, formId string) ([]*models.Question, error)
 	CreateQuestion(ctx context.Context, question *models.Question) (*models.Question, error)
-	UpdateQuestion(ctx context.Context, question *models.Question) error
+	UpdateQuestion(ctx context.Context, questionId string, question *map[string]interface{}) error
 	DeleteQuestion(ctx context.Context, questionId string) error
 
 	GetOptions(ctx context.Context, questionId string) ([]*models.QuestionOption, error)
 	CreateOption(ctx context.Context, option *models.QuestionOption) (*models.QuestionOption, error)
-	UpdateOption(ctx context.Context, option *models.QuestionOption) error
+	UpdateOption(ctx context.Context, optionId string, option *map[string]interface{}) error
 	DeleteOption(ctx context.Context, optionId string) error
 }
 
@@ -56,12 +56,12 @@ func (r *QuestionRepo) CreateQuestion(ctx context.Context, question *models.Ques
 	return question, nil
 }
 
-func (r *QuestionRepo) UpdateQuestion(ctx context.Context, question *models.Question) error {
+func (r *QuestionRepo) UpdateQuestion(ctx context.Context, questionId string, question *map[string]interface{}) error {
 
 	err := r.db.WithContext(ctx).
 		Model(&models.Question{}).
-		Where("id = ?", question.ID).
-		Updates(question).Error
+		Where("id = ?", questionId).
+		Updates(*question).Error
 	if err != nil {
 		return errors.Internal(err)
 	}
@@ -105,12 +105,12 @@ func (r *QuestionRepo) CreateOption(ctx context.Context, option *models.Question
 	return option, nil
 }
 
-func (r *QuestionRepo) UpdateOption(ctx context.Context, option *models.QuestionOption) error {
+func (r *QuestionRepo) UpdateOption(ctx context.Context, optionId string, option *map[string]interface{}) error {
 
 	err := r.db.WithContext(ctx).
 		Model(&models.QuestionOption{}).
-		Where("id = ?", option.ID).
-		Updates(option).Error
+		Where("id = ?", optionId).
+		Updates(*option).Error
 	if err != nil {
 		return errors.Internal(err)
 	}

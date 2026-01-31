@@ -69,21 +69,20 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		forms.Post("/:id/status", formController.UpdateStatus)
 		forms.Delete("/:id", formController.Delete)
 
-		forms.Get("/:formId/questions", questionController.Get)
-		forms.Post("/:formId/questions", questionController.Create)
-
 		forms.Post("/:formId/sequence", formController.UpdateSequence)
 	}
 
-	questions := protectedRoutes.Group("/questions")
+	questions := forms.Group("/:formId/questions")
 	{
-		questions.Patch("/:questionId", questionController.Update)
-		questions.Delete("/:questionId", questionController.Delete)
+		questions.Get("", questionController.GetQuestions)
+		questions.Post("", questionController.CreateQuestion)
+		questions.Patch("/:questionId", questionController.UpdateQuestion)
+		questions.Delete("/:questionId", questionController.DeleteQuestion)
 
 		questions.Get("/:questionId/options", questionController.GetOptions)
 		questions.Post("/:questionId/options", questionController.CreateOption)
-		questions.Patch("/options/:optionId", questionController.UpdateOption)
-		questions.Delete("/options/:optionId", questionController.DeleteOption)
+		questions.Patch("/:questionId/options/:optionId", questionController.UpdateOption)
+		questions.Delete("/:questionId/options/:optionId", questionController.DeleteOption)
 	}
 
 	edges := protectedRoutes.Group("/edges")
