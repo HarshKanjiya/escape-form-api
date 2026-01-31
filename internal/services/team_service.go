@@ -1,14 +1,20 @@
 package services
 
 import (
+	"context"
+
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
-	"github.com/gofiber/fiber/v2"
 )
 
 type ITeamService interface {
+	Get(ctx context.Context, userId string, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int64, error)
+	Create(ctx context.Context, userId string, team *types.TeamRequest) error
+	Update(ctx context.Context, userId string, team *types.TeamRequest) error
+	Delete(ctx context.Context, userId string, teamId string) error
 }
 
 type TeamService struct {
@@ -21,61 +27,75 @@ func NewTeamService(teamRepo repositories.ITeamRepo) *TeamService {
 	}
 }
 
-func (ts *TeamService) Get(ctx *fiber.Ctx, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int) {
+func (ts *TeamService) Get(ctx context.Context, userId string, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int64, error) {
 
-	teams, total, err := ts.teamRepo.Get(ctx, pagination, valid)
+	teams, totalCount, err := ts.teamRepo.Get(ctx, userId, pagination, valid)
 	if err != nil {
-		return []*types.TeamResponse{}, 0
+		return nil, 0, err
 	}
-
-	return teams, total
+	return teams, totalCount, nil
 }
 
-func (ts *TeamService) Create(ctx *fiber.Ctx, team *types.TeamDto) (types.TeamResponse, error) {
-	createdTeam, err := ts.teamRepo.Create(ctx, team)
+func (ts *TeamService) Create(ctx context.Context, userId string, team *types.TeamRequest) error {
+
+	newTeam := &models.Team{
+		ID:        utils.GenerateUUID(),
+		Name:      &team.Name,
+		OwnerID:   &userId,
+		PlanID:    nil,
+		Valid:     true,
+		CreatedAt: *utils.GetCurrentTime(),
+	}
+
+	err := ts.teamRepo.Create(ctx, newTeam)
 	if err != nil {
-		return types.TeamResponse{}, err
+		return err
 	}
-
-	ownerId := ""
-	if createdTeam.OwnerID != nil {
-		ownerId = *createdTeam.OwnerID
-	}
-	planId := ""
-	if createdTeam.PlanID != nil {
-		planId = *createdTeam.PlanID
-	}
-	name := ""
-	if createdTeam.Name != nil {
-		name = *createdTeam.Name
-	}
-
-	return types.TeamResponse{
-		ID:        createdTeam.ID,
-		Name:      name,
-		OwnerId:   ownerId,
-		PlanId:    planId,
-		Valid:     createdTeam.Valid,
-		CreatedAt: utils.GetIsoDateTime(&createdTeam.CreatedAt),
-		UpdatedAt: utils.GetIsoDateTime(createdTeam.UpdatedAt),
-	}, nil
+	return nil
 }
 
-func (ts *TeamService) Update(ctx *fiber.Ctx, team *types.TeamDto) (bool, error) {
-	ok, err := ts.teamRepo.Update(ctx, &models.Team{
-		ID:   team.ID,
-		Name: &team.Name,
+func (ts *TeamService) Update(ctx context.Context, userId string, team *types.TeamRequest) error {
+
+	teamDb, err := ts.teamRepo.GetById(ctx, team.ID)
+	if err != nil {
+		return err
+	}
+
+	if teamDb == nil {
+		return errors.NotFound("Team")
+	}
+
+	if teamDb.OwnerID == nil || *teamDb.OwnerID != userId {
+		return errors.Unauthorized("")
+	}
+
+	err = ts.teamRepo.Update(ctx, &models.Team{
+		ID:        team.ID,
+		Name:      &team.Name,
+		UpdatedAt: utils.GetCurrentTime(),
 	})
-	if err != nil || !ok {
-		return false, err
+	if err != nil {
+		return err
 	}
-	return true, nil
+	return nil
 }
 
-func (ts *TeamService) Delete(ctx *fiber.Ctx, teamId string) (bool, error) {
-	ok, err := ts.teamRepo.Delete(ctx, teamId)
-	if err != nil || !ok {
-		return false, err
+func (ts *TeamService) Delete(ctx context.Context, userId string, teamId string) error {
+
+	teamDb, err := ts.teamRepo.GetById(ctx, teamId)
+	if err != nil {
+		return err
 	}
-	return true, nil
+	if teamDb == nil {
+		return errors.NotFound("Team")
+	}
+	if teamDb.OwnerID == nil || *teamDb.OwnerID != userId {
+		return errors.Unauthorized("")
+	}
+
+	err = ts.teamRepo.Delete(ctx, teamId)
+	if err != nil {
+		return err
+	}
+	return nil
 }

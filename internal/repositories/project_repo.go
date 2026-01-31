@@ -6,6 +6,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -47,7 +48,7 @@ func (r *ProjectRepo) Get(ctx context.Context, pagination *types.PaginationQuery
 		return nil, 0, errors.Internal(err)
 	}
 
-	if err := baseQuery.
+	err := baseQuery.
 		Select(`
 			projects.id,
 			projects.name,
@@ -56,7 +57,7 @@ func (r *ProjectRepo) Get(ctx context.Context, pagination *types.PaginationQuery
 			projects.valid,
 			projects.createdAt,
 			projects.updatedAt,
-			COUNT(forms.id) AS form_count
+			COUNT(forms.id) AS formCount
 		`).
 		Joins(`
 			LEFT JOIN forms
@@ -66,7 +67,8 @@ func (r *ProjectRepo) Get(ctx context.Context, pagination *types.PaginationQuery
 		Order("projects.created_at DESC").
 		Limit(pagination.Limit).
 		Offset((pagination.Page - 1) * pagination.Limit).
-		Scan(&projects).Error; err != nil {
+		Scan(&projects).Error
+	if err != nil {
 		return nil, 0, errors.Internal(err)
 	}
 
@@ -110,17 +112,21 @@ func (r *ProjectRepo) GetWithTeam(ctx context.Context, projectId string) (*model
 
 func (r *ProjectRepo) Create(ctx context.Context, project *models.Project) (*models.Project, error) {
 
-	if err := r.db.Model(&models.Project{}).Create(project).Error; err != nil {
+	err := r.db.Model(&models.Project{}).Create(project).Error
+	if err != nil {
 		return nil, errors.Internal(err)
 	}
 	return project, nil
 }
 
 func (r *ProjectRepo) Update(ctx context.Context, project *models.Project) (bool, error) {
-	if err := r.db.WithContext(ctx).Model(&models.Project{}).Where("id = ? AND valid = ?", project.ID, true).Updates(map[string]interface{}{
-		"name":        project.Name,
-		"description": project.Description,
-	}).Error; err != nil {
+	if err := r.db.WithContext(ctx).Model(&models.Project{}).
+		Where("id = ? AND valid = ?", project.ID, true).
+		Updates(map[string]interface{}{
+			"name":        project.Name,
+			"description": project.Description,
+			"updatedAt":   utils.GetCurrentTime(),
+		}).Error; err != nil {
 		return false, errors.Internal(err)
 	}
 	return true, nil
@@ -128,7 +134,12 @@ func (r *ProjectRepo) Update(ctx context.Context, project *models.Project) (bool
 
 func (r *ProjectRepo) Delete(ctx context.Context, projectId string) error {
 
-	if err := r.db.WithContext(ctx).Model(&models.Project{}).Where("id = ?", projectId).Update("valid", false).Error; err != nil {
+	if err := r.db.WithContext(ctx).Model(&models.Project{}).
+		Where("id = ?", projectId).
+		Updates(map[string]interface{}{
+			"valid":     false,
+			"updatedAt": utils.GetCurrentTime(),
+		}).Error; err != nil {
 		return errors.Internal(err)
 	}
 	return nil

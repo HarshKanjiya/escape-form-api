@@ -13,8 +13,8 @@ import (
 type IProjectService interface {
 	Get(ctx context.Context, userId string, pagination *types.PaginationQuery, teamId string) ([]*types.ProjectResponse, int64, error)
 	GetById(ctx context.Context, userId string, projectId string) (*types.ProjectResponse, error)
-	Create(ctx context.Context, userId string, project *types.ProjectDto) (types.ProjectResponse, error)
-	Update(ctx context.Context, userId string, project *types.ProjectDto) (bool, error)
+	Create(ctx context.Context, userId string, project *types.ProjectRequest) (types.ProjectResponse, error)
+	Update(ctx context.Context, userId string, project *types.ProjectRequest) (bool, error)
 	Delete(ctx context.Context, userId string, projectId string) (bool, error)
 }
 
@@ -73,7 +73,7 @@ func (s *ProjectService) GetById(ctx context.Context, userId string, projectId s
 	}, nil
 }
 
-func (s *ProjectService) Create(ctx context.Context, userId string, project *types.ProjectDto) (types.ProjectResponse, error) {
+func (s *ProjectService) Create(ctx context.Context, userId string, project *types.ProjectRequest) (types.ProjectResponse, error) {
 	team, err := s.teamRepo.GetById(ctx, project.TeamID)
 	if err != nil {
 		return types.ProjectResponse{}, errors.NotFound("Team")
@@ -105,7 +105,7 @@ func (s *ProjectService) Create(ctx context.Context, userId string, project *typ
 	}, nil
 }
 
-func (s *ProjectService) Update(ctx context.Context, userId string, project *types.ProjectDto) (bool, error) {
+func (s *ProjectService) Update(ctx context.Context, userId string, project *types.ProjectRequest) (bool, error) {
 
 	existingProject, err := s.projectRepo.GetWithTeam(ctx, project.ID)
 	if err != nil {

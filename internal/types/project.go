@@ -25,10 +25,10 @@ type ProjectResponse struct {
 	Valid       bool   `json:"valid"`
 	CreatedAt   string `json:"createdAt"`
 	UpdatedAt   string `json:"updatedAt"`
-	FormCount   int    `json:"formCount,omitempty"`
+	FormCount   int    `json:"formCount"`
 }
 
-type ProjectDto struct {
+type ProjectRequest struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name" validate:"required,min=3,max=100"`
 	Description *string `json:"description"`

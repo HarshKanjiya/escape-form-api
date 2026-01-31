@@ -96,7 +96,7 @@ func (pc *ProjectController) Create(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
-	projectDto := new(types.ProjectDto)
+	projectDto := new(types.ProjectRequest)
 	if err := c.BodyParser(projectDto); err != nil {
 		return errors.BadRequest("Invalid request body")
 	}
@@ -128,7 +128,7 @@ func (pc *ProjectController) Update(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
-	projectDto := new(types.ProjectDto)
+	projectDto := new(types.ProjectRequest)
 	if err := c.BodyParser(projectDto); err != nil {
 		return errors.BadRequest("Invalid request body")
 	}
@@ -137,7 +137,7 @@ func (pc *ProjectController) Update(c *fiber.Ctx) error {
 		return errors.BadRequest("Validation failed")
 	}
 
-	ok, err := pc.projectService.Update(c.Context(), userId, &types.ProjectDto{
+	ok, err := pc.projectService.Update(c.Context(), userId, &types.ProjectRequest{
 		ID:          c.Params("id"),
 		Name:        projectDto.Name,
 		Description: projectDto.Description,

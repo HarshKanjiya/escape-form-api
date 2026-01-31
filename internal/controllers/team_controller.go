@@ -42,7 +42,10 @@ func (tc *TeamController) Get(c *fiber.Ctx) error {
 		SortBy: c.Query("sortBy", ""),
 		Order:  c.Query("order", ""),
 	}
-	teams, total := tc.teamService.Get(c, pagination, true)
+	teams, total, err := tc.teamService.Get(c.Context(), userId, pagination, true)
+	if err != nil {
+		return err
+	}
 	return utils.Success(c, teams, "Teams fetched successfully", total)
 }
 
@@ -60,7 +63,7 @@ func (tc *TeamController) Create(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
-	teamDto := new(types.TeamDto)
+	teamDto := new(types.TeamRequest)
 	if err := c.BodyParser(teamDto); err != nil {
 		return errors.BadRequest("Invalid request body")
 	}
@@ -69,12 +72,12 @@ func (tc *TeamController) Create(c *fiber.Ctx) error {
 		return errors.BadRequest("Validation failed: " + err.Error())
 	}
 
-	createdTeam, err := tc.teamService.Create(c, teamDto)
+	err := tc.teamService.Create(c.Context(), userId, teamDto)
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(c, createdTeam, "Team created successfully", 0)
+	return utils.Success(c, nil, "Team created successfully", 0)
 }
 
 // @Summary Update a team
@@ -92,7 +95,7 @@ func (tc *TeamController) Update(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
-	teamDto := new(types.TeamDto)
+	teamDto := new(types.TeamRequest)
 	if err := c.BodyParser(teamDto); err != nil {
 		return errors.BadRequest("Invalid request body")
 	}
@@ -101,11 +104,8 @@ func (tc *TeamController) Update(c *fiber.Ctx) error {
 		return errors.BadRequest("Validation failed: " + err.Error())
 	}
 
-	ok, err := tc.teamService.Update(c, &types.TeamDto{
-		ID:   c.Params("id"),
-		Name: teamDto.Name,
-	})
-	if err != nil || !ok {
+	err := tc.teamService.Update(c.Context(), userId, teamDto)
+	if err != nil {
 		return err
 	}
 	return utils.Success(c, nil, "Team updated successfully")
@@ -132,8 +132,8 @@ func (tc *TeamController) Delete(c *fiber.Ctx) error {
 		return errors.BadRequest("Team ID is required")
 	}
 
-	ok, err := tc.teamService.Delete(c, teamId)
-	if err != nil || !ok {
+	err := tc.teamService.Delete(c.Context(), userId, teamId)
+	if err != nil {
 		return err
 	}
 	return utils.Success(c, nil, "Team deleted successfully")

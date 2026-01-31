@@ -25,3 +25,8 @@ func GetUserId(ctx *fiber.Ctx) (string, bool) {
 	}
 	return id, true
 }
+
+func GetCurrentTime() *time.Time {
+	now := time.Now().UTC()
+	return &now
+}
