@@ -11,10 +11,15 @@ func BadRequest(msg string) *AppError {
 }
 
 func Unauthorized(msg string) *AppError {
+	if msg == "" {
+		msg = "Unauthorized access"
+	} else {
+		msg = "You do not have access to this " + msg
+	}
 	return &AppError{
 		StatusCode: http.StatusUnauthorized,
 		Code:       "UNAUTHORIZED",
-		Message:    "You do not have access to this " + msg,
+		Message:    msg,
 	}
 }
 
@@ -27,6 +32,9 @@ func PaymentRequired(msg string) *AppError {
 }
 
 func NotFound(name string) *AppError {
+	if name == "" {
+		name = "Resource"
+	}
 	return &AppError{
 		StatusCode: http.StatusNotFound,
 		Code:       "NOT_FOUND",

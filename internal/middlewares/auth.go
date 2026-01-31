@@ -3,6 +3,7 @@ package middlewares
 import (
 	"strings"
 
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog/log"
@@ -13,13 +14,13 @@ func JWTMiddleware(jwtSecret string) fiber.Handler {
 		// Get token
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
-			return utils.Unauthorized(c, "Missing authorization token")
+			return errors.Unauthorized("Missing authorization token")
 		}
 
 		// Extract token from "Bearer <token>"
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			return utils.Unauthorized(c, "Invalid authorization header format")
+			return errors.Unauthorized("Invalid authorization header format")
 		}
 
 		token := parts[1]
@@ -28,7 +29,7 @@ func JWTMiddleware(jwtSecret string) fiber.Handler {
 		claims, err := utils.ValidateToken(token, jwtSecret)
 		if err != nil {
 			log.Error().Err(err).Msg("Token validation failed")
-			return utils.Unauthorized(c, "Invalid or expired token")
+			return errors.Unauthorized("Invalid or expired token")
 		}
 
 		// Store user info in context for use in handlers

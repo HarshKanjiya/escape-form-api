@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -29,14 +30,19 @@ func NewQuestionController(service *services.QuestionService) *QuestionControlle
 // @Router /forms/{formId}/questions [get]
 func (pc *QuestionController) Get(c *fiber.Ctx) error {
 
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 
 	if formId == "" {
-		return utils.BadRequest(c, "Form ID is required")
+		return errors.BadRequest("Form ID is required")
 	}
 	questions, err := pc.questionService.Get(c, formId)
 	if err != nil {
-		return utils.Error(c, fiber.StatusInternalServerError, "Failed to fetch questions")
+		return err
 	}
 	return utils.Success(c, questions, "Questions fetched successfully")
 }
@@ -49,24 +55,30 @@ func (pc *QuestionController) Get(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms/{formId}/questions [post]
 func (pc *QuestionController) Create(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 
 	if formId == "" {
-		return utils.BadRequest(c, "Form ID is required")
+		return errors.BadRequest("Form ID is required")
 	}
 
 	var questionDto types.QuestionDto
 	if err := c.BodyParser(&questionDto); err != nil {
-		return utils.BadRequest(c, "Invalid request body")
+		return errors.BadRequest("Invalid request body")
 	}
 	questionDto.FormID = formId
 
 	if err := pc.validator.Struct(&questionDto); err != nil {
-		return utils.BadRequest(c, "Validation failed: "+err.Error())
+		return errors.BadRequest("Validation failed: " + err.Error())
 	}
 	question, err := pc.questionService.Create(c, &questionDto)
 	if err != nil {
-		return utils.Error(c, fiber.StatusInternalServerError, "Failed to create question")
+		return err
 	}
 	return utils.Created(c, question, "Question created successfully")
 }
@@ -80,24 +92,30 @@ func (pc *QuestionController) Create(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /questions/{questionId} [patch]
 func (pc *QuestionController) Update(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	questionId := c.Params("questionId")
 
 	if questionId == "" {
-		return utils.BadRequest(c, "Question ID is required")
+		return errors.BadRequest("Question ID is required")
 	}
 
 	var questionDto types.QuestionDto
 	if err := c.BodyParser(&questionDto); err != nil {
-		return utils.BadRequest(c, "Invalid request body")
+		return errors.BadRequest("Invalid request body")
 	}
 	questionDto.ID = questionId
 
 	if err := pc.validator.Struct(&questionDto); err != nil {
-		return utils.BadRequest(c, "Validation failed: "+err.Error())
+		return errors.BadRequest("Validation failed: " + err.Error())
 	}
 	question, err := pc.questionService.Update(c, &questionDto)
 	if err != nil {
-		return utils.Error(c, fiber.StatusInternalServerError, "Failed to update question")
+		return err
 	}
 	return utils.Success(c, question, "Question updated successfully")
 }
@@ -111,6 +129,12 @@ func (pc *QuestionController) Update(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /questions/{id} [delete]
 func (pc *QuestionController) Delete(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	return c.JSON(fiber.Map{
 		"message": "QuestionController Delete method called",
 	})
@@ -125,10 +149,16 @@ func (pc *QuestionController) Delete(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /questions/{questionId}/options [get]
 func (pc *QuestionController) GetOptions(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	questionId := c.Params("questionId")
 	options, err := pc.questionService.GetOptions(c, questionId)
 	if err != nil {
-		return utils.Error(c, fiber.StatusInternalServerError, "Failed to fetch options")
+		return err
 	}
 	return utils.Success(c, options, "Options fetched successfully")
 }
@@ -142,18 +172,24 @@ func (pc *QuestionController) GetOptions(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /questions/{questionId}/options [post]
 func (pc *QuestionController) CreateOption(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	questionId := c.Params("questionId")
 	var optionDto types.QuestionOptionDto
 	if err := c.BodyParser(&optionDto); err != nil {
-		return utils.BadRequest(c, "Invalid request body")
+		return errors.BadRequest("Invalid request body")
 	}
 	optionDto.QuestionID = questionId
 	if err := pc.validator.Struct(&optionDto); err != nil {
-		return utils.BadRequest(c, "Validation failed: "+err.Error())
+		return errors.BadRequest("Validation failed: " + err.Error())
 	}
 	option, err := pc.questionService.CreateOption(c, &optionDto)
 	if err != nil {
-		return utils.Error(c, fiber.StatusInternalServerError, "Failed to create option")
+		return err
 	}
 	return utils.Created(c, option, "Option created successfully")
 }
@@ -167,18 +203,24 @@ func (pc *QuestionController) CreateOption(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /questions/options/{optionId} [patch]
 func (pc *QuestionController) UpdateOption(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	optionId := c.Params("optionId")
 	var optionDto types.QuestionOptionDto
 	if err := c.BodyParser(&optionDto); err != nil {
-		return utils.BadRequest(c, "Invalid request body")
+		return errors.BadRequest("Invalid request body")
 	}
 	optionDto.ID = optionId
 	if err := pc.validator.Struct(&optionDto); err != nil {
-		return utils.BadRequest(c, "Validation failed: "+err.Error())
+		return errors.BadRequest("Validation failed: " + err.Error())
 	}
 	option, err := pc.questionService.UpdateOption(c, &optionDto)
 	if err != nil {
-		return utils.Error(c, fiber.StatusInternalServerError, "Failed to update option")
+		return err
 	}
 	return utils.Success(c, option, "Option updated successfully")
 }
@@ -192,6 +234,12 @@ func (pc *QuestionController) UpdateOption(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /questions/options/{optionId} [delete]
 func (pc *QuestionController) DeleteOption(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	optionId := c.Params("optionId")
 	err := pc.questionService.DeleteOption(c, optionId)
 	if err != nil {

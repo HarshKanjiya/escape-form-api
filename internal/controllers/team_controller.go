@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -28,6 +29,12 @@ func NewTeamController(service *services.TeamService) *TeamController {
 // @Success 200 {object} map[string]interface{}
 // @Router /teams [get]
 func (tc *TeamController) Get(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	pagination := &types.PaginationQuery{
 		Page:   c.QueryInt("page", 1),
 		Limit:  c.QueryInt("limit", 10),
@@ -47,18 +54,24 @@ func (tc *TeamController) Get(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /teams [post]
 func (tc *TeamController) Create(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	teamDto := new(types.TeamDto)
 	if err := c.BodyParser(teamDto); err != nil {
-		return utils.BadRequest(c, "Invalid request body")
+		return errors.BadRequest("Invalid request body")
 	}
 
 	if err := tc.validator.Struct(teamDto); err != nil {
-		return utils.BadRequest(c, "Validation failed")
+		return errors.BadRequest("Validation failed: " + err.Error())
 	}
 
 	createdTeam, err := tc.teamService.Create(c, teamDto)
 	if err != nil {
-		return utils.BadRequest(c, "Failed to create team")
+		return err
 	}
 
 	return utils.Success(c, createdTeam, "Team created successfully", 0)
@@ -73,13 +86,19 @@ func (tc *TeamController) Create(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /teams/{id} [patch]
 func (tc *TeamController) Update(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	teamDto := new(types.TeamDto)
 	if err := c.BodyParser(teamDto); err != nil {
-		return utils.BadRequest(c, "Invalid request body")
+		return errors.BadRequest("Invalid request body")
 	}
 
 	if err := tc.validator.Struct(teamDto); err != nil {
-		return utils.BadRequest(c, "Validation failed")
+		return errors.BadRequest("Validation failed: " + err.Error())
 	}
 
 	ok, err := tc.teamService.Update(c, &types.TeamDto{
@@ -87,7 +106,7 @@ func (tc *TeamController) Update(c *fiber.Ctx) error {
 		Name: teamDto.Name,
 	})
 	if err != nil || !ok {
-		return utils.BadRequest(c, "Failed to update team")
+		return err
 	}
 	return utils.Success(c, nil, "Team updated successfully")
 }
@@ -101,15 +120,21 @@ func (tc *TeamController) Update(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /teams/{id} [delete]
 func (tc *TeamController) Delete(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	teamId := c.Params("id")
 
 	if teamId == "" {
-		return utils.BadRequest(c, "Team ID is required")
+		return errors.BadRequest("Team ID is required")
 	}
 
 	ok, err := tc.teamService.Delete(c, teamId)
 	if err != nil || !ok {
-		return utils.BadRequest(c, "Failed to delete team")
+		return err
 	}
 	return utils.Success(c, nil, "Team deleted successfully")
 }

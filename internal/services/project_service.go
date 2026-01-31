@@ -71,26 +71,6 @@ func (s *ProjectService) GetById(ctx context.Context, userId string, projectId s
 }
 
 func (s *ProjectService) Create(ctx context.Context, userId string, project *types.ProjectDto) (types.ProjectResponse, error) {
-	// createdProject, err := s.projectRepo.Create(ctx, project)
-	// if err != nil {
-	// 	return types.ProjectResponse{}, err
-	// }
-
-	// description := ""
-	// if createdProject.Description != nil {
-	// 	description = *createdProject.Description
-	// }
-
-	// return types.ProjectResponse{
-	// 	ID:          createdProject.ID,
-	// 	Name:        createdProject.Name,
-	// 	Description: description,
-	// 	TeamID:      createdProject.TeamID,
-	// 	Valid:       createdProject.Valid,
-	// 	CreatedAt:   utils.GetIsoDateTime(createdProject.CreatedAt),
-	// 	UpdatedAt:   utils.GetIsoDateTime(createdProject.UpdatedAt),
-	// }, nil
-
 	team, err := s.teamRepo.GetById(ctx, project.TeamID)
 	if err != nil {
 		return types.ProjectResponse{}, errors.NotFound("Team")

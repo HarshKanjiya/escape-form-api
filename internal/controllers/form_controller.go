@@ -6,6 +6,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -31,7 +32,12 @@ func NewFormController(service *services.FormService) *FormController {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms [get]
 func (fc *FormController) Get(c *fiber.Ctx) error {
-	userId := c.Locals("user_id").(string)
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	pagination := &types.PaginationQuery{
 		Page:   c.QueryInt("page", 1),
 		Limit:  c.QueryInt("limit", 10),
@@ -41,7 +47,7 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 	}
 	projectId := c.Query("projectId", "")
 	if projectId == "" {
-		return utils.BadRequest(c, "projectId is required")
+		return errors.BadRequest("projectId is required")
 	}
 	forms, total, err := fc.formService.Get(c.Context(), userId, pagination, true, projectId)
 	if err != nil {
@@ -58,10 +64,15 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms [post]
 func (fc *FormController) Create(c *fiber.Ctx) error {
-	userId := c.Locals("user_id").(string)
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	var formDto types.CreateFormDto
 	if err := c.BodyParser(&formDto); err != nil {
-		return utils.BadRequest(c, "Invalid request body")
+		return errors.BadRequest("Invalid request body")
 	}
 	newForm, err := fc.formService.Create(c.Context(), userId, &formDto)
 	if err != nil {
@@ -79,11 +90,16 @@ func (fc *FormController) Create(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms/{id} [get]
 func (pc *FormController) GetById(c *fiber.Ctx) error {
-	userId := c.Locals("user_id").(string)
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("id")
 
 	if formId == "" {
-		return utils.BadRequest(c, "Form ID is required")
+		return errors.BadRequest("Form ID is required")
 	}
 
 	form, err := pc.formService.GetById(c.Context(), userId, formId)
@@ -102,9 +118,15 @@ func (pc *FormController) GetById(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms/{id}/status [patch]
 func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("id")
 	if formId == "" {
-		return utils.BadRequest(c, "Form ID is required")
+		return errors.BadRequest("Form ID is required")
 	}
 
 	var req struct {
@@ -112,10 +134,8 @@ func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&req); err != nil {
-		return utils.BadRequest(c, "Invalid request body")
+		return errors.BadRequest("Invalid request body")
 	}
-
-	userId := c.Locals("user_id").(string)
 
 	updatedForm, err := pc.formService.UpdateStatus(
 		c.Context(),
@@ -141,9 +161,21 @@ func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /forms/{id} [delete]
 func (pc *FormController) Delete(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	return utils.Success(c, nil, "Form deleted successfully")
 }
 
 func (pc *FormController) UpdateSequence(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	return utils.Success(c, nil, "Form deleted successfully")
 }

@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/clerk/clerk-sdk-go/v2/jwt"
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,7 +24,7 @@ func ClerkAuth() fiber.Handler {
 		})
 		if err != nil {
 			log.Printf("JWT verification failed: %v", err)
-			return utils.Unauthorized(c, "Invalid or expired token")
+			return errors.Unauthorized("")
 		}
 		// log.Print(claims)
 		c.Locals("user_claims", claims)

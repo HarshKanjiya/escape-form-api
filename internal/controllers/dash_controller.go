@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -28,6 +29,12 @@ func NewDashController(service *services.DashService) *DashController {
 // @Success 200 {object} map[string]interface{}
 // @Router /dashboard/{formId}/analytics [get]
 func (pc *DashController) GetAnalytics(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 	if formId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
@@ -50,6 +57,12 @@ func (pc *DashController) GetAnalytics(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /dashboard/{formId}/questions [get]
 func (pc *DashController) GetQuestions(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 	if formId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
@@ -72,6 +85,12 @@ func (pc *DashController) GetQuestions(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /dashboard/{formId}/responses [get]
 func (pc *DashController) GetResponses(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 	if formId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
@@ -94,6 +113,12 @@ func (pc *DashController) GetResponses(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /dashboard/{formId}/passwords [get]
 func (pc *DashController) GetPasswords(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 	if formId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
@@ -117,6 +142,12 @@ func (pc *DashController) GetPasswords(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /dashboard/{formId}/passwords/{passwordId} [patch]
 func (pc *DashController) UpdatePasswords(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 	passwordId := c.Params("passwordId")
 	if formId == "" || passwordId == "" {
@@ -145,6 +176,12 @@ func (pc *DashController) UpdatePasswords(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /dashboard/{formId}/passwords [post]
 func (pc *DashController) CreatePasswords(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 	if formId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
@@ -173,6 +210,12 @@ func (pc *DashController) CreatePasswords(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /dashboard/{formId}/passwords/{passwordId} [delete]
 func (pc *DashController) DeletePasswords(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 	passwordId := c.Params("passwordId")
 	if formId == "" || passwordId == "" {
@@ -208,6 +251,12 @@ func (pc *DashController) Delete(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /dashboard/{formId}/security [patch]
 func (pc *DashController) UpdateSecurity(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 	if formId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
@@ -235,6 +284,12 @@ func (pc *DashController) UpdateSecurity(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{}
 // @Router /dashboard/{formId}/settings [patch]
 func (pc *DashController) UpdateSettings(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
 	formId := c.Params("formId")
 	if formId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
