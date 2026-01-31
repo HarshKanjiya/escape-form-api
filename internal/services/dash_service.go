@@ -63,7 +63,7 @@ func (s *DashService) GetAnalytics(ctx context.Context, userId string, formId st
 	return analytics, nil
 }
 
-func (s *DashService) GetResponses(ctx context.Context, userId string, formId string) ([]*models.Question, error) {
+func (s *DashService) GetResponses(ctx context.Context, userId string, formId string) ([]*models.Response, error) {
 
 	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
 	if err != nil {
@@ -78,15 +78,15 @@ func (s *DashService) GetResponses(ctx context.Context, userId string, formId st
 		return nil, errors.Unauthorized("Overview Analytics")
 	}
 
-	questions, err := s.dashRepo.GetQuestions(ctx, formId)
+	responses, err := s.dashRepo.GetResponses(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
-	if len(questions) == 0 {
-		return nil, errors.NotFound("Questions")
+	if len(responses) == 0 {
+		return nil, errors.NotFound("Responses")
 	}
 
-	return questions, nil
+	return responses, nil
 }
 
 func (s *DashService) GetQuestions(ctx context.Context, formId string) ([]*models.Question, error) {

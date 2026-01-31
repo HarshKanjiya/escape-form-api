@@ -26,7 +26,12 @@ func NewTeamController(service services.ITeamService) *TeamController {
 // @Tags teams
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Param search query string false "Search query"
+// @Param sortBy query string false "Sort by field"
+// @Param order query string false "Sort order"
+// @Success 200 {array} types.TeamResponse
 // @Router /teams [get]
 func (tc *TeamController) Get(c *fiber.Ctx) error {
 
@@ -54,6 +59,7 @@ func (tc *TeamController) Get(c *fiber.Ctx) error {
 // @Tags teams
 // @Accept json
 // @Produce json
+// @Param body body types.TeamRequest true "Team creation data"
 // @Success 200 {object} map[string]interface{}
 // @Router /teams [post]
 func (tc *TeamController) Create(c *fiber.Ctx) error {
@@ -86,6 +92,7 @@ func (tc *TeamController) Create(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "Team ID"
+// @Param body body types.TeamRequest true "Team update data"
 // @Success 200 {object} map[string]interface{}
 // @Router /teams/{id} [patch]
 func (tc *TeamController) Update(c *fiber.Ctx) error {
