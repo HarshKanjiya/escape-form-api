@@ -14,10 +14,10 @@ import (
 
 type FormController struct {
 	validator   *validator.Validate
-	formService *services.FormService
+	formService services.IFormService
 }
 
-func NewFormController(service *services.FormService) *FormController {
+func NewFormController(service services.IFormService) *FormController {
 	return &FormController{
 		validator:   validator.New(),
 		formService: service,

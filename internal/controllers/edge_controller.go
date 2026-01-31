@@ -11,10 +11,10 @@ import (
 
 type EdgeController struct {
 	validator   *validator.Validate
-	edgeService *services.EdgeService
+	edgeService services.IEdgeService
 }
 
-func NewEdgeController(service *services.EdgeService) *EdgeController {
+func NewEdgeController(service services.IEdgeService) *EdgeController {
 	return &EdgeController{
 		validator:   validator.New(),
 		edgeService: service,

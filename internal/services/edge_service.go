@@ -7,11 +7,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type EdgeService struct {
-	edgeRepo *repositories.EdgeRepo
+type IEdgeService interface {
 }
 
-func NewEdgeService(edgeRepo *repositories.EdgeRepo) *EdgeService {
+type EdgeService struct {
+	edgeRepo repositories.IEdgeRepo
+}
+
+func NewEdgeService(edgeRepo repositories.IEdgeRepo) *EdgeService {
 	return &EdgeService{
 		edgeRepo: edgeRepo,
 	}

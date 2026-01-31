@@ -9,6 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
+type IQuestionRepo interface {
+}
+
 type QuestionRepo struct {
 	q *query.Query
 }

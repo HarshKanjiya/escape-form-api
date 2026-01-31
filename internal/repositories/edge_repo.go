@@ -9,6 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
+type IEdgeRepo interface {
+}
+
 type EdgeRepo struct {
 	q *query.Query
 }

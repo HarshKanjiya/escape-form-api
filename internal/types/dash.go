@@ -18,7 +18,7 @@ type FormAnalytics struct {
 	SubmitDataPoints   []MonthlySubmitData `json:"submitDataPoints"`
 }
 
-type ActivePasswordDto struct {
+type PasswordRequest struct {
 	ID         string `json:"id"`
 	FormID     string `json:"formId"`
 	Password   string `json:"password"`

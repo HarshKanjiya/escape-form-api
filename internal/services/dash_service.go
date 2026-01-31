@@ -6,11 +6,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type DashService struct {
-	dashRepo *repositories.DashRepo
+type IDashService interface {
 }
 
-func NewDashService(dashRepo *repositories.DashRepo) *DashService {
+type DashService struct {
+	dashRepo repositories.IDashRepo
+}
+
+func NewDashService(dashRepo repositories.IDashRepo) *DashService {
 	return &DashService{
 		dashRepo: dashRepo,
 	}

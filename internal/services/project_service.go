@@ -23,7 +23,10 @@ type ProjectService struct {
 	teamRepo    repositories.ITeamRepo
 }
 
-func NewProjectService(projectRepo repositories.IProjectRepo, teamRepo repositories.ITeamRepo) *ProjectService {
+func NewProjectService(
+	projectRepo repositories.IProjectRepo,
+	teamRepo repositories.ITeamRepo,
+) *ProjectService {
 	return &ProjectService{
 		projectRepo: projectRepo,
 		teamRepo:    teamRepo,
@@ -131,8 +134,8 @@ func (s *ProjectService) Delete(ctx context.Context, userId string, projectId st
 	if *existingProject.Team.OwnerID != userId {
 		return false, errors.Unauthorized("project")
 	}
-	ok, err := s.projectRepo.Delete(ctx, projectId)
-	if err != nil || !ok {
+	err = s.projectRepo.Delete(ctx, projectId)
+	if err != nil {
 		return false, err
 	}
 	return true, nil

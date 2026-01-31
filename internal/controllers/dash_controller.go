@@ -10,10 +10,10 @@ import (
 
 type DashController struct {
 	validator   *validator.Validate
-	dashService *services.DashService
+	dashService services.IDashService
 }
 
-func NewDashController(service *services.DashService) *DashController {
+func NewDashController(service services.IDashService) *DashController {
 	return &DashController{
 		validator:   validator.New(),
 		dashService: service,

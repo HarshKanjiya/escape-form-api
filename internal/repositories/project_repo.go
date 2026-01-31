@@ -14,7 +14,7 @@ type IProjectRepo interface {
 	GetById(ctx context.Context, projectId string) (*models.Project, error)
 	Create(ctx context.Context, project *models.Project) (*models.Project, error)
 	Update(ctx context.Context, project *models.Project) (bool, error)
-	Delete(ctx context.Context, projectId string) (bool, error)
+	Delete(ctx context.Context, projectId string) error
 	GetWithTeam(ctx context.Context, projectId string) (*models.Project, error)
 }
 
@@ -126,10 +126,10 @@ func (r *ProjectRepo) Update(ctx context.Context, project *models.Project) (bool
 	return true, nil
 }
 
-func (r *ProjectRepo) Delete(ctx context.Context, projectId string) (bool, error) {
+func (r *ProjectRepo) Delete(ctx context.Context, projectId string) error {
 
 	if err := r.db.WithContext(ctx).Model(&models.Project{}).Where("id = ?", projectId).Update("valid", false).Error; err != nil {
-		return false, errors.Internal(err)
+		return errors.Internal(err)
 	}
-	return true, nil
+	return nil
 }

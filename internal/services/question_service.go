@@ -7,11 +7,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type QuestionService struct {
-	questionRepo *repositories.QuestionRepo
+type IQuestionService interface {
 }
 
-func NewQuestionService(questionRepo *repositories.QuestionRepo) *QuestionService {
+type QuestionService struct {
+	questionRepo repositories.IQuestionRepo
+}
+
+func NewQuestionService(questionRepo repositories.IQuestionRepo) *QuestionService {
 	return &QuestionService{
 		questionRepo: questionRepo,
 	}

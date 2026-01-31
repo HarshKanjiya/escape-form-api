@@ -12,12 +12,15 @@ import (
 	"github.com/google/uuid"
 )
 
-type FormService struct {
-	formRepo    *repositories.FormRepo
-	projectRepo *repositories.ProjectRepo
+type IFormService interface {
 }
 
-func NewFormService(formRepo *repositories.FormRepo, projectRepo *repositories.ProjectRepo) *FormService {
+type FormService struct {
+	formRepo    repositories.IFormRepo
+	projectRepo repositories.IProjectRepo
+}
+
+func NewFormService(formRepo repositories.IFormRepo, projectRepo repositories.IProjectRepo) *FormService {
 	return &FormService{
 		formRepo:    formRepo,
 		projectRepo: projectRepo,

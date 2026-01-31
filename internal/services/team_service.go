@@ -8,11 +8,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type TeamService struct {
-	teamRepo *repositories.TeamRepo
+type ITeamService interface {
 }
 
-func NewTeamService(teamRepo *repositories.TeamRepo) *TeamService {
+type TeamService struct {
+	teamRepo repositories.ITeamRepo
+}
+
+func NewTeamService(teamRepo repositories.ITeamRepo) *TeamService {
 	return &TeamService{
 		teamRepo: teamRepo,
 	}

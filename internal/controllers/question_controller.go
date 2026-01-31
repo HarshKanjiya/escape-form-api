@@ -11,10 +11,10 @@ import (
 
 type QuestionController struct {
 	validator       *validator.Validate
-	questionService *services.QuestionService
+	questionService services.IQuestionService
 }
 
-func NewQuestionController(service *services.QuestionService) *QuestionController {
+func NewQuestionController(service services.IQuestionService) *QuestionController {
 	return &QuestionController{
 		validator:       validator.New(),
 		questionService: service,

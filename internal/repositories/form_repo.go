@@ -13,6 +13,9 @@ import (
 	"gorm.io/gorm"
 )
 
+type IFormRepo interface {
+}
+
 type FormRepo struct {
 	q *query.Query
 }

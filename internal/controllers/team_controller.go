@@ -11,10 +11,10 @@ import (
 
 type TeamController struct {
 	validator   *validator.Validate
-	teamService *services.TeamService
+	teamService services.ITeamService
 }
 
-func NewTeamController(service *services.TeamService) *TeamController {
+func NewTeamController(service services.ITeamService) *TeamController {
 	return &TeamController{
 		validator:   validator.New(),
 		teamService: service,
