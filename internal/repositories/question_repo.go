@@ -1,124 +1,130 @@
 package repositories
 
 import (
+	"context"
+
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
-	"github.com/HarshKanjiya/escape-form-api/internal/query"
-	"github.com/HarshKanjiya/escape-form-api/internal/types"
-	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"gorm.io/gorm"
 )
 
 type IQuestionRepo interface {
+	GetQuestions(ctx context.Context, formId string) ([]*models.Question, error)
+	CreateQuestion(ctx context.Context, question *models.Question) (*models.Question, error)
+	UpdateQuestion(ctx context.Context, question *models.Question) error
+	DeleteQuestion(ctx context.Context, questionId string) error
+
+	GetOptions(ctx context.Context, questionId string) ([]*models.QuestionOption, error)
+	CreateOption(ctx context.Context, option *models.QuestionOption) (*models.QuestionOption, error)
+	UpdateOption(ctx context.Context, option *models.QuestionOption) error
+	DeleteOption(ctx context.Context, optionId string) error
 }
 
 type QuestionRepo struct {
-	q *query.Query
+	db *gorm.DB
 }
 
 func NewQuestionRepo(db *gorm.DB) *QuestionRepo {
 	return &QuestionRepo{
-		q: query.Use(db),
+		db: db,
 	}
 }
 
-func (r *QuestionRepo) Get(ctx *fiber.Ctx, formId string) ([]*models.Question, error) {
-	questions, err := r.q.WithContext(ctx.Context()).Question.Where(r.q.Question.FormID.Eq(formId)).Find()
+func (r *QuestionRepo) GetQuestions(ctx context.Context, formId string) ([]*models.Question, error) {
+
+	var questions []*models.Question
+	err := r.db.WithContext(ctx).
+		Model(&models.Question{}).
+		Where("formId = ?", formId).
+		Preload("Options").
+		Find(&questions).Error
 	if err != nil {
-		return nil, err
+		return nil, errors.Internal(err)
 	}
 
-	return questions, nil
+	return questions, err
 }
 
-func (r *QuestionRepo) Create(ctx *fiber.Ctx, question *types.QuestionDto) (*models.Question, error) {
-	questionModel := &models.Question{
-		ID:          uuid.New().String(),
-		FormID:      question.FormID,
-		Title:       question.Title,
-		Type:        question.Type,
-		Required:    question.Required,
-		SortOrder:   question.SortOrder,
-		Placeholder: question.Placeholder,
-		Description: question.Description,
-		Metadata:    question.Metadata,
-		PosX:        question.PosX,
-		PosY:        question.PosY,
-	}
-	if err := r.q.Question.Create(questionModel); err != nil {
-		return nil, err
-	}
-	return questionModel, nil
-}
+func (r *QuestionRepo) CreateQuestion(ctx context.Context, question *models.Question) (*models.Question, error) {
 
-func (r *QuestionRepo) Update(ctx *fiber.Ctx, question *types.QuestionDto) (*models.Question, error) {
-	questionModel := &models.Question{
-		ID:          question.ID,
-		FormID:      question.FormID,
-		Title:       question.Title,
-		Type:        question.Type,
-		Required:    question.Required,
-		SortOrder:   question.SortOrder,
-		Placeholder: question.Placeholder,
-		Description: question.Description,
-		Metadata:    question.Metadata,
-		PosX:        question.PosX,
-		PosY:        question.PosY,
-	}
-	_, err := r.q.WithContext(ctx.Context()).
-		Question.Where(r.q.Question.ID.Eq(question.ID)).
-		Updates(questionModel)
+	err := r.db.WithContext(ctx).
+		Model(&models.Question{}).
+		Create(question).Error
 	if err != nil {
-		return nil, err
+		return nil, errors.Internal(err)
 	}
-	return questionModel, nil
+	return question, nil
 }
 
-func (r *QuestionRepo) GetOptions(ctx *fiber.Ctx, questionId string) ([]*models.QuestionOption, error) {
-	options, err := r.q.WithContext(ctx.Context()).QuestionOption.Where(r.q.QuestionOption.QuestionID.Eq(questionId)).Find()
+func (r *QuestionRepo) UpdateQuestion(ctx context.Context, question *models.Question) error {
+
+	err := r.db.WithContext(ctx).
+		Model(&models.Question{}).
+		Where("id = ?", question.ID).
+		Updates(question).Error
 	if err != nil {
-		return nil, err
+		return errors.Internal(err)
 	}
-	return options, nil
+	return nil
 }
 
-func (r *QuestionRepo) CreateOption(ctx *fiber.Ctx, option *types.QuestionOptionDto) (*models.QuestionOption, error) {
-	optionModel := &models.QuestionOption{
-		ID:         uuid.New().String(),
-		QuestionID: option.QuestionID,
-		Label:      option.Label,
-		Value:      option.Value,
-		SortOrder:  option.SortOrder,
-	}
-	if err := r.q.QuestionOption.Create(optionModel); err != nil {
-		return nil, err
-	}
-	return optionModel, nil
-}
+func (r *QuestionRepo) DeleteQuestion(ctx context.Context, questionId string) error {
 
-func (r *QuestionRepo) UpdateOption(ctx *fiber.Ctx, option *types.QuestionOptionDto) (*models.QuestionOption, error) {
-	optionModel := &models.QuestionOption{
-		ID:         option.ID,
-		QuestionID: option.QuestionID,
-		Label:      option.Label,
-		Value:      option.Value,
-		SortOrder:  option.SortOrder,
-	}
-	_, err := r.q.WithContext(ctx.Context()).
-		QuestionOption.Where(r.q.QuestionOption.ID.Eq(option.ID)).
-		Updates(optionModel)
+	err := r.db.WithContext(ctx).
+		Model(&models.Question{}).
+		Where("id = ?", questionId).
+		Delete(&models.Question{}).Error
 	if err != nil {
-		return nil, err
+		return errors.Internal(err)
 	}
-	return optionModel, nil
+	return nil
 }
 
-func (r *QuestionRepo) DeleteOption(ctx *fiber.Ctx, optionId string) error {
-	_, err := r.q.WithContext(ctx.Context()).
-		QuestionOption.Where(r.q.QuestionOption.ID.Eq(optionId)).
-		Delete()
+func (r *QuestionRepo) GetOptions(ctx context.Context, questionId string) ([]*models.QuestionOption, error) {
+
+	var options []*models.QuestionOption
+	err := r.db.WithContext(ctx).
+		Model(&models.QuestionOption{}).
+		Where("questionId = ?", questionId).
+		Find(&options).Error
 	if err != nil {
-		return err
+		return nil, errors.Internal(err)
+	}
+
+	return options, err
+}
+
+func (r *QuestionRepo) CreateOption(ctx context.Context, option *models.QuestionOption) (*models.QuestionOption, error) {
+
+	err := r.db.WithContext(ctx).
+		Model(&models.QuestionOption{}).
+		Create(option).Error
+	if err != nil {
+		return nil, errors.Internal(err)
+	}
+	return option, nil
+}
+
+func (r *QuestionRepo) UpdateOption(ctx context.Context, option *models.QuestionOption) error {
+
+	err := r.db.WithContext(ctx).
+		Model(&models.QuestionOption{}).
+		Where("id = ?", option.ID).
+		Updates(option).Error
+	if err != nil {
+		return errors.Internal(err)
+	}
+	return nil
+}
+
+func (r *QuestionRepo) DeleteOption(ctx context.Context, optionId string) error {
+
+	err := r.db.WithContext(ctx).
+		Model(&models.QuestionOption{}).
+		Where("id = ?", optionId).
+		Delete(&models.QuestionOption{}).Error
+	if err != nil {
+		return errors.Internal(err)
 	}
 	return nil
 }

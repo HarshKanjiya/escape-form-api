@@ -1,13 +1,23 @@
 package services
 
 import (
+	"context"
+
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
-	"github.com/gofiber/fiber/v2"
 )
 
 type IQuestionService interface {
+	GetQuestions(ctx context.Context, userId string, formId string) ([]*models.Question, error)
+	CreateQuestion(ctx context.Context, userId string, formId string, question *types.QuestionDto) (*models.Question, error)
+	UpdateQuestion(ctx context.Context, userId string, formId string, question *types.QuestionDto) (*models.Question, error)
+	DeleteQuestion(ctx context.Context, userId string, formId string, questionId string) error
+
+	GetOptions(ctx context.Context, userId string, formId string, questionId string) ([]*models.QuestionOption, error)
+	CreateOption(ctx context.Context, userId string, formId string, option *types.QuestionOptionDto) (*models.QuestionOption, error)
+	UpdateOption(ctx context.Context, userId string, formId string, option *types.QuestionOptionDto) error
+	DeleteOption(ctx context.Context, userId string, formId string, optionId string) error
 }
 
 type QuestionService struct {
@@ -20,30 +30,34 @@ func NewQuestionService(questionRepo repositories.IQuestionRepo) *QuestionServic
 	}
 }
 
-func (s *QuestionService) Get(ctx *fiber.Ctx, formId string) ([]*models.Question, error) {
-	return s.questionRepo.Get(ctx, formId)
+func (s *QuestionService) GetQuestions(ctx context.Context, userId string, formId string) ([]*models.Question, error) {
+
 }
 
-func (s *QuestionService) Create(ctx *fiber.Ctx, question *types.QuestionDto) (*models.Question, error) {
-	return s.questionRepo.Create(ctx, question)
+func (s *QuestionService) CreateQuestion(ctx context.Context, userId string, formId string, question *types.QuestionDto) (*models.Question, error) {
+
 }
 
-func (s *QuestionService) Update(ctx *fiber.Ctx, question *types.QuestionDto) (*models.Question, error) {
-	return s.questionRepo.Update(ctx, question)
+func (s *QuestionService) UpdateQuestion(ctx context.Context, userId string, formId string, question *types.QuestionDto) (*models.Question, error) {
+
 }
 
-func (s *QuestionService) GetOptions(ctx *fiber.Ctx, questionId string) ([]*models.QuestionOption, error) {
-	return s.questionRepo.GetOptions(ctx, questionId)
+func (s *QuestionService) DeleteQuestion(ctx context.Context, userId string, formId string, questionId string) error {
+
 }
 
-func (s *QuestionService) CreateOption(ctx *fiber.Ctx, option *types.QuestionOptionDto) (*models.QuestionOption, error) {
-	return s.questionRepo.CreateOption(ctx, option)
+func (s *QuestionService) GetOptions(ctx context.Context, userId string, formId string, questionId string) ([]*models.QuestionOption, error) {
+
 }
 
-func (s *QuestionService) UpdateOption(ctx *fiber.Ctx, option *types.QuestionOptionDto) (*models.QuestionOption, error) {
-	return s.questionRepo.UpdateOption(ctx, option)
+func (s *QuestionService) CreateOption(ctx context.Context, userId string, formId string, option *types.QuestionOptionDto) (*models.QuestionOption, error) {
+
 }
 
-func (s *QuestionService) DeleteOption(ctx *fiber.Ctx, optionId string) error {
-	return s.questionRepo.DeleteOption(ctx, optionId)
+func (s *QuestionService) UpdateOption(ctx context.Context, userId string, formId string, option *types.QuestionOptionDto) error {
+
+}
+
+func (s *QuestionService) DeleteOption(ctx context.Context, userId string, formId string, optionId string) error {
+
 }
