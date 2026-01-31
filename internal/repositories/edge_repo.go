@@ -1,79 +1,73 @@
 package repositories
 
 import (
+	"context"
+
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
-	"github.com/HarshKanjiya/escape-form-api/internal/query"
-	"github.com/HarshKanjiya/escape-form-api/internal/types"
-	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"gorm.io/gorm"
 )
 
 type IEdgeRepo interface {
+	Get(ctx context.Context, formId string) ([]*models.Edge, error)
+	Create(ctx context.Context, edge *models.Edge) (*models.Edge, error)
+	Update(ctx context.Context, edgeId string, edge *models.Edge) error
+	Delete(ctx context.Context, edgeId string) error
 }
 
 type EdgeRepo struct {
-	q *query.Query
+	db *gorm.DB
 }
 
 func NewEdgeRepo(db *gorm.DB) *EdgeRepo {
 	return &EdgeRepo{
-		q: query.Use(db),
+		db: db,
 	}
 }
 
-func (r *EdgeRepo) Get(ctx *fiber.Ctx, formId string) ([]*models.Edge, error) {
-	edges, err := r.q.WithContext(ctx.Context()).
-		Edge.Where(r.q.Edge.FormID.Eq(formId)).Find()
+func (r *EdgeRepo) Get(ctx context.Context, formId string) ([]*models.Edge, error) {
 
+	var edges []*models.Edge
+	err := r.db.WithContext(ctx).
+		Where("form_id = ?", formId).
+		Find(&edges).Error
 	if err != nil {
-		return nil, err
+		return nil, errors.Internal(err)
 	}
 	return edges, nil
 }
 
-func (r *EdgeRepo) Create(ctx *fiber.Ctx, edge *types.EdgeDto) (*models.Edge, error) {
+func (r *EdgeRepo) Create(ctx context.Context, edge *models.Edge) (*models.Edge, error) {
 
-	edgeModel := &models.Edge{
-		ID:           uuid.New().String(),
-		FormID:       edge.FormID,
-		SourceNodeID: edge.SourceNodeID,
-		TargetNodeID: edge.TargetNodeID,
-		Condition:    edge.Condition,
+	err := r.db.WithContext(ctx).
+		Model(&models.Edge{}).
+		Create(edge).Error
+	if err != nil {
+		return nil, errors.Internal(err)
 	}
-
-	if err := r.q.Edge.Create(edgeModel); err != nil {
-		return nil, err
-	}
-	return edgeModel, nil
+	return edge, nil
 }
 
-func (r *EdgeRepo) Update(ctx *fiber.Ctx, edge *types.EdgeDto) (*models.Edge, error) {
-	edgeModel := &models.Edge{
-		ID:           edge.ID,
-		FormID:       edge.FormID,
-		SourceNodeID: edge.SourceNodeID,
-		TargetNodeID: edge.TargetNodeID,
-		Condition:    edge.Condition,
-	}
-	_, err := r.q.WithContext(ctx.Context()).
-		Edge.Where(r.q.Edge.ID.Eq(edge.ID)).
-		Updates(edgeModel)
+func (r *EdgeRepo) Update(ctx context.Context, edgeId string, edge *models.Edge) error {
 
+	err := r.db.WithContext(ctx).
+		Model(&models.Edge{}).
+		Where("id = ?", edgeId).
+		Updates(edge).Error
 	if err != nil {
-		return nil, err
+		return errors.Internal(err)
 	}
-
-	return edgeModel, nil
+	return nil
 }
 
-func (r *EdgeRepo) Delete(ctx *fiber.Ctx, edgeId string) error {
+func (r *EdgeRepo) Delete(ctx context.Context, edgeId string) error {
 
-	_, err := r.q.WithContext(ctx.Context()).
-		Edge.Where(r.q.Edge.ID.Eq(edgeId)).
-		Delete()
+	err := r.db.WithContext(ctx).
+		Model(&models.Edge{}).
+		Where("id = ?", edgeId).
+		Delete(&models.Edge{}).Error
 	if err != nil {
-		return err
+		return errors.Internal(err)
 	}
 	return nil
 }

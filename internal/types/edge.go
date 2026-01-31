@@ -7,3 +7,12 @@ type EdgeDto struct {
 	TargetNodeID string       `gorm:"type:uuid;column:targetNodeId" json:"targetNodeId"`
 	Condition    *interface{} `gorm:"type:jsonb;default:'{}';column:condition" json:"condition"`
 }
+
+type CreateEdgeRequest struct {
+	SourceNodeID string `json:"sourceNodeId" validate:"required,uuid4"`
+	TargetNodeID string `json:"targetNodeId" validate:"required,uuid4"`
+}
+
+type UpdateEdgeRequest struct {
+	Condition *interface{} `json:"condition"`
+}

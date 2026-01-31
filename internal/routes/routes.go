@@ -26,7 +26,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	projectService := services.NewProjectService(projectRepo, teamRepo)
 	formService := services.NewFormService(formRepo, projectRepo)
 	questionService := services.NewQuestionService(questionRepo, formRepo)
-	edgeService := services.NewEdgeService(edgeRepo)
+	edgeService := services.NewEdgeService(edgeRepo, formRepo)
 	dashService := services.NewDashService(dashRepo, formRepo)
 
 	// Initialize controllers
@@ -74,8 +74,8 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 
 	questions := forms.Group("/:formId/questions")
 	{
-		questions.Get("", questionController.GetQuestions)
-		questions.Post("", questionController.CreateQuestion)
+		questions.Get("/", questionController.GetQuestions)
+		questions.Post("/", questionController.CreateQuestion)
 		questions.Patch("/:questionId", questionController.UpdateQuestion)
 		questions.Delete("/:questionId", questionController.DeleteQuestion)
 
@@ -85,7 +85,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		questions.Delete("/:questionId/options/:optionId", questionController.DeleteOption)
 	}
 
-	edges := protectedRoutes.Group("/edges")
+	edges := forms.Group("/:formId/edges")
 	{
 		edges.Get("/", edgeController.Get)
 		edges.Post("/", edgeController.Create)
