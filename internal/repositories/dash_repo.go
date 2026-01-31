@@ -21,7 +21,7 @@ type IDashRepo interface {
 	// PASSWORD CONFIG
 	GetPasswords(ctx context.Context, formId string) ([]*models.ActivePassword, error)
 	CreatePassword(ctx context.Context, formId string, password *models.ActivePassword) (*models.ActivePassword, error)
-	UpdatePassword(ctx context.Context, formId string, passwordId string, password *models.ActivePassword) (*models.ActivePassword, error)
+	UpdatePassword(ctx context.Context, formId string, password *models.ActivePassword) (*models.ActivePassword, error)
 	DeletePassword(ctx context.Context, passwordId string) error
 
 	// FORM SETTINGS
@@ -40,21 +40,17 @@ func NewDashRepo(db *gorm.DB) *DashRepo {
 }
 
 func (r *DashRepo) GetAnalytics(ctx context.Context, formId string) (*types.FormAnalytics, error) {
+
 	// Get all responses for this form
 	var responses []*models.Response
-	responses, err := r.q.Response.WithContext(ctx).
-		Where(r.q.Response.FormID.Eq(formId), r.q.Response.Valid.Is(true)).
-		Select(
-			r.q.Response.ID,
-			r.q.Response.StartedAt,
-			r.q.Response.SubmittedAt,
-			r.q.Response.Status,
-		).Find()
+	err := r.db.WithContext(ctx).Model(&models.Response{}).
+		Where("formId = ? AND valid = ?", formId, true).
+		Find(&responses).Error
 	if err != nil {
-		return nil, err
+		return nil, errors.Internal(err)
 	}
 
-	// Calculate analytics
+	// // Calculate analytics
 	responseCount := len(responses)
 	opened := 0
 	submitted := 0
@@ -75,13 +71,13 @@ func (r *DashRepo) GetAnalytics(ctx context.Context, formId string) (*types.Form
 		}
 	}
 
-	// Calculate completion rate
+	// // Calculate completion rate
 	completionRate := 0
 	if opened > 0 {
 		completionRate = int(math.Round(float64(submitted) / float64(opened) * 100))
 	}
 
-	// Calculate average, min, and max completion time
+	// // Calculate average, min, and max completion time
 	avgCompletionTime := 0
 	minCompletionTime := 0
 	maxCompletionTime := 0
@@ -106,7 +102,7 @@ func (r *DashRepo) GetAnalytics(ctx context.Context, formId string) (*types.Form
 		maxCompletionTime = int(math.Round(maxTime))
 	}
 
-	// Calculate today's responses
+	// // Calculate today's responses
 	today := time.Now().Truncate(24 * time.Hour)
 	tomorrow := today.Add(24 * time.Hour)
 
@@ -117,7 +113,7 @@ func (r *DashRepo) GetAnalytics(ctx context.Context, formId string) (*types.Form
 		}
 	}
 
-	// Generate last 12 months data
+	// // Generate last 12 months data
 	now := time.Now()
 	monthNames := []string{"January", "February", "March", "April", "May", "June",
 		"July", "August", "September", "October", "November", "December"}
@@ -203,11 +199,11 @@ func (r *DashRepo) CreatePassword(ctx context.Context, formId string, password *
 	return password, nil
 }
 
-func (r *DashRepo) UpdatePassword(ctx context.Context, formId string, passwordId string, password *models.ActivePassword) (*models.ActivePassword, error) {
+func (r *DashRepo) UpdatePassword(ctx context.Context, formId string, password *models.ActivePassword) (*models.ActivePassword, error) {
 
 	err := r.db.WithContext(ctx).
 		Model(&models.ActivePassword{}).
-		Where("id = ? AND formId = ?", passwordId, formId).
+		Where("id = ? AND formId = ?", password.ID, formId).
 		Updates(map[string]interface{}{
 			"password":   password.Password,
 			"name":       password.Name,

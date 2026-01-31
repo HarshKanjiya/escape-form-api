@@ -9,20 +9,24 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/query"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"gorm.io/gorm"
 )
 
 type IFormRepo interface {
+	GetByIdWithTeam(ctx context.Context, formId string) (*models.Form, error)
 }
 
 type FormRepo struct {
-	q *query.Query
+	q  *query.Query
+	db *gorm.DB
 }
 
 func NewFormRepo(db *gorm.DB) *FormRepo {
 	return &FormRepo{
-		q: query.Use(db),
+		q:  query.Use(db),
+		db: db,
 	}
 }
 
@@ -287,6 +291,20 @@ func (r *FormRepo) GetWithTeam(ctx context.Context, userId string, formId string
 	if err != nil {
 		log.Printf("Form not found or not owned by user: %v", err)
 		return nil, err
+	}
+	return form, nil
+}
+
+func (r *FormRepo) GetByIdWithTeam(ctx context.Context, formId string) (*models.Form, error) {
+
+	var form *models.Form
+	err := r.db.WithContext(ctx).Model(&models.Form{}).
+		Preload("Team").
+		Where("forms.id = ? AND teams.valid = ? AND forms.valid = ?", formId, true, true).
+		First(&form).Error
+
+	if err != nil {
+		return nil, errors.Internal(err)
 	}
 	return form, nil
 }

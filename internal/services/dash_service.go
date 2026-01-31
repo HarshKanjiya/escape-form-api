@@ -1,26 +1,61 @@
 package services
 
 import (
+	"context"
+	"time"
+
+	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
-	"github.com/gofiber/fiber/v2"
+	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 )
 
 type IDashService interface {
+	GetAnalytics(ctx context.Context, userId string, formId string) (*types.FormAnalytics, error)
+	GetResponses(ctx context.Context, userId string, formId string) ([]*models.Response, error)
+	GetQuestions(ctx context.Context, formId string) ([]*models.Question, error)
+
+	GetPasswords(ctx context.Context, userId string, formId string) ([]*models.ActivePassword, error)
+	CreatePassword(ctx context.Context, userId string, formId string, password types.PasswordRequest) (*models.ActivePassword, error)
+	UpdatePassword(ctx context.Context, userId string, formId string, passwordId string, body types.PasswordRequest) (*models.ActivePassword, error)
+	DeletePassword(ctx context.Context, userId string, formId string, passwordId string) error
+
+	UpdateSecurity(ctx context.Context, userId string, formId string, body map[string]interface{}) (interface{}, error)
+	UpdateSettings(ctx context.Context, userId string, formId string, body map[string]interface{}) (interface{}, error)
 }
 
 type DashService struct {
 	dashRepo repositories.IDashRepo
+	formRepo repositories.IFormRepo
 }
 
-func NewDashService(dashRepo repositories.IDashRepo) *DashService {
+func NewDashService(
+	dashRepo repositories.IDashRepo,
+	formRepo repositories.IFormRepo,
+) *DashService {
 	return &DashService{
 		dashRepo: dashRepo,
+		formRepo: formRepo,
 	}
 }
 
-func (s *DashService) GetAnalytics(ctx *fiber.Ctx, formId string) (*types.FormAnalytics, error) {
-	analytics, err := s.dashRepo.FetchAnalytics(ctx, formId)
+func (s *DashService) GetAnalytics(ctx context.Context, userId string, formId string) (*types.FormAnalytics, error) {
+
+	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
+
+	if form == nil {
+		return nil, errors.NotFound("Form")
+	}
+
+	if *form.Team.OwnerID != userId {
+		return nil, errors.Unauthorized("Overview Analytics")
+	}
+
+	analytics, err := s.dashRepo.GetAnalytics(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
@@ -28,42 +63,179 @@ func (s *DashService) GetAnalytics(ctx *fiber.Ctx, formId string) (*types.FormAn
 	return analytics, nil
 }
 
-func (s *DashService) GetQuestions(ctx *fiber.Ctx, formId string) (interface{}, error) {
-	// TODO: Implement GetQuestions logic
-	return nil, nil
+func (s *DashService) GetResponses(ctx context.Context, userId string, formId string) ([]*models.Question, error) {
+
+	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
+
+	if form == nil {
+		return nil, errors.NotFound("Form")
+	}
+
+	if *form.Team.OwnerID != userId {
+		return nil, errors.Unauthorized("Overview Analytics")
+	}
+
+	questions, err := s.dashRepo.GetQuestions(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
+	if len(questions) == 0 {
+		return nil, errors.NotFound("Questions")
+	}
+
+	return questions, nil
 }
 
-func (s *DashService) GetResponses(ctx *fiber.Ctx, formId string) (interface{}, error) {
-	// TODO: Implement GetResponses logic
-	return nil, nil
+func (s *DashService) GetQuestions(ctx context.Context, formId string) ([]*models.Question, error) {
+
+	questions, err := s.dashRepo.GetQuestions(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
+	if len(questions) == 0 {
+		return nil, errors.NotFound("Questions")
+	}
+
+	return questions, nil
 }
 
-func (s *DashService) GetPasswords(ctx *fiber.Ctx, formId string) (interface{}, error) {
-	// TODO: Implement GetPasswords logic
-	return nil, nil
+func (s *DashService) GetPasswords(ctx context.Context, userId string, formId string) ([]*models.ActivePassword, error) {
+
+	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
+
+	if form == nil {
+		return nil, errors.NotFound("Form")
+	}
+
+	if *form.Team.OwnerID != userId {
+		return nil, errors.Unauthorized("Overview Analytics")
+	}
+
+	passwords, err := s.dashRepo.GetPasswords(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
+	return passwords, nil
 }
 
-func (s *DashService) CreatePassword(ctx *fiber.Ctx, formId string, body map[string]interface{}) (interface{}, error) {
-	// TODO: Implement CreatePassword logic
-	return nil, nil
+func (s *DashService) CreatePassword(ctx context.Context, userId string, formId string, password types.PasswordRequest) (*models.ActivePassword, error) {
+
+	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
+
+	if form == nil {
+		return nil, errors.NotFound("Form")
+	}
+
+	if *form.Team.OwnerID != userId {
+		return nil, errors.Unauthorized("Overview Analytics")
+	}
+
+	var expireAt *time.Time
+	if password.ExpireAt != "" {
+		parsedTime, err := time.Parse("2006-01-02", password.ExpireAt)
+		if err != nil {
+			return nil, err
+		}
+		expireAt = &parsedTime
+	}
+
+	newPassword := &models.ActivePassword{
+		ID:         utils.GenerateUUID(),
+		FormID:     formId,
+		Password:   password.Password,
+		Name:       password.Name,
+		UsableUpto: password.UsableUpto,
+		IsValid:    password.IsValid,
+		ExpireAt:   expireAt,
+	}
+
+	createdPassword, err := s.dashRepo.CreatePassword(ctx, formId, newPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdPassword, nil
 }
 
-func (s *DashService) UpdatePassword(ctx *fiber.Ctx, formId string, passwordId string, body map[string]interface{}) (interface{}, error) {
-	// TODO: Implement UpdatePassword logic
-	return nil, nil
+func (s *DashService) UpdatePassword(ctx context.Context, userId string, formId string, passwordId string, password types.PasswordRequest) (*models.ActivePassword, error) {
+
+	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	if err != nil {
+		return nil, err
+	}
+
+	if form == nil {
+		return nil, errors.NotFound("Form")
+	}
+
+	if *form.Team.OwnerID != userId {
+		return nil, errors.Unauthorized("Overview Analytics")
+	}
+
+	var expireAt *time.Time
+	if password.ExpireAt != "" {
+		parsedTime, err := time.Parse("2006-01-02", password.ExpireAt)
+		if err != nil {
+			return nil, err
+		}
+		expireAt = &parsedTime
+	}
+
+	pass := &models.ActivePassword{
+		ID:         passwordId,
+		FormID:     formId,
+		Password:   password.Password,
+		Name:       password.Name,
+		UsableUpto: password.UsableUpto,
+		IsValid:    password.IsValid,
+		ExpireAt:   expireAt,
+	}
+
+	createdPassword, err := s.dashRepo.UpdatePassword(ctx, formId, pass)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdPassword, nil
 }
 
-func (s *DashService) DeletePassword(ctx *fiber.Ctx, formId string, passwordId string) error {
-	// TODO: Implement DeletePassword logic
+func (s *DashService) DeletePassword(ctx context.Context, userId string, formId string, passwordId string) error {
+
+	form, err := s.formRepo.GetByIdWithTeam(ctx, formId)
+	if err != nil {
+		return err
+	}
+
+	if form == nil {
+		return errors.NotFound("Form")
+	}
+
+	if *form.Team.OwnerID != userId {
+		return errors.Unauthorized("Overview Analytics")
+	}
+
+	err = s.dashRepo.DeletePassword(ctx, passwordId)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (s *DashService) UpdateSecurity(ctx *fiber.Ctx, formId string, body map[string]interface{}) (interface{}, error) {
+func (s *DashService) UpdateSecurity(ctx context.Context, userId string, formId string, body map[string]interface{}) (interface{}, error) {
 	// TODO: Implement UpdateSecurity logic
 	return nil, nil
 }
 
-func (s *DashService) UpdateSettings(ctx *fiber.Ctx, formId string, body map[string]interface{}) (interface{}, error) {
+func (s *DashService) UpdateSettings(ctx context.Context, userId string, formId string, body map[string]interface{}) (interface{}, error) {
 	// TODO: Implement UpdateSettings logic
 	return nil, nil
 }
