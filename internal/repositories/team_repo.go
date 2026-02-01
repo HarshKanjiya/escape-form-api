@@ -11,7 +11,7 @@ import (
 )
 
 type ITeamRepo interface {
-	Get(ctx context.Context, userId string, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int64, error)
+	Get(ctx context.Context, userId string, pagination *types.PaginationQuery) ([]*types.TeamResponse, int64, error)
 	GetById(ctx context.Context, teamId string) (*models.Team, error)
 	Create(ctx context.Context, team *models.Team) error
 	Update(ctx context.Context, team *models.Team) error
@@ -28,7 +28,7 @@ func NewTeamRepo(db *gorm.DB) *TeamRepo {
 	}
 }
 
-func (r *TeamRepo) Get(ctx context.Context, userId string, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int64, error) {
+func (r *TeamRepo) Get(ctx context.Context, userId string, pagination *types.PaginationQuery) ([]*types.TeamResponse, int64, error) {
 
 	var teams []*types.TeamResponse
 	var totalCount int64
@@ -36,7 +36,7 @@ func (r *TeamRepo) Get(ctx context.Context, userId string, pagination *types.Pag
 	baseQuery := r.db.
 		WithContext(ctx).
 		Model(&models.Team{}).
-		Where("valid = ?", valid)
+		Where("valid = ? AND ownerId = ?", true, userId)
 
 	if pagination.Search != "" {
 		baseQuery = baseQuery.Where("name LIKE ?", "%"+pagination.Search+"%")

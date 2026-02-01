@@ -37,7 +37,7 @@ func (r *ProjectRepo) Get(ctx context.Context, pagination *types.PaginationQuery
 	baseQuery := r.db.
 		WithContext(ctx).
 		Model(&models.Project{}).
-		Where("team_id = ? AND valid = ?", teamId, true)
+		Where("teamId = ? AND valid = ?", teamId, true)
 
 	if pagination.Search != "" {
 		baseQuery = baseQuery.Where("name LIKE ?", "%"+pagination.Search+"%")
@@ -53,7 +53,7 @@ func (r *ProjectRepo) Get(ctx context.Context, pagination *types.PaginationQuery
 			projects.id,
 			projects.name,
 			projects.description,
-			projects.teamId AS team_id,
+			projects.teamId AS teamId,
 			projects.valid,
 			projects.createdAt,
 			projects.updatedAt,

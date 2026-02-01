@@ -65,8 +65,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/types.FormAnalytics"
                         }
                     }
                 }
@@ -98,8 +97,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ActivePassword"
+                            }
                         }
                     }
                 }
@@ -123,14 +124,22 @@ const docTemplate = `{
                         "name": "formId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Password creation data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PasswordRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.ActivePassword"
                         }
                     }
                 }
@@ -201,14 +210,22 @@ const docTemplate = `{
                         "name": "passwordId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Password update data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.PasswordRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.ActivePassword"
                         }
                     }
                 }
@@ -240,8 +257,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Question"
+                            }
                         }
                     }
                 }
@@ -273,8 +292,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Response"
+                            }
                         }
                     }
                 }
@@ -300,15 +321,22 @@ const docTemplate = `{
                         "name": "formId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Security settings",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
+                        "schema": {}
                     }
                 }
             }
@@ -333,125 +361,22 @@ const docTemplate = `{
                         "name": "formId",
                         "in": "path",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/edges": {
-            "get": {
-                "description": "Retrieve a list of edges",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "edges"
-                ],
-                "summary": "Get all edges",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create a new edge",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "edges"
-                ],
-                "summary": "Create a new edge",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/edges/{id}": {
-            "delete": {
-                "description": "Delete an edge by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "edges"
-                ],
-                "summary": "Delete an edge",
-                "parameters": [
+                    },
                     {
-                        "type": "string",
-                        "description": "Edge ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                        "description": "Form settings",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     }
-                }
-            },
-            "patch": {
-                "description": "Update an existing edge by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "edges"
-                ],
-                "summary": "Update an edge",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Edge ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
+                        "schema": {}
                     }
                 }
             }
@@ -502,6 +427,515 @@ const docTemplate = `{
                 }
             }
         },
+        "/forms/{formId}/edges": {
+            "get": {
+                "description": "Retrieve a list of edges for the specified form",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "edges"
+                ],
+                "summary": "Get all edges for a form",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.EdgeDto"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new edge for the specified form",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "edges"
+                ],
+                "summary": "Create a new edge",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Edge creation data",
+                        "name": "edge",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CreateEdgeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.EdgeDto"
+                        }
+                    }
+                }
+            }
+        },
+        "/forms/{formId}/edges/{id}": {
+            "delete": {
+                "description": "Delete an edge by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "edges"
+                ],
+                "summary": "Delete an edge",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Edge ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an existing edge by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "edges"
+                ],
+                "summary": "Update an edge",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Edge ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Edge update data",
+                        "name": "edge",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.UpdateEdgeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/forms/{formId}/questions": {
+            "get": {
+                "description": "Retrieve a list of questions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Get all questions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Question"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new question",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Create a new question",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Question data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.QuestionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Question"
+                        }
+                    }
+                }
+            }
+        },
+        "/forms/{formId}/questions/{questionId}": {
+            "delete": {
+                "description": "Delete a question by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Delete a question",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Question ID",
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.ResponseObj"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an existing question by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Update a question",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Question ID",
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Question data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.QuestionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.ResponseObj"
+                        }
+                    }
+                }
+            }
+        },
+        "/forms/{formId}/questions/{questionId}/options": {
+            "get": {
+                "description": "Retrieve options for a question",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Get question options",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Question ID",
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.QuestionOption"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new option for a question",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Create a new question option",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Question ID",
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Option data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.QuestionOptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.ResponseObj"
+                        }
+                    }
+                }
+            }
+        },
+        "/forms/{formId}/questions/{questionId}/options/{optionId}": {
+            "delete": {
+                "description": "Delete an option by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Delete a question option",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Question ID",
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Option ID",
+                        "name": "optionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an existing option by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Update a question option",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Form ID",
+                        "name": "formId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Question ID",
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Option ID",
+                        "name": "optionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Option data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.QuestionOptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/forms/{id}": {
             "get": {
                 "description": "Retrieve a form by its ID",
@@ -533,11 +967,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/forms/{id}/status": {
+            },
             "delete": {
-                "description": "Update the status of a form by ID",
+                "description": "Delete a form by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -547,7 +979,7 @@ const docTemplate = `{
                 "tags": [
                     "forms"
                 ],
-                "summary": "Update form status",
+                "summary": "Delete a form",
                 "parameters": [
                     {
                         "type": "string",
@@ -566,7 +998,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/forms/{id}/status": {
             "patch": {
                 "description": "Update the status of a form by ID",
                 "consumes": [
@@ -709,9 +1143,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/questions": {
+        "/projects/{projectId}": {
             "get": {
-                "description": "Retrieve a list of questions",
+                "description": "Retrieve a project by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -719,91 +1153,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "questions"
+                    "projects"
                 ],
-                "summary": "Get all questions",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create a new question",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "questions"
-                ],
-                "summary": "Create a new question",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/questions/{id}": {
-            "delete": {
-                "description": "Delete a question by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "questions"
-                ],
-                "summary": "Delete a question",
+                "summary": "Get a project by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Question ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Update an existing question by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "questions"
-                ],
-                "summary": "Update a question",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Question ID",
-                        "name": "id",
+                        "description": "Project ID",
+                        "name": "projectId",
                         "in": "path",
                         "required": true
                     }
@@ -832,12 +1189,48 @@ const docTemplate = `{
                     "teams"
                 ],
                 "summary": "Get all teams",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by field",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.TeamResponse"
+                            }
                         }
                     }
                 }
@@ -854,6 +1247,17 @@ const docTemplate = `{
                     "teams"
                 ],
                 "summary": "Create a new team",
+                "parameters": [
+                    {
+                        "description": "Team creation data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.TeamRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -916,6 +1320,15 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Team update data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.TeamRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -927,6 +1340,898 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        }
+    },
+    "definitions": {
+        "models.ActivePassword": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "expireAt": {
+                    "type": "string"
+                },
+                "form": {
+                    "$ref": "#/definitions/models.Form"
+                },
+                "formId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isValid": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "usableUpto": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Coupon": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "discountType": {
+                    "$ref": "#/definitions/models.CouponDiscountType"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "plan": {
+                    "$ref": "#/definitions/models.Plan"
+                },
+                "planId": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.CouponType"
+                },
+                "useLeft": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.CouponDiscountType": {
+            "type": "string",
+            "enum": [
+                "FLAT",
+                "PERCENT"
+            ],
+            "x-enum-varnames": [
+                "CouponDiscountTypeFlat",
+                "CouponDiscountTypePercent"
+            ]
+        },
+        "models.CouponType": {
+            "type": "string",
+            "enum": [
+                "GENERAL",
+                "PLAN_BASED"
+            ],
+            "x-enum-varnames": [
+                "CouponTypeGeneral",
+                "CouponTypePlanBased"
+            ]
+        },
+        "models.Edge": {
+            "type": "object",
+            "properties": {
+                "condition": {},
+                "form": {
+                    "$ref": "#/definitions/models.Form"
+                },
+                "formId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "sourceNode": {
+                    "$ref": "#/definitions/models.Question"
+                },
+                "sourceNodeId": {
+                    "type": "string"
+                },
+                "targetNode": {
+                    "$ref": "#/definitions/models.Question"
+                },
+                "targetNodeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Feature": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "plan": {
+                    "$ref": "#/definitions/models.Plan"
+                },
+                "planId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.Form": {
+            "type": "object",
+            "properties": {
+                "activePasswords": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ActivePassword"
+                    }
+                },
+                "allowAnonymous": {
+                    "type": "boolean"
+                },
+                "analyticsEnabled": {
+                    "type": "boolean"
+                },
+                "closeAt": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "customDomain": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "edges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Edge"
+                    }
+                },
+                "formPageType": {
+                    "$ref": "#/definitions/models.FormPageType"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "maxResponses": {
+                    "type": "integer"
+                },
+                "metadata": {},
+                "multipleSubmissions": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "openAt": {
+                    "type": "string"
+                },
+                "passwordProtected": {
+                    "type": "boolean"
+                },
+                "project": {
+                    "$ref": "#/definitions/models.Project"
+                },
+                "projectId": {
+                    "type": "string"
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Question"
+                    }
+                },
+                "requireConsent": {
+                    "type": "boolean"
+                },
+                "responses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Response"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/models.FormStatus"
+                },
+                "team": {
+                    "$ref": "#/definitions/models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "theme": {
+                    "type": "string"
+                },
+                "uniqueSubdomain": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.FormPageType": {
+            "type": "string",
+            "enum": [
+                "SINGLE",
+                "STEPPER"
+            ],
+            "x-enum-varnames": [
+                "FormPageTypeSingle",
+                "FormPageTypeStepper"
+            ]
+        },
+        "models.FormStatus": {
+            "type": "string",
+            "enum": [
+                "DRAFT",
+                "PUBLISHED",
+                "CLOSED",
+                "ARCHIVED"
+            ],
+            "x-enum-varnames": [
+                "FormStatusDraft",
+                "FormStatusPublished",
+                "FormStatusClosed",
+                "FormStatusArchived"
+            ]
+        },
+        "models.Plan": {
+            "type": "object",
+            "properties": {
+                "coupons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Coupon"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Feature"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Team"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.Project": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "forms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Form"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "team": {
+                    "$ref": "#/definitions/models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.Question": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "form": {
+                    "$ref": "#/definitions/models.Form"
+                },
+                "formId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "incomingEdges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Edge"
+                    }
+                },
+                "metadata": {},
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.QuestionOption"
+                    }
+                },
+                "outgoingEdges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Edge"
+                    }
+                },
+                "placeholder": {
+                    "type": "string"
+                },
+                "posX": {
+                    "type": "integer"
+                },
+                "posY": {
+                    "type": "integer"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.QuestionType"
+                }
+            }
+        },
+        "models.QuestionOption": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "question": {
+                    "$ref": "#/definitions/models.Question"
+                },
+                "questionId": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.QuestionType": {
+            "type": "string",
+            "enum": [
+                "TEXT_SHORT",
+                "TEXT_LONG",
+                "NUMBER",
+                "DATE",
+                "FILE_ANY",
+                "FILE_IMAGE_OR_VIDEO",
+                "CHOICE_SINGLE",
+                "CHOICE_MULTIPLE",
+                "CHOICE_DROPDOWN",
+                "CHOICE_PICTURE",
+                "CHOICE_CHECKBOX",
+                "CHOICE_BOOL",
+                "INFO_EMAIL",
+                "INFO_PHONE",
+                "INFO_URL",
+                "USER_DETAIL",
+                "USER_ADDRESS",
+                "SCREEN_WELCOME",
+                "SCREEN_END",
+                "SCREEN_STATEMENT",
+                "RATING_ZERO_TO_TEN",
+                "RATING_STAR",
+                "RATING_RANK",
+                "LEGAL",
+                "REDIRECT_TO_URL"
+            ],
+            "x-enum-varnames": [
+                "QuestionTypeTextShort",
+                "QuestionTypeTextLong",
+                "QuestionTypeNumber",
+                "QuestionTypeDate",
+                "QuestionTypeFileAny",
+                "QuestionTypeFileImageOrVideo",
+                "QuestionTypeChoiceSingle",
+                "QuestionTypeChoiceMultiple",
+                "QuestionTypeChoiceDropdown",
+                "QuestionTypeChoicePicture",
+                "QuestionTypeChoiceCheckbox",
+                "QuestionTypeChoiceBool",
+                "QuestionTypeInfoEmail",
+                "QuestionTypeInfoPhone",
+                "QuestionTypeInfoUrl",
+                "QuestionTypeUserDetail",
+                "QuestionTypeUserAddress",
+                "QuestionTypeScreenWelcome",
+                "QuestionTypeScreenEnd",
+                "QuestionTypeScreenStatement",
+                "QuestionTypeRatingZeroToTen",
+                "QuestionTypeRatingStar",
+                "QuestionTypeRatingRank",
+                "QuestionTypeLegal",
+                "QuestionTypeRedirectToUrl"
+            ]
+        },
+        "models.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "form": {
+                    "$ref": "#/definitions/models.Form"
+                },
+                "formId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metaData": {},
+                "notified": {
+                    "type": "boolean"
+                },
+                "partialSave": {
+                    "type": "boolean"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.ResponseStatus"
+                },
+                "submittedAt": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.ResponseStatus": {
+            "type": "string",
+            "enum": [
+                "STARTED",
+                "COMPLETED",
+                "ABANDONED",
+                "PARTIAL"
+            ],
+            "x-enum-varnames": [
+                "ResponseStatusStarted",
+                "ResponseStatusCompleted",
+                "ResponseStatusAbandoned",
+                "ResponseStatusPartial"
+            ]
+        },
+        "models.Team": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "forms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Form"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ownerId": {
+                    "type": "string"
+                },
+                "plan": {
+                    "$ref": "#/definitions/models.Plan"
+                },
+                "planId": {
+                    "type": "string"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Project"
+                    }
+                },
+                "teamUsage": {
+                    "$ref": "#/definitions/models.TeamUsage"
+                },
+                "teamUsageId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.TeamUsage": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "cycleEnd": {
+                    "type": "string"
+                },
+                "cycleStart": {
+                    "type": "string"
+                },
+                "formsAllowed": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "overUsage": {
+                    "type": "integer"
+                },
+                "projectsAllowed": {
+                    "type": "integer"
+                },
+                "responses": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.TeamUsageStatus"
+                },
+                "team": {
+                    "$ref": "#/definitions/models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TeamUsageStatus": {
+            "type": "string",
+            "enum": [
+                "ACTIVE",
+                "GRACE",
+                "BLOCKED"
+            ],
+            "x-enum-varnames": [
+                "TeamUsageStatusActive",
+                "TeamUsageStatusGrace",
+                "TeamUsageStatusBlocked"
+            ]
+        },
+        "types.CreateEdgeRequest": {
+            "type": "object",
+            "required": [
+                "sourceNodeId",
+                "targetNodeId"
+            ],
+            "properties": {
+                "sourceNodeId": {
+                    "type": "string"
+                },
+                "targetNodeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.EdgeDto": {
+            "type": "object",
+            "properties": {
+                "condition": {},
+                "formId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "sourceNodeId": {
+                    "type": "string"
+                },
+                "targetNodeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.FormAnalytics": {
+            "type": "object",
+            "properties": {
+                "avgCompletionTime": {
+                    "type": "integer"
+                },
+                "completionRate": {
+                    "type": "integer"
+                },
+                "maxCompletionTime": {
+                    "type": "integer"
+                },
+                "minCompletionTime": {
+                    "type": "integer"
+                },
+                "opened": {
+                    "type": "integer"
+                },
+                "responseCount": {
+                    "type": "integer"
+                },
+                "submitDataPoints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.MonthlySubmitData"
+                    }
+                },
+                "submitted": {
+                    "type": "integer"
+                },
+                "todayResponseCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.MonthlySubmitData": {
+            "type": "object",
+            "properties": {
+                "Completed": {
+                    "type": "integer"
+                },
+                "Unfinished": {
+                    "type": "integer"
+                },
+                "month": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.PasswordRequest": {
+            "type": "object",
+            "properties": {
+                "expireAt": {
+                    "type": "string"
+                },
+                "formId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isValid": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "usableUpto": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.QuestionOptionRequest": {
+            "type": "object",
+            "required": [
+                "label",
+                "questionId",
+                "value"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "questionId": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.QuestionRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "formId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metadata": {},
+                "placeholder": {
+                    "type": "string"
+                },
+                "posX": {
+                    "type": "integer"
+                },
+                "posY": {
+                    "type": "integer"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.QuestionType"
+                }
+            }
+        },
+        "types.ResponseObj": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "totalItems": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "success",
+                        "warning",
+                        "error",
+                        "info"
+                    ]
+                }
+            }
+        },
+        "types.TeamRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ownerId": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.TeamResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ownerId": {
+                    "type": "string"
+                },
+                "planId": {
+                    "type": "string"
+                },
+                "projectCount": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "types.UpdateEdgeRequest": {
+            "type": "object",
+            "properties": {
+                "condition": {}
             }
         }
     }

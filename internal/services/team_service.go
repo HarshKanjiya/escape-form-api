@@ -11,7 +11,7 @@ import (
 )
 
 type ITeamService interface {
-	Get(ctx context.Context, userId string, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int64, error)
+	Get(ctx context.Context, userId string, pagination *types.PaginationQuery) ([]*types.TeamResponse, int64, error)
 	Create(ctx context.Context, userId string, team *types.TeamRequest) error
 	Update(ctx context.Context, userId string, team *types.TeamRequest) error
 	Delete(ctx context.Context, userId string, teamId string) error
@@ -27,9 +27,9 @@ func NewTeamService(teamRepo repositories.ITeamRepo) *TeamService {
 	}
 }
 
-func (ts *TeamService) Get(ctx context.Context, userId string, pagination *types.PaginationQuery, valid bool) ([]*types.TeamResponse, int64, error) {
+func (ts *TeamService) Get(ctx context.Context, userId string, pagination *types.PaginationQuery) ([]*types.TeamResponse, int64, error) {
 
-	teams, totalCount, err := ts.teamRepo.Get(ctx, userId, pagination, valid)
+	teams, totalCount, err := ts.teamRepo.Get(ctx, userId, pagination)
 	if err != nil {
 		return nil, 0, err
 	}

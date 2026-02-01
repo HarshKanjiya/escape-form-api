@@ -47,7 +47,7 @@ func (tc *TeamController) Get(c *fiber.Ctx) error {
 		SortBy: c.Query("sortBy", ""),
 		Order:  c.Query("order", ""),
 	}
-	teams, total, err := tc.teamService.Get(c.Context(), userId, pagination, true)
+	teams, total, err := tc.teamService.Get(c.Context(), userId, pagination)
 	if err != nil {
 		return err
 	}

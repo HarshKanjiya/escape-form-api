@@ -1,3 +1,618 @@
+definitions:
+  models.ActivePassword:
+    properties:
+      createdAt:
+        type: string
+      expireAt:
+        type: string
+      form:
+        $ref: '#/definitions/models.Form'
+      formId:
+        type: string
+      id:
+        type: string
+      isValid:
+        type: boolean
+      name:
+        type: string
+      password:
+        type: string
+      usableUpto:
+        type: integer
+    type: object
+  models.Coupon:
+    properties:
+      amount:
+        type: number
+      discountType:
+        $ref: '#/definitions/models.CouponDiscountType'
+      id:
+        type: string
+      plan:
+        $ref: '#/definitions/models.Plan'
+      planId:
+        type: string
+      type:
+        $ref: '#/definitions/models.CouponType'
+      useLeft:
+        type: integer
+    type: object
+  models.CouponDiscountType:
+    enum:
+    - FLAT
+    - PERCENT
+    type: string
+    x-enum-varnames:
+    - CouponDiscountTypeFlat
+    - CouponDiscountTypePercent
+  models.CouponType:
+    enum:
+    - GENERAL
+    - PLAN_BASED
+    type: string
+    x-enum-varnames:
+    - CouponTypeGeneral
+    - CouponTypePlanBased
+  models.Edge:
+    properties:
+      condition: {}
+      form:
+        $ref: '#/definitions/models.Form'
+      formId:
+        type: string
+      id:
+        type: string
+      sourceNode:
+        $ref: '#/definitions/models.Question'
+      sourceNodeId:
+        type: string
+      targetNode:
+        $ref: '#/definitions/models.Question'
+      targetNodeId:
+        type: string
+    type: object
+  models.Feature:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      key:
+        type: string
+      name:
+        type: string
+      plan:
+        $ref: '#/definitions/models.Plan'
+      planId:
+        type: string
+      updatedAt:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  models.Form:
+    properties:
+      activePasswords:
+        items:
+          $ref: '#/definitions/models.ActivePassword'
+        type: array
+      allowAnonymous:
+        type: boolean
+      analyticsEnabled:
+        type: boolean
+      closeAt:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      customDomain:
+        type: string
+      description:
+        type: string
+      edges:
+        items:
+          $ref: '#/definitions/models.Edge'
+        type: array
+      formPageType:
+        $ref: '#/definitions/models.FormPageType'
+      id:
+        type: string
+      logoUrl:
+        type: string
+      maxResponses:
+        type: integer
+      metadata: {}
+      multipleSubmissions:
+        type: boolean
+      name:
+        type: string
+      openAt:
+        type: string
+      passwordProtected:
+        type: boolean
+      project:
+        $ref: '#/definitions/models.Project'
+      projectId:
+        type: string
+      questions:
+        items:
+          $ref: '#/definitions/models.Question'
+        type: array
+      requireConsent:
+        type: boolean
+      responses:
+        items:
+          $ref: '#/definitions/models.Response'
+        type: array
+      status:
+        $ref: '#/definitions/models.FormStatus'
+      team:
+        $ref: '#/definitions/models.Team'
+      teamId:
+        type: string
+      theme:
+        type: string
+      uniqueSubdomain:
+        type: string
+      updatedAt:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  models.FormPageType:
+    enum:
+    - SINGLE
+    - STEPPER
+    type: string
+    x-enum-varnames:
+    - FormPageTypeSingle
+    - FormPageTypeStepper
+  models.FormStatus:
+    enum:
+    - DRAFT
+    - PUBLISHED
+    - CLOSED
+    - ARCHIVED
+    type: string
+    x-enum-varnames:
+    - FormStatusDraft
+    - FormStatusPublished
+    - FormStatusClosed
+    - FormStatusArchived
+  models.Plan:
+    properties:
+      coupons:
+        items:
+          $ref: '#/definitions/models.Coupon'
+        type: array
+      createdAt:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      features:
+        items:
+          $ref: '#/definitions/models.Feature'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      teams:
+        items:
+          $ref: '#/definitions/models.Team'
+        type: array
+      updatedAt:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  models.Project:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      forms:
+        items:
+          $ref: '#/definitions/models.Form'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      team:
+        $ref: '#/definitions/models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  models.Question:
+    properties:
+      description:
+        type: string
+      form:
+        $ref: '#/definitions/models.Form'
+      formId:
+        type: string
+      id:
+        type: string
+      incomingEdges:
+        items:
+          $ref: '#/definitions/models.Edge'
+        type: array
+      metadata: {}
+      options:
+        items:
+          $ref: '#/definitions/models.QuestionOption'
+        type: array
+      outgoingEdges:
+        items:
+          $ref: '#/definitions/models.Edge'
+        type: array
+      placeholder:
+        type: string
+      posX:
+        type: integer
+      posY:
+        type: integer
+      required:
+        type: boolean
+      sortOrder:
+        type: integer
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/models.QuestionType'
+    type: object
+  models.QuestionOption:
+    properties:
+      id:
+        type: string
+      label:
+        type: string
+      question:
+        $ref: '#/definitions/models.Question'
+      questionId:
+        type: string
+      sortOrder:
+        type: integer
+      value:
+        type: string
+    type: object
+  models.QuestionType:
+    enum:
+    - TEXT_SHORT
+    - TEXT_LONG
+    - NUMBER
+    - DATE
+    - FILE_ANY
+    - FILE_IMAGE_OR_VIDEO
+    - CHOICE_SINGLE
+    - CHOICE_MULTIPLE
+    - CHOICE_DROPDOWN
+    - CHOICE_PICTURE
+    - CHOICE_CHECKBOX
+    - CHOICE_BOOL
+    - INFO_EMAIL
+    - INFO_PHONE
+    - INFO_URL
+    - USER_DETAIL
+    - USER_ADDRESS
+    - SCREEN_WELCOME
+    - SCREEN_END
+    - SCREEN_STATEMENT
+    - RATING_ZERO_TO_TEN
+    - RATING_STAR
+    - RATING_RANK
+    - LEGAL
+    - REDIRECT_TO_URL
+    type: string
+    x-enum-varnames:
+    - QuestionTypeTextShort
+    - QuestionTypeTextLong
+    - QuestionTypeNumber
+    - QuestionTypeDate
+    - QuestionTypeFileAny
+    - QuestionTypeFileImageOrVideo
+    - QuestionTypeChoiceSingle
+    - QuestionTypeChoiceMultiple
+    - QuestionTypeChoiceDropdown
+    - QuestionTypeChoicePicture
+    - QuestionTypeChoiceCheckbox
+    - QuestionTypeChoiceBool
+    - QuestionTypeInfoEmail
+    - QuestionTypeInfoPhone
+    - QuestionTypeInfoUrl
+    - QuestionTypeUserDetail
+    - QuestionTypeUserAddress
+    - QuestionTypeScreenWelcome
+    - QuestionTypeScreenEnd
+    - QuestionTypeScreenStatement
+    - QuestionTypeRatingZeroToTen
+    - QuestionTypeRatingStar
+    - QuestionTypeRatingRank
+    - QuestionTypeLegal
+    - QuestionTypeRedirectToUrl
+  models.Response:
+    properties:
+      data: {}
+      form:
+        $ref: '#/definitions/models.Form'
+      formId:
+        type: string
+      id:
+        type: string
+      metaData: {}
+      notified:
+        type: boolean
+      partialSave:
+        type: boolean
+      startedAt:
+        type: string
+      status:
+        $ref: '#/definitions/models.ResponseStatus'
+      submittedAt:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updatedAt:
+        type: string
+      userId:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  models.ResponseStatus:
+    enum:
+    - STARTED
+    - COMPLETED
+    - ABANDONED
+    - PARTIAL
+    type: string
+    x-enum-varnames:
+    - ResponseStatusStarted
+    - ResponseStatusCompleted
+    - ResponseStatusAbandoned
+    - ResponseStatusPartial
+  models.Team:
+    properties:
+      createdAt:
+        type: string
+      forms:
+        items:
+          $ref: '#/definitions/models.Form'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      ownerId:
+        type: string
+      plan:
+        $ref: '#/definitions/models.Plan'
+      planId:
+        type: string
+      projects:
+        items:
+          $ref: '#/definitions/models.Project'
+        type: array
+      teamUsage:
+        $ref: '#/definitions/models.TeamUsage'
+      teamUsageId:
+        type: string
+      updatedAt:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  models.TeamUsage:
+    properties:
+      createdAt:
+        type: string
+      cycleEnd:
+        type: string
+      cycleStart:
+        type: string
+      formsAllowed:
+        type: integer
+      id:
+        type: string
+      overUsage:
+        type: integer
+      projectsAllowed:
+        type: integer
+      responses:
+        type: integer
+      status:
+        $ref: '#/definitions/models.TeamUsageStatus'
+      team:
+        $ref: '#/definitions/models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.TeamUsageStatus:
+    enum:
+    - ACTIVE
+    - GRACE
+    - BLOCKED
+    type: string
+    x-enum-varnames:
+    - TeamUsageStatusActive
+    - TeamUsageStatusGrace
+    - TeamUsageStatusBlocked
+  types.CreateEdgeRequest:
+    properties:
+      sourceNodeId:
+        type: string
+      targetNodeId:
+        type: string
+    required:
+    - sourceNodeId
+    - targetNodeId
+    type: object
+  types.EdgeDto:
+    properties:
+      condition: {}
+      formId:
+        type: string
+      id:
+        type: string
+      sourceNodeId:
+        type: string
+      targetNodeId:
+        type: string
+    type: object
+  types.FormAnalytics:
+    properties:
+      avgCompletionTime:
+        type: integer
+      completionRate:
+        type: integer
+      maxCompletionTime:
+        type: integer
+      minCompletionTime:
+        type: integer
+      opened:
+        type: integer
+      responseCount:
+        type: integer
+      submitDataPoints:
+        items:
+          $ref: '#/definitions/types.MonthlySubmitData'
+        type: array
+      submitted:
+        type: integer
+      todayResponseCount:
+        type: integer
+    type: object
+  types.MonthlySubmitData:
+    properties:
+      Completed:
+        type: integer
+      Unfinished:
+        type: integer
+      month:
+        type: string
+    type: object
+  types.PasswordRequest:
+    properties:
+      expireAt:
+        type: string
+      formId:
+        type: string
+      id:
+        type: string
+      isValid:
+        type: boolean
+      name:
+        type: string
+      password:
+        type: string
+      usableUpto:
+        type: integer
+    type: object
+  types.QuestionOptionRequest:
+    properties:
+      id:
+        type: string
+      label:
+        type: string
+      questionId:
+        type: string
+      sortOrder:
+        type: integer
+      value:
+        type: string
+    required:
+    - label
+    - questionId
+    - value
+    type: object
+  types.QuestionRequest:
+    properties:
+      description:
+        type: string
+      formId:
+        type: string
+      id:
+        type: string
+      metadata: {}
+      placeholder:
+        type: string
+      posX:
+        type: integer
+      posY:
+        type: integer
+      required:
+        type: boolean
+      sortOrder:
+        type: integer
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/models.QuestionType'
+    type: object
+  types.ResponseObj:
+    properties:
+      data: {}
+      message:
+        type: string
+      totalItems:
+        type: integer
+      type:
+        enum:
+        - success
+        - warning
+        - error
+        - info
+        type: string
+    type: object
+  types.TeamRequest:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      ownerId:
+        type: string
+    type: object
+  types.TeamResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      ownerId:
+        type: string
+      planId:
+        type: string
+      projectCount:
+        type: integer
+      updatedAt:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  types.UpdateEdgeRequest:
+    properties:
+      condition: {}
+    type: object
 info:
   contact: {}
 paths:
@@ -34,8 +649,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/types.FormAnalytics'
       summary: Get form analytics
       tags:
       - dashboard
@@ -56,8 +670,9 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            items:
+              $ref: '#/definitions/models.ActivePassword'
+            type: array
       summary: Get form passwords
       tags:
       - dashboard
@@ -71,14 +686,19 @@ paths:
         name: formId
         required: true
         type: string
+      - description: Password creation data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.PasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.ActivePassword'
       summary: Create form passwords
       tags:
       - dashboard
@@ -124,14 +744,19 @@ paths:
         name: passwordId
         required: true
         type: string
+      - description: Password update data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.PasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.ActivePassword'
       summary: Update form passwords
       tags:
       - dashboard
@@ -152,8 +777,9 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            items:
+              $ref: '#/definitions/models.Question'
+            type: array
       summary: Get form questions
       tags:
       - dashboard
@@ -174,8 +800,9 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            items:
+              $ref: '#/definitions/models.Response'
+            type: array
       summary: Get form responses
       tags:
       - dashboard
@@ -190,14 +817,19 @@ paths:
         name: formId
         required: true
         type: string
+      - description: Security settings
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            additionalProperties: true
-            type: object
+          schema: {}
       summary: Update form security
       tags:
       - dashboard
@@ -212,91 +844,22 @@ paths:
         name: formId
         required: true
         type: string
+      - description: Form settings
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            additionalProperties: true
-            type: object
+          schema: {}
       summary: Update form settings
       tags:
       - dashboard
-  /edges:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a list of edges
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Get all edges
-      tags:
-      - edges
-    post:
-      consumes:
-      - application/json
-      description: Create a new edge
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Create a new edge
-      tags:
-      - edges
-  /edges/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete an edge by ID
-      parameters:
-      - description: Edge ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Delete an edge
-      tags:
-      - edges
-    patch:
-      consumes:
-      - application/json
-      description: Update an existing edge by ID
-      parameters:
-      - description: Edge ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Update an edge
-      tags:
-      - edges
   /forms:
     get:
       consumes:
@@ -328,7 +891,370 @@ paths:
       summary: Create a new form
       tags:
       - forms
+  /forms/{formId}/edges:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of edges for the specified form
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.EdgeDto'
+            type: array
+      summary: Get all edges for a form
+      tags:
+      - edges
+    post:
+      consumes:
+      - application/json
+      description: Create a new edge for the specified form
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Edge creation data
+        in: body
+        name: edge
+        required: true
+        schema:
+          $ref: '#/definitions/types.CreateEdgeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.EdgeDto'
+      summary: Create a new edge
+      tags:
+      - edges
+  /forms/{formId}/edges/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an edge by ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Edge ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete an edge
+      tags:
+      - edges
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing edge by ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Edge ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Edge update data
+        in: body
+        name: edge
+        required: true
+        schema:
+          $ref: '#/definitions/types.UpdateEdgeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update an edge
+      tags:
+      - edges
+  /forms/{formId}/questions:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of questions
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Question'
+            type: array
+      summary: Get all questions
+      tags:
+      - dashboard
+    post:
+      consumes:
+      - application/json
+      description: Create a new question
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Question data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.QuestionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Question'
+      summary: Create a new question
+      tags:
+      - dashboard
+  /forms/{formId}/questions/{questionId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a question by ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Question ID
+        in: path
+        name: questionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ResponseObj'
+      summary: Delete a question
+      tags:
+      - dashboard
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing question by ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Question ID
+        in: path
+        name: questionId
+        required: true
+        type: string
+      - description: Question data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.QuestionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ResponseObj'
+      summary: Update a question
+      tags:
+      - dashboard
+  /forms/{formId}/questions/{questionId}/options:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve options for a question
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Question ID
+        in: path
+        name: questionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.QuestionOption'
+            type: array
+      summary: Get question options
+      tags:
+      - dashboard
+    post:
+      consumes:
+      - application/json
+      description: Create a new option for a question
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Question ID
+        in: path
+        name: questionId
+        required: true
+        type: string
+      - description: Option data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.QuestionOptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.ResponseObj'
+      summary: Create a new question option
+      tags:
+      - dashboard
+  /forms/{formId}/questions/{questionId}/options/{optionId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an option by ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Question ID
+        in: path
+        name: questionId
+        required: true
+        type: string
+      - description: Option ID
+        in: path
+        name: optionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a question option
+      tags:
+      - dashboard
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing option by ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: formId
+        required: true
+        type: string
+      - description: Question ID
+        in: path
+        name: questionId
+        required: true
+        type: string
+      - description: Option ID
+        in: path
+        name: optionId
+        required: true
+        type: string
+      - description: Option data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.QuestionOptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a question option
+      tags:
+      - dashboard
   /forms/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a form by its ID
+      parameters:
+      - description: Form ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a form
+      tags:
+      - forms
     get:
       consumes:
       - application/json
@@ -351,27 +1277,6 @@ paths:
       tags:
       - forms
   /forms/{id}/status:
-    delete:
-      consumes:
-      - application/json
-      description: Update the status of a form by ID
-      parameters:
-      - description: Form ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Update form status
-      tags:
-      - forms
     patch:
       consumes:
       - application/json
@@ -467,46 +1372,15 @@ paths:
       summary: Update a project
       tags:
       - projects
-  /questions:
+  /projects/{projectId}:
     get:
       consumes:
       - application/json
-      description: Retrieve a list of questions
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Get all questions
-      tags:
-      - questions
-    post:
-      consumes:
-      - application/json
-      description: Create a new question
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Create a new question
-      tags:
-      - questions
-  /questions/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a question by ID
+      description: Retrieve a project by its ID
       parameters:
-      - description: Question ID
+      - description: Project ID
         in: path
-        name: id
+        name: projectId
         required: true
         type: string
       produces:
@@ -517,43 +1391,46 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: Delete a question
+      summary: Get a project by ID
       tags:
-      - questions
-    patch:
-      consumes:
-      - application/json
-      description: Update an existing question by ID
-      parameters:
-      - description: Question ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Update a question
-      tags:
-      - questions
+      - projects
   /teams:
     get:
       consumes:
       - application/json
       description: Retrieve a list of teams
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Sort by field
+        in: query
+        name: sortBy
+        type: string
+      - description: Sort order
+        in: query
+        name: order
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            items:
+              $ref: '#/definitions/types.TeamResponse'
+            type: array
       summary: Get all teams
       tags:
       - teams
@@ -561,6 +1438,13 @@ paths:
       consumes:
       - application/json
       description: Create a new team
+      parameters:
+      - description: Team creation data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.TeamRequest'
       produces:
       - application/json
       responses:
@@ -604,6 +1488,12 @@ paths:
         name: id
         required: true
         type: string
+      - description: Team update data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.TeamRequest'
       produces:
       - application/json
       responses:
