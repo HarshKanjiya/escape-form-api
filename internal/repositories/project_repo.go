@@ -8,6 +8,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type IProjectRepo interface {
@@ -34,40 +35,45 @@ func (r *ProjectRepo) Get(ctx context.Context, pagination *types.PaginationQuery
 	var projects []*types.ProjectResponse
 	var totalCount int64
 
-	baseQuery := r.db.
-		WithContext(ctx).
+	baseQuery := r.db.WithContext(ctx).
 		Model(&models.Project{}).
-		Where("teamId = ? AND valid = ?", teamId, true)
+		Where(&models.Project{
+			TeamID: teamId,
+			Valid:  true,
+		})
 
 	if pagination.Search != "" {
-		baseQuery = baseQuery.Where("name LIKE ?", "%"+pagination.Search+"%")
+		baseQuery = baseQuery.Where(
+			clause.Like{
+				Column: clause.Column{Name: "name"},
+				Value:  "%" + pagination.Search + "%",
+			},
+		)
 	}
-
 	// total count
 	if err := baseQuery.Count(&totalCount).Error; err != nil {
 		return nil, 0, errors.Internal(err)
 	}
 
-	err := baseQuery.
-		Select(`
-			projects.id,
-			projects.name,
-			projects.description,
-			projects.teamId AS teamId,
-			projects.valid,
-			projects.createdAt,
-			projects.updatedAt,
-			COUNT(forms.id) AS formCount
-		`).
-		Joins(`
-			LEFT JOIN forms
-			ON forms.project_id = projects.id
-		`).
-		Group("projects.id").
-		Order("projects.created_at DESC").
+	err := baseQuery.Select(`
+        projects.id,
+        projects.name,
+        projects.description,
+        projects."teamId",
+        projects.valid,
+        projects."createdAt",
+        projects."updatedAt",
+        (
+            SELECT COUNT(*)
+            FROM forms
+            WHERE forms."projectId" = projects.id
+        ) AS "formCount"
+    `).
+		Order(`projects."createdAt" DESC`).
 		Limit(pagination.Limit).
 		Offset((pagination.Page - 1) * pagination.Limit).
 		Scan(&projects).Error
+
 	if err != nil {
 		return nil, 0, errors.Internal(err)
 	}
@@ -82,19 +88,22 @@ func (r *ProjectRepo) GetById(ctx context.Context, projectId string) (*models.Pr
 	if err := r.db.Model(&models.Project{}).WithContext(ctx).
 		Select(`
 			projects.id,
-			projects.name,
-			projects.description,
-			projects.teamId AS team_id,
-			projects.valid,
-			projects.createdAt,
-			projects.updatedAt,
-			COUNT(forms.id) AS form_count
+        	projects.name,
+        	projects.description,
+        	projects."teamId",
+        	projects.valid,
+        	projects."createdAt",
+        	projects."updatedAt",
+        	(
+        	    SELECT COUNT(*)
+        	    FROM forms
+        	    WHERE forms."projectId" = projects.id
+        	) AS "formCount"
 		`).
-		Joins(`
-			LEFT JOIN forms
-			ON forms.project_id = projects.id
-		`).
-		Where("projects.id = ? AND projects.valid = ?", projectId, true).
+		Where(&models.Project{
+			ID:    projectId,
+			Valid: true,
+		}).
 		Group("projects.id").
 		Scan(&project).Error; err != nil {
 		return nil, errors.Internal(err)
@@ -104,7 +113,12 @@ func (r *ProjectRepo) GetById(ctx context.Context, projectId string) (*models.Pr
 
 func (r *ProjectRepo) GetWithTeam(ctx context.Context, projectId string) (*models.Project, error) {
 	var project models.Project
-	if err := r.db.WithContext(ctx).Preload("Team").Where("id = ? AND valid = ?", projectId, true).First(&project).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("Team").
+		Where(&models.Project{
+			ID:    projectId,
+			Valid: true,
+		}).
+		First(&project).Error; err != nil {
 		return nil, errors.Internal(err)
 	}
 	return &project, nil
@@ -112,7 +126,7 @@ func (r *ProjectRepo) GetWithTeam(ctx context.Context, projectId string) (*model
 
 func (r *ProjectRepo) Create(ctx context.Context, project *models.Project) (*models.Project, error) {
 
-	err := r.db.Model(&models.Project{}).Create(project).Error
+	err := r.db.Model(&models.Project{}).WithContext(ctx).Create(project).Error
 	if err != nil {
 		return nil, errors.Internal(err)
 	}
@@ -121,7 +135,10 @@ func (r *ProjectRepo) Create(ctx context.Context, project *models.Project) (*mod
 
 func (r *ProjectRepo) Update(ctx context.Context, project *models.Project) (bool, error) {
 	if err := r.db.WithContext(ctx).Model(&models.Project{}).
-		Where("id = ? AND valid = ?", project.ID, true).
+		Where(&models.Project{
+			ID:    project.ID,
+			Valid: true,
+		}).
 		Updates(map[string]interface{}{
 			"name":        project.Name,
 			"description": project.Description,
@@ -135,7 +152,10 @@ func (r *ProjectRepo) Update(ctx context.Context, project *models.Project) (bool
 func (r *ProjectRepo) Delete(ctx context.Context, projectId string) error {
 
 	if err := r.db.WithContext(ctx).Model(&models.Project{}).
-		Where("id = ?", projectId).
+		Where(&models.Project{
+			ID:    projectId,
+			Valid: true,
+		}).
 		Updates(map[string]interface{}{
 			"valid":     false,
 			"updatedAt": utils.GetCurrentTime(),
