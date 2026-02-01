@@ -44,7 +44,7 @@ func (r *DashRepo) GetAnalytics(ctx context.Context, formId string) (*types.Form
 	// Get all responses for this form
 	var responses []*models.Response
 	err := r.db.WithContext(ctx).Model(&models.Response{}).
-		Where("formId = ? AND valid = ?", formId, true).
+		Where(`"formId" = ? AND valid = ?`, formId, true).
 		Find(&responses).Error
 	if err != nil {
 		return nil, errors.Internal(err)
@@ -163,8 +163,8 @@ func (r *DashRepo) GetAnalytics(ctx context.Context, formId string) (*types.Form
 func (r *DashRepo) GetQuestions(ctx context.Context, formId string) ([]*models.Question, error) {
 	var questions []*models.Question
 	err := r.db.WithContext(ctx).Preload("Options").Model(&models.Question{}).
-		Where("formId = ?", formId).
-		Order("orderBy ASC").
+		Where(`"formId" = ?`, formId).
+		Order(`"sortOrder" ASC`).
 		Find(&questions).Error
 	if err != nil {
 		return nil, errors.Internal(err)
@@ -180,7 +180,7 @@ func (r *DashRepo) GetResponses(ctx context.Context, formId string) ([]*models.R
 func (r *DashRepo) GetPasswords(ctx context.Context, formId string) ([]*models.ActivePassword, error) {
 	var passwords []*models.ActivePassword
 	err := r.db.WithContext(ctx).Model(&models.ActivePassword{}).
-		Where("formId = ?", formId).
+		Where(`"formId" = ?`, formId).
 		Find(&passwords).Error
 	if err != nil {
 		return nil, errors.Internal(err)
@@ -203,7 +203,7 @@ func (r *DashRepo) UpdatePassword(ctx context.Context, formId string, password *
 
 	err := r.db.WithContext(ctx).
 		Model(&models.ActivePassword{}).
-		Where("id = ? AND formId = ?", password.ID, formId).
+		Where(`id = ? AND "formId" = ?`, password.ID, formId).
 		Updates(map[string]interface{}{
 			"password":   password.Password,
 			"name":       password.Name,
@@ -221,7 +221,7 @@ func (r *DashRepo) DeletePassword(ctx context.Context, passwordId string) error 
 
 	err := r.db.WithContext(ctx).
 		Model(&models.ActivePassword{}).
-		Where("id = ?", passwordId).Delete(&models.ActivePassword{}).Error
+		Where(`id = ?`, passwordId).Delete(&models.ActivePassword{}).Error
 
 	if err != nil {
 		return errors.Internal(err)

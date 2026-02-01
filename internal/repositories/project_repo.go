@@ -50,6 +50,7 @@ func (r *ProjectRepo) Get(ctx context.Context, pagination *types.PaginationQuery
 			},
 		)
 	}
+
 	// total count
 	if err := baseQuery.Count(&totalCount).Error; err != nil {
 		return nil, 0, errors.Internal(err)

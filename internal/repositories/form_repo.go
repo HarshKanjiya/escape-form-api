@@ -9,6 +9,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type IFormRepo interface {
@@ -41,14 +42,24 @@ func (r *FormRepo) Get(ctx context.Context, pagination *types.PaginationQuery, p
 	baseQuery := r.db.
 		WithContext(ctx).
 		Model(&models.Form{}).
-		Where("project_id = ? AND valid = ?", projectId, true)
+		Where(&models.Form{
+			ProjectID: projectId,
+			Valid:     true,
+		})
 
 	if pagination.Search != "" {
-		baseQuery = baseQuery.Where("name LIKE ?", "%"+pagination.Search+"%")
+		baseQuery = baseQuery.Where(
+			clause.Like{
+				Column: clause.Column{Name: "name"},
+				Value:  "%" + pagination.Search + "%",
+			},
+		)
 	}
 
 	if status != nil {
-		baseQuery = baseQuery.Where("status = ?", *status)
+		baseQuery = baseQuery.Where(&models.Form{
+			Status: status,
+		})
 	}
 
 	// total count
@@ -57,6 +68,7 @@ func (r *FormRepo) Get(ctx context.Context, pagination *types.PaginationQuery, p
 	}
 
 	err := baseQuery.
+		Order(`forms."createdAt" DESC`).
 		Limit(pagination.Limit).
 		Offset((pagination.Page - 1) * pagination.Limit).
 		Find(&forms).Error
@@ -73,7 +85,10 @@ func (r *FormRepo) GetById(ctx context.Context, formId string) (*models.Form, er
 		Model(&models.Form{}).
 		Preload("Questions").
 		Preload("Edges").
-		Where("id = ? AND valid = ?", formId, true).
+		Where(&models.Form{
+			ID:    formId,
+			Valid: true,
+		}).
 		First(&form).Error
 	if err != nil {
 		return nil, errors.Internal(err)
@@ -94,7 +109,10 @@ func (r *FormRepo) Create(ctx context.Context, form *models.Form) (*models.Form,
 func (r *FormRepo) Update(ctx context.Context, formId string, updates *map[string]interface{}) error {
 	err := r.db.WithContext(ctx).
 		Model(&models.Form{}).
-		Where("id = ? AND valid = ?", formId, true).
+		Where(&models.Form{
+			ID:    formId,
+			Valid: true,
+		}).
 		Updates(*updates).Error
 	if err != nil {
 		return errors.Internal(err)
@@ -106,7 +124,10 @@ func (r *FormRepo) UpdateStatus(ctx context.Context, formId string, status model
 
 	err := r.db.WithContext(ctx).
 		Model(&models.Form{}).
-		Where("id = ? AND valid = ?", formId, true).
+		Where(&models.Form{
+			ID:    formId,
+			Valid: true,
+		}).
 		Update("status", status).Error
 	if err != nil {
 		return errors.Internal(err)
@@ -119,8 +140,16 @@ func (r *FormRepo) GetWithTeam(ctx context.Context, formId string) (*models.Form
 	var form *models.Form
 	err := r.db.WithContext(ctx).
 		Model(&models.Form{}).
+		Joins(`
+        JOIN teams 
+        ON teams.id = forms."teamId"
+        AND teams.valid = true
+    `).
+		Where(`
+        forms.id = ?
+        AND forms.valid = true
+    `, formId).
 		Preload("Team").
-		Where("forms.id = ? AND teams.valid = ? AND forms.valid = ?", formId, true, true).
 		First(&form).Error
 
 	if err != nil {
@@ -162,7 +191,7 @@ func (r *FormRepo) UpdateQuestionSequence(ctx context.Context, formId string, se
 
 	err := r.db.WithContext(ctx).
 		Model(&models.Question{}).
-		Where("id IN ? AND form_id = ?", ids, formId).
+		Where(`id IN ? AND "formId" = ?`, ids, formId).
 		Update("sort_order", gorm.Expr(caseStr)).Error
 	if err != nil {
 		return errors.Internal(err)

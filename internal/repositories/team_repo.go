@@ -8,6 +8,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ITeamRepo interface {
@@ -36,10 +37,18 @@ func (r *TeamRepo) Get(ctx context.Context, userId string, pagination *types.Pag
 	baseQuery := r.db.
 		WithContext(ctx).
 		Model(&models.Team{}).
-		Where("valid = ? AND ownerId = ?", true, userId)
+		Where(&models.Team{
+			OwnerID: &userId,
+			Valid:   true,
+		})
 
 	if pagination.Search != "" {
-		baseQuery = baseQuery.Where("name LIKE ?", "%"+pagination.Search+"%")
+		baseQuery = baseQuery.Where(
+			clause.Like{
+				Column: clause.Column{Name: "name"},
+				Value:  "%" + pagination.Search + "%",
+			},
+		)
 	}
 
 	// total count
@@ -47,18 +56,23 @@ func (r *TeamRepo) Get(ctx context.Context, userId string, pagination *types.Pag
 		return nil, 0, errors.Internal(err)
 	}
 
-	err := baseQuery.Select(`
-			teams.id,
-			teams.name,
-			teams.ownerId,
-			teams.planId,
-			teams.valid,
-			teams.createdAt,
-			teams.updatedAt,
-			COUNT(projects.id) AS projectCount
-			`).
-		Joins(`LEFT JOIN projects ON projects.teamId = teams.id AND projects.valid = true`).
-		Group("teams.id").
+	err := baseQuery.
+		Select(`
+        teams.id,
+        teams.name,
+        teams."ownerId",
+        teams."planId",
+        teams.valid,
+        teams."createdAt",
+        teams."updatedAt",
+        (
+            SELECT COUNT(*)
+            FROM projects
+            WHERE projects."teamId" = teams.id
+            AND projects.valid = true
+        ) AS "projectCount"
+    `).
+		Order(`teams."createdAt" DESC`).
 		Limit(pagination.Limit).
 		Offset((pagination.Page - 1) * pagination.Limit).
 		Scan(&teams).Error
@@ -74,7 +88,11 @@ func (r *TeamRepo) GetById(ctx context.Context, teamId string) (*models.Team, er
 
 	var team models.Team
 	err := r.db.WithContext(ctx).
-		Where("id = ? AND valid = ?", teamId, true).First(&team).Error
+		Where(&models.Team{
+			ID:    teamId,
+			Valid: true,
+		}).
+		First(&team).Error
 	if err != nil {
 		return nil, errors.Internal(err)
 	}
@@ -93,7 +111,10 @@ func (r *TeamRepo) Create(ctx context.Context, team *models.Team) error {
 func (r *TeamRepo) Update(ctx context.Context, team *models.Team) error {
 
 	err := r.db.WithContext(ctx).Model(&models.Team{}).
-		Where("id = ? AND valid = ?", team.ID, true).
+		Where(&models.Team{
+			ID:    team.ID,
+			Valid: true,
+		}).
 		Updates(team).Error
 	if err != nil {
 		return err
@@ -105,7 +126,10 @@ func (r *TeamRepo) Update(ctx context.Context, team *models.Team) error {
 func (r *TeamRepo) Delete(ctx context.Context, teamId string) error {
 
 	err := r.db.WithContext(ctx).Model(&models.Team{}).
-		Where("id = ? AND valid = ?", teamId, true).
+		Where(&models.Team{
+			ID:    teamId,
+			Valid: true,
+		}).
 		Updates(map[string]interface{}{
 			"valid":     false,
 			"updatedAt": utils.GetCurrentTime(),
