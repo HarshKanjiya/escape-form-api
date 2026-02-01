@@ -109,13 +109,9 @@ func (pc *QuestionController) UpdateQuestion(c *fiber.Ctx) error {
 		return errors.BadRequest("Question ID and Form ID are required")
 	}
 
-	var questionDto types.QuestionRequest
+	var questionDto map[string]interface{}
 	if err := c.BodyParser(&questionDto); err != nil {
 		return errors.BadRequest("Invalid request body")
-	}
-
-	if err := pc.validator.Struct(&questionDto); err != nil {
-		return errors.BadRequest("Validation failed: " + err.Error())
 	}
 
 	err := pc.questionService.UpdateQuestion(c.Context(), userId, formId, questionId, &questionDto)

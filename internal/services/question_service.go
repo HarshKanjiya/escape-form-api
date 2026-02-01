@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
@@ -13,7 +14,7 @@ import (
 type IQuestionService interface {
 	GetQuestions(ctx context.Context, userId string, formId string) ([]*models.Question, error)
 	CreateQuestion(ctx context.Context, userId string, formId string, question *types.QuestionRequest) (*models.Question, error)
-	UpdateQuestion(ctx context.Context, userId string, formId string, questionId string, question *types.QuestionRequest) error
+	UpdateQuestion(ctx context.Context, userId string, formId string, questionId string, question *map[string]interface{}) error
 	DeleteQuestion(ctx context.Context, userId string, formId string, questionId string) error
 
 	GetOptions(ctx context.Context, userId string, formId string, questionId string) ([]*models.QuestionOption, error)
@@ -86,6 +87,8 @@ func (s *QuestionService) CreateQuestion(ctx context.Context, userId string, for
 		SortOrder:   question.SortOrder,
 	}
 
+	log.Println("Creating question:", queModel)
+
 	createdQuestion, err := s.questionRepo.CreateQuestion(ctx, queModel)
 	if err != nil {
 		return nil, err
@@ -93,7 +96,7 @@ func (s *QuestionService) CreateQuestion(ctx context.Context, userId string, for
 	return createdQuestion, nil
 }
 
-func (s *QuestionService) UpdateQuestion(ctx context.Context, userId string, formId string, questionId string, question *types.QuestionRequest) error {
+func (s *QuestionService) UpdateQuestion(ctx context.Context, userId string, formId string, questionId string, question *map[string]interface{}) error {
 
 	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
@@ -109,32 +112,32 @@ func (s *QuestionService) UpdateQuestion(ctx context.Context, userId string, for
 	}
 
 	updates := make(map[string]interface{})
-	if &question.Title != nil {
-		updates["title"] = question.Title
+	if _, ok := (*question)["title"]; ok {
+		updates["title"] = (*question)["title"]
 	}
-	if &question.Required != nil {
-		updates["required"] = question.Required
+	if _, ok := (*question)["required"]; ok {
+		updates["required"] = (*question)["required"]
 	}
-	if &question.Type != nil {
-		updates["type"] = question.Type
+	if _, ok := (*question)["type"]; ok {
+		updates["type"] = (*question)["type"]
 	}
-	if &question.Metadata != nil {
-		updates["metadata"] = question.Metadata
+	if _, ok := (*question)["metadata"]; ok {
+		updates["metadata"] = (*question)["metadata"]
 	}
-	if &question.PosX != nil {
-		updates["pos_x"] = question.PosX
+	if _, ok := (*question)["posX"]; ok {
+		updates["posX"] = (*question)["posX"]
 	}
-	if &question.PosY != nil {
-		updates["pos_y"] = question.PosY
+	if _, ok := (*question)["posY"]; ok {
+		updates["posY"] = (*question)["posY"]
 	}
-	if &question.Placeholder != nil {
-		updates["placeholder"] = question.Placeholder
+	if _, ok := (*question)["placeholder"]; ok {
+		updates["placeholder"] = (*question)["placeholder"]
 	}
-	if &question.Description != nil {
-		updates["description"] = question.Description
+	if _, ok := (*question)["description"]; ok {
+		updates["description"] = (*question)["description"]
 	}
-	if &question.SortOrder != nil {
-		updates["sort_order"] = question.SortOrder
+	if _, ok := (*question)["sortOrder"]; ok {
+		updates["sortOrder"] = (*question)["sortOrder"]
 	}
 
 	err = s.questionRepo.UpdateQuestion(ctx, questionId, &updates)

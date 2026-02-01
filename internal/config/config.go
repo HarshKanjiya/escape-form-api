@@ -104,7 +104,7 @@ func Load() (*Config, error) {
 		},
 		CORS: CORSConfig{
 			Origins: splitAndTrim(getEnv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080,https://escform.com,https://dashboard.escform.com,https://form.escform.com")),
-			Methods: splitAndTrim(getEnv("CORS_METHODS", "GET,POST,PUT,DELETE,OPTIONS")),
+			Methods: splitAndTrim(getEnv("CORS_METHODS", "GET,POST,PUT,DELETE,PATCH,OPTIONS")),
 			Headers: splitAndTrim(getEnv("CORS_HEADERS", "Content-Type,Authorization")),
 		},
 		RateLimit: RateLimitConfig{
