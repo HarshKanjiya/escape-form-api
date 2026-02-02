@@ -8,17 +8,18 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
+	"github.com/HarshKanjiya/escape-form-api/pkg/mapper"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 )
 
 type IDashService interface {
 	GetAnalytics(ctx context.Context, userId string, formId string) (*types.FormAnalytics, error)
 	GetResponses(ctx context.Context, userId string, formId string) ([]*models.Response, error)
-	GetQuestions(ctx context.Context, formId string) ([]*models.Question, error)
+	GetQuestions(ctx context.Context, formId string) ([]*types.QuestionResponse, error)
 
-	GetPasswords(ctx context.Context, userId string, formId string) ([]*models.ActivePassword, error)
-	CreatePassword(ctx context.Context, userId string, formId string, password types.PasswordRequest) (*models.ActivePassword, error)
-	UpdatePassword(ctx context.Context, userId string, formId string, passwordId string, body types.PasswordRequest) (*models.ActivePassword, error)
+	GetPasswords(ctx context.Context, userId string, formId string) ([]*types.ActivePasswordResponse, error)
+	CreatePassword(ctx context.Context, userId string, formId string, password types.PasswordRequest) (*types.ActivePasswordResponse, error)
+	UpdatePassword(ctx context.Context, userId string, formId string, passwordId string, body types.PasswordRequest) error
 	DeletePassword(ctx context.Context, userId string, formId string, passwordId string) error
 
 	UpdateSecurity(ctx context.Context, userId string, formId string, body map[string]interface{}) (interface{}, error)
@@ -89,7 +90,7 @@ func (s *DashService) GetResponses(ctx context.Context, userId string, formId st
 	return responses, nil
 }
 
-func (s *DashService) GetQuestions(ctx context.Context, formId string) ([]*models.Question, error) {
+func (s *DashService) GetQuestions(ctx context.Context, formId string) ([]*types.QuestionResponse, error) {
 
 	questions, err := s.dashRepo.GetQuestions(ctx, formId)
 	if err != nil {
@@ -99,10 +100,15 @@ func (s *DashService) GetQuestions(ctx context.Context, formId string) ([]*model
 		return nil, errors.NotFound("Questions")
 	}
 
-	return questions, nil
+	questionResponses := make([]*types.QuestionResponse, len(questions))
+	for i, question := range questions {
+		questionResponses[i] = mapper.MapToQuestionResponse(question)
+	}
+
+	return questionResponses, nil
 }
 
-func (s *DashService) GetPasswords(ctx context.Context, userId string, formId string) ([]*models.ActivePassword, error) {
+func (s *DashService) GetPasswords(ctx context.Context, userId string, formId string) ([]*types.ActivePasswordResponse, error) {
 
 	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
@@ -121,10 +127,16 @@ func (s *DashService) GetPasswords(ctx context.Context, userId string, formId st
 	if err != nil {
 		return nil, err
 	}
-	return passwords, nil
+
+	passResponse := make([]*types.ActivePasswordResponse, len(passwords))
+	for i, pass := range passwords {
+		passResponse[i] = mapper.MapToActivePasswordResponse(pass)
+	}
+
+	return passResponse, nil
 }
 
-func (s *DashService) CreatePassword(ctx context.Context, userId string, formId string, password types.PasswordRequest) (*models.ActivePassword, error) {
+func (s *DashService) CreatePassword(ctx context.Context, userId string, formId string, password types.PasswordRequest) (*types.ActivePasswordResponse, error) {
 
 	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
@@ -163,29 +175,29 @@ func (s *DashService) CreatePassword(ctx context.Context, userId string, formId 
 		return nil, err
 	}
 
-	return createdPassword, nil
+	return mapper.MapToActivePasswordResponse(createdPassword), nil
 }
 
-func (s *DashService) UpdatePassword(ctx context.Context, userId string, formId string, passwordId string, password types.PasswordRequest) (*models.ActivePassword, error) {
+func (s *DashService) UpdatePassword(ctx context.Context, userId string, formId string, passwordId string, password types.PasswordRequest) error {
 
 	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if form == nil {
-		return nil, errors.NotFound("Form")
+		return errors.NotFound("Form")
 	}
 
 	if *form.Team.OwnerID != userId {
-		return nil, errors.Unauthorized("Overview Analytics")
+		return errors.Unauthorized("Overview Analytics")
 	}
 
 	var expireAt *time.Time
 	if password.ExpireAt != "" {
 		parsedTime, err := time.Parse("2006-01-02", password.ExpireAt)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		expireAt = &parsedTime
 	}
@@ -200,12 +212,12 @@ func (s *DashService) UpdatePassword(ctx context.Context, userId string, formId 
 		ExpireAt:   expireAt,
 	}
 
-	createdPassword, err := s.dashRepo.UpdatePassword(ctx, formId, pass)
+	err = s.dashRepo.UpdatePassword(ctx, formId, pass)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return createdPassword, nil
+	return nil
 }
 
 func (s *DashService) DeletePassword(ctx context.Context, userId string, formId string, passwordId string) error {

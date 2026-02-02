@@ -21,7 +21,7 @@ type IDashRepo interface {
 	// PASSWORD CONFIG
 	GetPasswords(ctx context.Context, formId string) ([]*models.ActivePassword, error)
 	CreatePassword(ctx context.Context, formId string, password *models.ActivePassword) (*models.ActivePassword, error)
-	UpdatePassword(ctx context.Context, formId string, password *models.ActivePassword) (*models.ActivePassword, error)
+	UpdatePassword(ctx context.Context, formId string, password *models.ActivePassword) error
 	DeletePassword(ctx context.Context, passwordId string) error
 
 	// FORM SETTINGS
@@ -199,7 +199,7 @@ func (r *DashRepo) CreatePassword(ctx context.Context, formId string, password *
 	return password, nil
 }
 
-func (r *DashRepo) UpdatePassword(ctx context.Context, formId string, password *models.ActivePassword) (*models.ActivePassword, error) {
+func (r *DashRepo) UpdatePassword(ctx context.Context, formId string, password *models.ActivePassword) error {
 
 	err := r.db.WithContext(ctx).
 		Model(&models.ActivePassword{}).
@@ -212,9 +212,9 @@ func (r *DashRepo) UpdatePassword(ctx context.Context, formId string, password *
 			"isValid":    password.IsValid,
 		}).Error
 	if err != nil {
-		return nil, errors.Internal(err)
+		return errors.Internal(err)
 	}
-	return password, nil
+	return nil
 }
 
 func (r *DashRepo) DeletePassword(ctx context.Context, passwordId string) error {

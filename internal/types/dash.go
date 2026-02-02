@@ -27,3 +27,14 @@ type PasswordRequest struct {
 	UsableUpto int    `json:"usableUpto"`
 	ExpireAt   string `json:"expireAt"`
 }
+
+type ActivePasswordResponse struct {
+	ID         string `json:"id"`
+	FormID     string `json:"formId"`
+	Name       string `json:"name"`
+	Password   string `json:"password"`
+	IsValid    bool   `json:"isValid"`
+	ExpireAt   string `json:"expireAt"`
+	CreatedAt  string `json:"createdAt"`
+	UsableUpto int    `json:"usableUpto"`
+}

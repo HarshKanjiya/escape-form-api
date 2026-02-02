@@ -7,12 +7,13 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
+	"github.com/HarshKanjiya/escape-form-api/pkg/mapper"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 )
 
 type IEdgeService interface {
-	Get(ctx context.Context, userId string, formId string) ([]*models.Edge, error)
-	Create(ctx context.Context, userId string, formId string, edge *types.CreateEdgeRequest) (*models.Edge, error)
+	Get(ctx context.Context, userId string, formId string) ([]*types.EdgeResponse, error)
+	Create(ctx context.Context, userId string, formId string, edge *types.CreateEdgeRequest) (*types.EdgeResponse, error)
 	Update(ctx context.Context, userId string, formId string, edgeId string, edge *types.UpdateEdgeRequest) error
 	Delete(ctx context.Context, userId string, formId string, edgeId string) error
 }
@@ -29,7 +30,7 @@ func NewEdgeService(edgeRepo repositories.IEdgeRepo, formRepo repositories.IForm
 	}
 }
 
-func (s *EdgeService) Get(ctx context.Context, userId string, formId string) ([]*models.Edge, error) {
+func (s *EdgeService) Get(ctx context.Context, userId string, formId string) ([]*types.EdgeResponse, error) {
 
 	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
@@ -48,10 +49,14 @@ func (s *EdgeService) Get(ctx context.Context, userId string, formId string) ([]
 	if err != nil {
 		return nil, err
 	}
-	return edges, nil
+	edgeResponses := make([]*types.EdgeResponse, len(edges))
+	for i, edge := range edges {
+		edgeResponses[i] = mapper.MapToEdgeResponse(edge)
+	}
+	return edgeResponses, nil
 }
 
-func (s *EdgeService) Create(ctx context.Context, userId string, formId string, edge *types.CreateEdgeRequest) (*models.Edge, error) {
+func (s *EdgeService) Create(ctx context.Context, userId string, formId string, edge *types.CreateEdgeRequest) (*types.EdgeResponse, error) {
 
 	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
@@ -74,7 +79,7 @@ func (s *EdgeService) Create(ctx context.Context, userId string, formId string, 
 	if err != nil {
 		return nil, err
 	}
-	return createdEdge, nil
+	return mapper.MapToEdgeResponse(createdEdge), nil
 }
 
 func (s *EdgeService) Update(ctx context.Context, userId string, formId string, edgeId string, edge *types.UpdateEdgeRequest) error {
@@ -119,8 +124,4 @@ func (s *EdgeService) Delete(ctx context.Context, userId string, formId string, 
 		return err
 	}
 	return nil
-}
-
-func (s *EdgeService) MapToEdgeResponse(edges []*models.Edge) *types.FormResponse {
-	return &types.FormResponse{}
 }

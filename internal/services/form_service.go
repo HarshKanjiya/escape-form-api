@@ -8,6 +8,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
+	"github.com/HarshKanjiya/escape-form-api/pkg/mapper"
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 )
 
@@ -59,7 +60,7 @@ func (s *FormService) Get(ctx context.Context, userId string, pagination *types.
 
 	formResponses := make([]*types.FormResponse, len(forms))
 	for i, form := range forms {
-		formResponses[i] = s.MapToFormResponse(form)
+		formResponses[i] = mapper.MapToFormResponse(form)
 	}
 
 	return formResponses, total, nil
@@ -76,7 +77,7 @@ func (s *FormService) GetById(ctx context.Context, userId string, formId string)
 		return nil, errors.Unauthorized("")
 	}
 
-	return s.MapToFormResponse(form), nil
+	return mapper.MapToFormResponse(form), nil
 }
 
 func (s *FormService) Create(ctx context.Context, userId string, projectId string, form *types.CreateFormRequest) (*types.FormResponse, error) {
@@ -125,7 +126,7 @@ func (s *FormService) Create(ctx context.Context, userId string, projectId strin
 	if err != nil {
 		return nil, err
 	}
-	return s.MapToFormResponse(createdForm), nil
+	return mapper.MapToFormResponse(createdForm), nil
 }
 
 // func (s *FormService) Update(ctx context.Context, userId string, formId string, updates *map[string]interface{}) error {
@@ -205,113 +206,4 @@ func (s *FormService) UpdateSequence(ctx context.Context, userId string, formId 
 	}
 
 	return nil
-}
-
-func (s *FormService) MapToEdgeResponse(edge *models.Edge) *types.EdgeResponse {
-	return &types.EdgeResponse{
-		ID:           edge.ID,
-		FormID:       edge.FormID,
-		SourceNodeID: edge.SourceNodeID,
-		TargetNodeID: edge.TargetNodeID,
-		Condition:    edge.Condition,
-	}
-}
-
-func (s *FormService) MapToQuestionResponse(question *models.Question) *types.QuestionResponse {
-	optionResp := make([]*types.QueOptionResponse, len(question.Options))
-	for i := range question.Options {
-		optionResp[i] = s.MapToQuestionOptionResponse(&question.Options[i])
-	}
-
-	return &types.QuestionResponse{
-		ID:          question.ID,
-		FormID:      question.FormID,
-		Title:       question.Title,
-		Placeholder: question.Placeholder,
-		Description: question.Description,
-		Required:    question.Required,
-		Type:        question.Type,
-		Metadata:    question.Metadata,
-		PosX:        question.PosX,
-		PosY:        question.PosY,
-		SortOrder:   question.SortOrder,
-		Options:     optionResp,
-	}
-}
-
-func (s *FormService) MapToQuestionOptionResponse(option *models.QuestionOption) *types.QueOptionResponse {
-	return &types.QueOptionResponse{
-		ID:         option.ID,
-		QuestionID: option.QuestionID,
-		Label:      option.Label,
-		Value:      option.Value,
-		SortOrder:  option.SortOrder,
-	}
-}
-
-func (s *FormService) MapToFormResponse(form *models.Form) *types.FormResponse {
-	description := ""
-	if form.Description != nil {
-		description = *form.Description
-	}
-	theme := ""
-	if form.Theme != nil {
-		theme = *form.Theme
-	}
-	logoURL := ""
-	if form.LogoURL != nil {
-		logoURL = *form.LogoURL
-	}
-	status := models.FormStatusDraft
-	if form.Status != nil {
-		status = *form.Status
-	}
-	uniqueSubdomain := ""
-	if form.UniqueSubdomain != nil {
-		uniqueSubdomain = *form.UniqueSubdomain
-	}
-	customDomain := ""
-	if form.CustomDomain != nil {
-		customDomain = *form.CustomDomain
-	}
-
-	edgeResp := make([]*types.EdgeResponse, len(form.Edges))
-	for i := range form.Edges {
-		edgeResp[i] = s.MapToEdgeResponse(&form.Edges[i])
-	}
-
-	questionResp := make([]*types.QuestionResponse, len(form.Questions))
-	for i := range form.Questions {
-		questionResp[i] = s.MapToQuestionResponse(&form.Questions[i])
-	}
-
-	return &types.FormResponse{
-		ID:                  form.ID,
-		Name:                form.Name,
-		Description:         description,
-		TeamID:              form.TeamID,
-		ProjectID:           form.ProjectID,
-		Theme:               theme,
-		LogoURL:             logoURL,
-		MaxResponses:        form.MaxResponses,
-		OpenAt:              utils.GetIsoDateTime(form.OpenAt),
-		CloseAt:             utils.GetIsoDateTime(form.CloseAt),
-		Status:              status,
-		UniqueSubdomain:     uniqueSubdomain,
-		CustomDomain:        customDomain,
-		RequireConsent:      form.RequireConsent,
-		AllowAnonymous:      form.AllowAnonymous,
-		MultipleSubmissions: form.MultipleSubmissions,
-		PasswordProtected:   form.PasswordProtected,
-		AnalyticsEnabled:    form.AnalyticsEnabled,
-		Metadata:            form.Metadata,
-		Valid:               form.Valid,
-		CreatedAt:           utils.GetIsoDateTime(form.CreatedAt),
-		UpdatedAt:           utils.GetIsoDateTime(form.UpdatedAt),
-		CreatedBy:           form.CreatedBy,
-		FormPageType:        form.FormPageType,
-		ResponseCount:       form.ResponseCount,
-		Questions:           questionResp,
-		Edges:               edgeResp,
-	}
 }

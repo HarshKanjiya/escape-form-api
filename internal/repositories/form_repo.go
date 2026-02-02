@@ -84,7 +84,7 @@ func (r *FormRepo) GetById(ctx context.Context, formId string) (*models.Form, er
 	var form *models.Form
 	err := r.db.WithContext(ctx).
 		Model(&models.Form{}).
-		Preload("Questions").
+		Preload("Questions.Options").
 		Preload("Edges").
 		Where(&models.Form{
 			ID:    formId,
