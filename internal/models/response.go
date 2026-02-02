@@ -1,13 +1,17 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/datatypes"
+)
 
 type Response struct {
 	ID          string          `gorm:"primaryKey;type:uuid;default:uuid_generate_v4();column:id" json:"id"`
 	FormID      string          `gorm:"type:uuid;index;column:formId" json:"formId"`
 	UserID      *string         `gorm:"type:uuid;column:userId" json:"userId"`
-	Data        interface{}     `gorm:"type:jsonb;default:'{}';column:data" json:"data"`
-	MetaData    *interface{}    `gorm:"type:jsonb;default:'{}';column:metaData" json:"metaData"`
+	Data        datatypes.JSON  `gorm:"type:jsonb;default:'{}';column:data" json:"data"`
+	MetaData    datatypes.JSON  `gorm:"type:jsonb;default:'{}';column:metaData" json:"metaData"`
 	Tags        []string        `gorm:"type:text[];column:tags" json:"tags"`
 	Status      *ResponseStatus `gorm:"column:status" json:"status"`
 	PartialSave *bool           `gorm:"column:partialSave" json:"partialSave"`

@@ -1,6 +1,9 @@
 package types
 
-import "github.com/HarshKanjiya/escape-form-api/internal/models"
+import (
+	"github.com/HarshKanjiya/escape-form-api/internal/models"
+	"gorm.io/datatypes"
+)
 
 type QuestionOptionRequest struct {
 	ID         string `json:"id"`
@@ -18,7 +21,7 @@ type QuestionRequest struct {
 	Description string              `json:"description"`
 	Required    bool                `json:"required"`
 	Type        models.QuestionType `json:"type"`
-	Metadata    interface{}         `json:"metadata"`
+	Metadata    datatypes.JSON      `json:"metadata"`
 	PosX        int                 `json:"posX"`
 	PosY        int                 `json:"posY"`
 	SortOrder   *int                `json:"sortOrder"`
@@ -32,7 +35,7 @@ type QuestionResponse struct {
 	Description   string               `json:"description"`
 	Required      bool                 `json:"required"`
 	Type          models.QuestionType  `json:"type"`
-	Metadata      interface{}          `json:"metadata"`
+	Metadata      datatypes.JSON       `json:"metadata"`
 	PosX          int                  `json:"posX"`
 	PosY          int                  `json:"posY"`
 	SortOrder     *int                 `json:"sortOrder"`

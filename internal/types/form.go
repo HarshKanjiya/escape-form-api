@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
+	"gorm.io/datatypes"
 )
 
 // Response structs
@@ -25,7 +26,7 @@ type FormResponse struct {
 	PasswordProtected   *bool               `json:"passwordProtected"`
 	AnalyticsEnabled    *bool               `json:"analyticsEnabled"`
 	Valid               bool                `json:"valid"`
-	Metadata            *interface{}        `json:"metadata"`
+	Metadata            datatypes.JSON      `json:"metadata"`
 	CreatedBy           string              `json:"createdBy"`
 	CreatedAt           string              `json:"createdAt"`
 	UpdatedAt           string              `json:"updatedAt"`

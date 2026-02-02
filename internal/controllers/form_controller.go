@@ -115,6 +115,10 @@ func (pc *FormController) GetById(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	log.Println("-----------------------------------")
+	log.Println("Fetched form: ", form.Name)
+	log.Println("Fetched form: ", &form.Metadata)
+	log.Println("-----------------------------------")
 	return utils.Success(c, form, "Form fetched successfully")
 }
 

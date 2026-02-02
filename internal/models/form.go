@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/datatypes"
+)
 
 type Form struct {
 	ID                  string           `gorm:"primaryKey;type:uuid;default:uuid_generate_v4();column:id" json:"id"`
@@ -22,7 +26,7 @@ type Form struct {
 	PasswordProtected   *bool            `gorm:"default:false;column:passwordProtected" json:"passwordProtected"`
 	AnalyticsEnabled    *bool            `gorm:"default:true;column:analyticsEnabled" json:"analyticsEnabled"`
 	Valid               bool             `gorm:"default:true;column:valid" json:"valid"`
-	Metadata            *interface{}     `gorm:"type:jsonb;default:'{}';column:metadata" json:"metadata"`
+	Metadata            datatypes.JSON   `gorm:"type:jsonb;default:'{}';column:metadata" json:"metadata"`
 	CreatedBy           string           `gorm:"column:createdBy" json:"createdBy"`
 	CreatedAt           *time.Time       `gorm:"type:timestamptz(6);column:createdAt" json:"createdAt"`
 	UpdatedAt           *time.Time       `gorm:"type:timestamp(6);autoUpdateTime;column:updatedAt" json:"updatedAt"`
