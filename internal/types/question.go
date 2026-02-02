@@ -23,3 +23,28 @@ type QuestionRequest struct {
 	PosY        int                 `json:"posY"`
 	SortOrder   *int                `json:"sortOrder"`
 }
+
+type QuestionResponse struct {
+	ID            string               `json:"id"`
+	FormID        string               `json:"formId"`
+	Title         string               `json:"title"`
+	Placeholder   string               `json:"placeholder"`
+	Description   string               `json:"description"`
+	Required      bool                 `json:"required"`
+	Type          models.QuestionType  `json:"type"`
+	Metadata      interface{}          `json:"metadata"`
+	PosX          int                  `json:"posX"`
+	PosY          int                  `json:"posY"`
+	SortOrder     *int                 `json:"sortOrder"`
+	OutgoingEdges []*EdgeResponse      `json:"outgoingEdges"`
+	IncomingEdges []*EdgeResponse      `json:"incomingEdges"`
+	Options       []*QueOptionResponse `json:"options"`
+}
+
+type QueOptionResponse struct {
+	ID         string `json:"id"`
+	QuestionID string `json:"questionId"`
+	Label      string `json:"label"`
+	Value      string `json:"value"`
+	SortOrder  int    `json:"sortOrder"`
+}

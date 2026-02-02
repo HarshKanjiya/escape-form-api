@@ -29,7 +29,7 @@ func (r *EdgeRepo) Get(ctx context.Context, formId string) ([]*models.Edge, erro
 
 	var edges []*models.Edge
 	err := r.db.WithContext(ctx).
-		Where("form_id = ?", formId).
+		Where(`"formId" = ?`, formId).
 		Find(&edges).Error
 	if err != nil {
 		return nil, errors.Internal(err)

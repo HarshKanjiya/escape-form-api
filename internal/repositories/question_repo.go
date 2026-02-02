@@ -35,7 +35,7 @@ func (r *QuestionRepo) GetQuestions(ctx context.Context, formId string) ([]*mode
 	var questions []*models.Question
 	err := r.db.WithContext(ctx).
 		Model(&models.Question{}).
-		Where("formId = ?", formId).
+		Where(`"formId" = ?`, formId).
 		Preload("Options").
 		Find(&questions).Error
 	if err != nil {
@@ -85,7 +85,7 @@ func (r *QuestionRepo) GetOptions(ctx context.Context, questionId string) ([]*mo
 	var options []*models.QuestionOption
 	err := r.db.WithContext(ctx).
 		Model(&models.QuestionOption{}).
-		Where("questionId = ?", questionId).
+		Where(`"questionId" = ?`, questionId).
 		Find(&options).Error
 	if err != nil {
 		return nil, errors.Internal(err)

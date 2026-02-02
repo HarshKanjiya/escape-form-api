@@ -26,7 +26,6 @@ func ClerkAuth() fiber.Handler {
 			log.Printf("JWT verification failed: %v", err)
 			return errors.Unauthorized("")
 		}
-		// log.Print(claims)
 		c.Locals("user_claims", claims)
 		c.Locals("user_id", claims.Subject)
 

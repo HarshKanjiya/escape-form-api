@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +20,6 @@ func GenerateUUID() string {
 
 func GetUserId(ctx *fiber.Ctx) (string, bool) {
 	id := ctx.Locals("user_id").(string)
-	log.Println("User ID from context:", id)
 	if id == "" {
 		return "", false
 	}

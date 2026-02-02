@@ -68,6 +68,7 @@ func (r *FormRepo) Get(ctx context.Context, pagination *types.PaginationQuery, p
 	}
 
 	err := baseQuery.
+		Select(`forms.*, (SELECT COUNT(*) FROM responses WHERE responses."formId" = forms.id) as "responseCount"`).
 		Order(`forms."createdAt" DESC`).
 		Limit(pagination.Limit).
 		Offset((pagination.Page - 1) * pagination.Limit).

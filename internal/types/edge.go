@@ -16,3 +16,11 @@ type CreateEdgeRequest struct {
 type UpdateEdgeRequest struct {
 	Condition *interface{} `json:"condition"`
 }
+
+type EdgeResponse struct {
+	ID           string       `json:"id"`
+	FormID       string       `json:"formId"`
+	SourceNodeID string       `json:"sourceNodeId"`
+	TargetNodeID string       `json:"targetNodeId"`
+	Condition    *interface{} `json:"condition"`
+}

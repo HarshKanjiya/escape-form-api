@@ -120,3 +120,7 @@ func (s *EdgeService) Delete(ctx context.Context, userId string, formId string, 
 	}
 	return nil
 }
+
+func (s *EdgeService) MapToEdgeResponse(edges []*models.Edge) *types.FormResponse {
+	return &types.FormResponse{}
+}

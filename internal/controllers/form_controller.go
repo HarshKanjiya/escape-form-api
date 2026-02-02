@@ -54,6 +54,7 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 
 	forms, totalCount, err := fc.formService.Get(c.Context(), userId, pagination, projectId, status)
 	if err != nil {
+		log.Printf("--------------------- %v", err)
 		return err
 	}
 	return utils.Success(c, forms, "Forms fetched successfully", totalCount)

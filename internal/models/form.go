@@ -33,6 +33,7 @@ type Form struct {
 	Team                Team             `gorm:"foreignKey:TeamID;references:ID;onDelete:CASCADE" json:"team"`
 	Questions           []Question       `gorm:"foreignKey:FormID" json:"questions"`
 	Responses           []Response       `gorm:"foreignKey:FormID" json:"responses"`
+	ResponseCount       int              `gorm:"-" json:"responseCount,omitempty"`
 }
 
 func (Form) TableName() string {
