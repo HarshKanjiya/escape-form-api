@@ -186,7 +186,7 @@ func (pc *FormController) UpdateSequence(c *fiber.Ctx) error {
 		return errors.Unauthorized("")
 	}
 
-	formId := c.Params("id", "")
+	formId := c.Params("formId")
 	if formId == "" {
 		return errors.BadRequest("Form ID is required")
 	}

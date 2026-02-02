@@ -193,7 +193,7 @@ func (r *FormRepo) UpdateQuestionSequence(ctx context.Context, formId string, se
 	err := r.db.WithContext(ctx).
 		Model(&models.Question{}).
 		Where(`id IN ? AND "formId" = ?`, ids, formId).
-		Update("sort_order", gorm.Expr(caseStr)).Error
+		Update(`"sortOrder"`, gorm.Expr(caseStr)).Error
 	if err != nil {
 		return errors.Internal(err)
 	}

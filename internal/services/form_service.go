@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/repositories"
@@ -192,6 +193,8 @@ func (s *FormService) Delete(ctx context.Context, userId string, formId string) 
 }
 
 func (s *FormService) UpdateSequence(ctx context.Context, userId string, formId string, sequences []*types.SequenceItem) error {
+
+	log.Println("Updating sequence for form:", sequences)
 
 	form, err := s.formRepo.GetWithTeam(ctx, formId)
 	if err != nil {
