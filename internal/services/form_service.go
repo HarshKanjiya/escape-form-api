@@ -67,23 +67,15 @@ func (s *FormService) Get(ctx context.Context, userId string, pagination *types.
 
 func (s *FormService) GetById(ctx context.Context, userId string, formId string) (*types.FormResponse, error) {
 
-	form, err := s.formRepo.GetWithTeam(ctx, formId)
+	form, err := s.formRepo.GetById(ctx, formId)
 	if err != nil {
 		return nil, err
 	}
 
-	if form == nil {
-		return nil, errors.NotFound("Form")
-	}
-
-	if form.Team.OwnerID == nil || *form.Team.OwnerID != userId {
+	if form.CreatedBy != userId {
 		return nil, errors.Unauthorized("")
 	}
 
-	form, err = s.formRepo.GetById(ctx, formId)
-	if err != nil {
-		return nil, err
-	}
 	return s.MapToFormResponse(form), nil
 }
 
