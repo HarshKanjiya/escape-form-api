@@ -156,12 +156,12 @@ func (pc *DashController) UpdatePasswords(c *fiber.Ctx) error {
 		return errors.BadRequest("Invalid request body")
 	}
 
-	password, err := pc.dashService.UpdatePassword(c.Context(), userId, formId, passwordId, body)
+	err := pc.dashService.UpdatePassword(c.Context(), userId, formId, passwordId, body)
 	if err != nil {
 		return err
 	}
 
-	return utils.Success(c, password, "Password updated successfully")
+	return utils.Success(c, nil, "Password updated successfully")
 }
 
 // @Summary Create form passwords

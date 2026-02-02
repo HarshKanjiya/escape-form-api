@@ -76,7 +76,6 @@ func (s *FormService) GetById(ctx context.Context, userId string, formId string)
 	if form.CreatedBy != userId {
 		return nil, errors.Unauthorized("")
 	}
-
 	return mapper.MapToFormResponse(form), nil
 }
 
