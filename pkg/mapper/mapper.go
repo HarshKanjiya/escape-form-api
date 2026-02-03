@@ -53,10 +53,6 @@ func ToFormResponse(form *models.Form) *types.FormResponse {
 	if form.Description != nil {
 		description = *form.Description
 	}
-	theme := ""
-	if form.Theme != nil {
-		theme = *form.Theme
-	}
 	logoURL := ""
 	if form.LogoURL != nil {
 		logoURL = *form.LogoURL
@@ -90,7 +86,7 @@ func ToFormResponse(form *models.Form) *types.FormResponse {
 		Description:         description,
 		TeamID:              form.TeamID,
 		ProjectID:           form.ProjectID,
-		Theme:               theme,
+		Theme:               form.Theme,
 		LogoURL:             logoURL,
 		MaxResponses:        form.MaxResponses,
 		OpenAt:              utils.GetIsoDateTime(form.OpenAt),

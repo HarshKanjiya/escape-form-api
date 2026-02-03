@@ -12,7 +12,7 @@ type FormResponse struct {
 	Description         string              `json:"description"`
 	TeamID              string              `json:"teamId"`
 	ProjectID           string              `json:"projectId"`
-	Theme               string              `json:"theme"`
+	Theme               datatypes.JSON      `json:"theme"`
 	LogoURL             string              `json:"logoUrl"`
 	MaxResponses        *int                `json:"maxResponses"`
 	OpenAt              string              `json:"openAt"`

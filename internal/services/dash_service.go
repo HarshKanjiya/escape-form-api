@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
@@ -22,8 +23,8 @@ type IDashService interface {
 	UpdatePassword(ctx context.Context, userId string, formId string, passwordId string, body types.PasswordRequest) error
 	DeletePassword(ctx context.Context, userId string, formId string, passwordId string) error
 
-	UpdateSecurity(ctx context.Context, userId string, formId string, body map[string]interface{}) (interface{}, error)
-	UpdateSettings(ctx context.Context, userId string, formId string, body map[string]interface{}) (interface{}, error)
+	UpdateSecurity(ctx context.Context, userId string, formId string, body *types.UpdateSecurityRequest) error
+	UpdateSettings(ctx context.Context, userId string, formId string, body *types.UpdateSettingsRequest) error
 }
 
 type DashService struct {
@@ -242,12 +243,56 @@ func (s *DashService) DeletePassword(ctx context.Context, userId string, formId 
 	return nil
 }
 
-func (s *DashService) UpdateSecurity(ctx context.Context, userId string, formId string, body map[string]interface{}) (interface{}, error) {
-	// TODO: Implement UpdateSecurity logic
-	return nil, nil
+func (s *DashService) UpdateSecurity(ctx context.Context, userId string, formId string, body *types.UpdateSecurityRequest) error {
+
+	form, err := s.formRepo.GetById(ctx, formId)
+	if err != nil {
+		return err
+	}
+
+	if form == nil {
+		return errors.NotFound("Form")
+	}
+
+	if form.CreatedBy != userId {
+		return errors.Unauthorized("")
+	}
+
+	updates := make(map[string]interface{})
+	data, _ := json.Marshal(body)
+	json.Unmarshal(data, &updates)
+
+	err = s.formRepo.Update(ctx, formId, updates)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (s *DashService) UpdateSettings(ctx context.Context, userId string, formId string, body map[string]interface{}) (interface{}, error) {
-	// TODO: Implement UpdateSettings logic
-	return nil, nil
+func (s *DashService) UpdateSettings(ctx context.Context, userId string, formId string, body *types.UpdateSettingsRequest) error {
+
+	form, err := s.formRepo.GetById(ctx, formId)
+	if err != nil {
+		return err
+	}
+
+	if form == nil {
+		return errors.NotFound("Form")
+	}
+
+	if form.CreatedBy != userId {
+		return errors.Unauthorized("")
+	}
+
+	updates := make(map[string]interface{})
+	data, _ := json.Marshal(body)
+	json.Unmarshal(data, &updates)
+
+	err = s.formRepo.Update(ctx, formId, updates)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

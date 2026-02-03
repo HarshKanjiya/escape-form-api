@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/HarshKanjiya/escape-form-api/internal/models"
@@ -17,7 +18,7 @@ type IFormRepo interface {
 	GetById(ctx context.Context, formId string) (*models.Form, error)
 	GetWithTeam(ctx context.Context, formId string) (*models.Form, error)
 	Create(ctx context.Context, form *models.Form) (*models.Form, error)
-	Update(ctx context.Context, formId string, updates *map[string]interface{}) error
+	Update(ctx context.Context, formId string, updates map[string]interface{}) error
 	UpdateStatus(ctx context.Context, formId string, status models.FormStatus) error
 	Delete(ctx context.Context, formId string) error
 
@@ -107,14 +108,26 @@ func (r *FormRepo) Create(ctx context.Context, form *models.Form) (*models.Form,
 	return r.GetById(ctx, form.ID)
 }
 
-func (r *FormRepo) Update(ctx context.Context, formId string, updates *map[string]interface{}) error {
+func (r *FormRepo) Update(ctx context.Context, formId string, updates map[string]interface{}) error {
+	newUpdates := make(map[string]interface{})
+	for k, v := range updates {
+		if k == "theme" || k == "metadata" {
+			jsonBytes, err := json.Marshal(v)
+			if err != nil {
+				return errors.Internal(err)
+			}
+			newUpdates[k] = string(jsonBytes)
+		} else {
+			newUpdates[k] = v
+		}
+	}
 	err := r.db.WithContext(ctx).
 		Model(&models.Form{}).
 		Where(&models.Form{
 			ID:    formId,
 			Valid: true,
 		}).
-		Updates(*updates).Error
+		Updates(newUpdates).Error
 	if err != nil {
 		return errors.Internal(err)
 	}

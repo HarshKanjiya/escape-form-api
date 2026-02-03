@@ -98,12 +98,12 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		dash.Get("/:formId/analytics", dashController.GetAnalytics)
 		dash.Get("/:formId/questions", dashController.GetQuestions)
 		dash.Get("/:formId/responses", dashController.GetResponses)
-		dash.Patch("/:formId/security", dashController.UpdateSecurity)
-		dash.Patch("/:formId/settings", dashController.UpdateSettings)
+		dash.Put("/:formId/security", dashController.UpdateSecurity)
+		dash.Put("/:formId/settings", dashController.UpdateSettings)
 
 		dash.Get("/:formId/passwords", dashController.GetPasswords)
 		dash.Post("/:formId/passwords", dashController.CreatePasswords)
-		dash.Patch("/:formId/passwords/:passwordId", dashController.UpdatePasswords)
+		dash.Put("/:formId/passwords/:passwordId", dashController.UpdatePasswords)
 		dash.Delete("/:formId/passwords/:passwordId", dashController.DeletePasswords)
 	}
 

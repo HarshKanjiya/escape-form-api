@@ -13,10 +13,9 @@ require (
 	github.com/swaggo/fiber-swagger v1.3.0
 	github.com/swaggo/swag v1.16.6
 	golang.org/x/crypto v0.46.0
+	gorm.io/datatypes v1.2.7
 	gorm.io/driver/postgres v1.6.0
-	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.31.1
-	gorm.io/plugin/dbresolver v1.6.2
 )
 
 require (
@@ -60,7 +59,5 @@ require (
 	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/tools v0.40.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
-	gorm.io/hints v1.1.2 // indirect
 )

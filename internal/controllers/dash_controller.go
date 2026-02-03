@@ -234,7 +234,7 @@ func (pc *DashController) DeletePasswords(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param formId path string true "Form ID"
-// @Param body body map[string]interface{} true "Security settings"
+// @Param body body types.UpdateSecurityRequest true "Security settings"
 // @Success 200 {object} interface{}
 // @Router /dashboard/{formId}/security [patch]
 func (pc *DashController) UpdateSecurity(c *fiber.Ctx) error {
@@ -249,17 +249,17 @@ func (pc *DashController) UpdateSecurity(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
 	}
 
-	var body map[string]interface{}
+	var body types.UpdateSecurityRequest
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	form, err := pc.dashService.UpdateSecurity(c.Context(), userId, formId, body)
+	err := pc.dashService.UpdateSecurity(c.Context(), userId, formId, &body)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return utils.Success(c, form, "Security updated successfully")
+	return utils.Success(c, nil, "Security updated successfully")
 }
 
 // @Summary Update form settings
@@ -268,7 +268,7 @@ func (pc *DashController) UpdateSecurity(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param formId path string true "Form ID"
-// @Param body body map[string]interface{} true "Form settings"
+// @Param body body types.UpdateSettingsRequest true "Form settings"
 // @Success 200 {object} interface{}
 // @Router /dashboard/{formId}/settings [patch]
 func (pc *DashController) UpdateSettings(c *fiber.Ctx) error {
@@ -283,15 +283,15 @@ func (pc *DashController) UpdateSettings(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Form ID is required"})
 	}
 
-	var body map[string]interface{}
+	var body types.UpdateSettingsRequest
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	form, err := pc.dashService.UpdateSettings(c.Context(), userId, formId, body)
+	err := pc.dashService.UpdateSettings(c.Context(), userId, formId, &body)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return utils.Success(c, form, "Settings updated successfully")
+	return utils.Success(c, nil, "Settings updated successfully")
 }

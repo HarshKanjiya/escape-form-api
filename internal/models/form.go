@@ -12,7 +12,7 @@ type Form struct {
 	Description         *string          `gorm:"column:description" json:"description"`
 	TeamID              string           `gorm:"type:uuid;index;column:teamId" json:"teamId"`
 	ProjectID           string           `gorm:"type:uuid;index;column:projectId" json:"projectId"`
-	Theme               *string          `gorm:"column:theme" json:"theme"`
+	Theme               datatypes.JSON   `gorm:"type:jsonb;default:'{}';column:theme" json:"theme"`
 	LogoURL             *string          `gorm:"column:logoUrl" json:"logoUrl"`
 	MaxResponses        *int             `gorm:"column:maxResponses" json:"maxResponses"`
 	OpenAt              *time.Time       `gorm:"type:timestamptz(6);column:openAt" json:"openAt"`

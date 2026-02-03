@@ -16,6 +16,7 @@ type IFormService interface {
 	Get(ctx context.Context, userId string, pagination *types.PaginationQuery, projectId string, status string) ([]*types.FormResponse, int64, error)
 	GetById(ctx context.Context, userId string, formId string) (*types.FormResponse, error)
 	Create(ctx context.Context, userId string, projectId string, form *types.CreateFormRequest) (*types.FormResponse, error)
+	Update(ctx context.Context, userId string, formId string, updates map[string]interface{}) error
 	UpdateStatus(ctx context.Context, userId string, formId string, status models.FormStatus) error
 	Delete(ctx context.Context, userId string, formId string) error
 
@@ -129,25 +130,25 @@ func (s *FormService) Create(ctx context.Context, userId string, projectId strin
 	return mapper.ToFormResponse(createdForm), nil
 }
 
-// func (s *FormService) Update(ctx context.Context, userId string, formId string, updates *map[string]interface{}) error {
+func (s *FormService) Update(ctx context.Context, userId string, formId string, updates map[string]interface{}) error {
 
-// 	form, err := s.formRepo.GetWithTeam(ctx, formId)
-// 	if err != nil {
-// 		return err
-// 	}
+	form, err := s.formRepo.GetWithTeam(ctx, formId)
+	if err != nil {
+		return err
+	}
 
-// 	if form == nil {
-// 		return errors.NotFound("Form")
-// 	}
+	if form == nil {
+		return errors.NotFound("Form")
+	}
 
-// 	if form.Team.OwnerID == nil || *form.Team.OwnerID != userId {
-// 		return errors.Unauthorized("")
-// 	}
+	if form.Team.OwnerID == nil || *form.Team.OwnerID != userId {
+		return errors.Unauthorized("")
+	}
 
-// 	(*updates)["updatedAt"] = utils.GetCurrentTime()
+	updates["updatedAt"] = utils.GetCurrentTime()
 
-// 	return s.formRepo.Update(ctx, form.ID, updates)
-// }
+	return s.formRepo.Update(ctx, form.ID, updates)
+}
 
 func (s *FormService) UpdateStatus(ctx context.Context, userId string, formId string, status models.FormStatus) error {
 

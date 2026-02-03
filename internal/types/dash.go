@@ -38,3 +38,20 @@ type ActivePasswordResponse struct {
 	CreatedAt  string `json:"createdAt"`
 	UsableUpto int    `json:"usableUpto"`
 }
+
+type UpdateSecurityRequest struct {
+	MaxResponses        *int    `json:"maxResponses"`
+	OpenAt              *string `json:"openAt"`
+	CloseAt             *string `json:"closeAt"`
+	RequireConsent      bool    `json:"requireConsent"`
+	AllowAnonymous      bool    `json:"allowAnonymous"`
+	MultipleSubmissions bool    `json:"multipleSubmissions"`
+	PasswordProtected   bool    `json:"passwordProtected"`
+}
+
+type UpdateSettingsRequest struct {
+	Name         string                 `json:"name"`
+	Description  string                 `json:"description"`
+	FormPageType string                 `json:"formPageType"`
+	Theme        map[string]interface{} `json:"theme"`
+}
