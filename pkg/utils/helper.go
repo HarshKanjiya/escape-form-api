@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crypto/rand"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -34,8 +35,11 @@ func GetCurrentTime() *time.Time {
 func GenerateRandomString(n int) *string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		return nil
+	}
 	for i := range b {
-		b[i] = letters[time.Now().UnixNano()%int64(len(letters))]
+		b[i] = letters[int(b[i])%len(letters)]
 	}
 	result := string(b)
 	return &result

@@ -3,6 +3,7 @@ package controllers
 import (
 	"log"
 
+	"github.com/HarshKanjiya/escape-form-api/internal/models"
 	"github.com/HarshKanjiya/escape-form-api/internal/services"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
@@ -54,7 +55,6 @@ func (fc *FormController) Get(c *fiber.Ctx) error {
 
 	forms, totalCount, err := fc.formService.Get(c.Context(), userId, pagination, projectId, status)
 	if err != nil {
-		log.Printf("--------------------- %v", err)
 		return err
 	}
 	return utils.Success(c, forms, "Forms fetched successfully", totalCount)
@@ -115,10 +115,6 @@ func (pc *FormController) GetById(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	log.Println("-----------------------------------")
-	log.Println("Fetched form: ", form.Name)
-	log.Println("Fetched form: ", &form.Metadata)
-	log.Println("-----------------------------------")
 	return utils.Success(c, form, "Form fetched successfully")
 }
 
@@ -142,15 +138,18 @@ func (pc *FormController) UpdateStatus(c *fiber.Ctx) error {
 		return errors.BadRequest("Form ID is required")
 	}
 
-	var statusDto types.UpdateFormStatusRequest
-	if err := c.BodyParser(&statusDto); err != nil {
+	var body struct {
+		Action string `json:"action"`
+	}
+
+	if err := c.BodyParser(&body); err != nil {
 		log.Println("Error parsing body:", err)
 		return errors.BadRequest("Invalid request body")
 	}
-	if err := pc.validator.Struct(&statusDto); err != nil {
+	if err := pc.validator.Struct(&body); err != nil {
 		return errors.BadRequest("Validation failed: " + err.Error())
 	}
-	err := pc.formService.UpdateStatus(c.Context(), userId, formId, statusDto.Status)
+	err := pc.formService.UpdateStatus(c.Context(), userId, formId, models.FormStatus(body.Action))
 	if err != nil {
 		return err
 	}
