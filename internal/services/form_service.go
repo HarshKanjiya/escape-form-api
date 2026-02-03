@@ -60,7 +60,7 @@ func (s *FormService) Get(ctx context.Context, userId string, pagination *types.
 
 	formResponses := make([]*types.FormResponse, len(forms))
 	for i, form := range forms {
-		formResponses[i] = mapper.MapToFormResponse(form)
+		formResponses[i] = mapper.ToFormResponse(form)
 	}
 
 	return formResponses, total, nil
@@ -76,7 +76,7 @@ func (s *FormService) GetById(ctx context.Context, userId string, formId string)
 	if form.CreatedBy != userId {
 		return nil, errors.Unauthorized("")
 	}
-	return mapper.MapToFormResponse(form), nil
+	return mapper.ToFormResponse(form), nil
 }
 
 func (s *FormService) Create(ctx context.Context, userId string, projectId string, form *types.CreateFormRequest) (*types.FormResponse, error) {
@@ -125,7 +125,7 @@ func (s *FormService) Create(ctx context.Context, userId string, projectId strin
 	if err != nil {
 		return nil, err
 	}
-	return mapper.MapToFormResponse(createdForm), nil
+	return mapper.ToFormResponse(createdForm), nil
 }
 
 // func (s *FormService) Update(ctx context.Context, userId string, formId string, updates *map[string]interface{}) error {

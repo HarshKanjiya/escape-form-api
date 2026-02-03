@@ -6,7 +6,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 )
 
-func MapToEdgeResponse(edge *models.Edge) *types.EdgeResponse {
+func ToEdgeResponse(edge *models.Edge) *types.EdgeResponse {
 	return &types.EdgeResponse{
 		ID:           edge.ID,
 		FormID:       edge.FormID,
@@ -16,10 +16,10 @@ func MapToEdgeResponse(edge *models.Edge) *types.EdgeResponse {
 	}
 }
 
-func MapToQuestionResponse(question *models.Question) *types.QuestionResponse {
+func ToQuestionResponse(question *models.Question) *types.QuestionResponse {
 	optionResp := make([]*types.QueOptionResponse, len(question.Options))
 	for i := range question.Options {
-		optionResp[i] = MapToQuestionOptionResponse(&question.Options[i])
+		optionResp[i] = ToQuestionOptionResponse(&question.Options[i])
 	}
 
 	return &types.QuestionResponse{
@@ -38,7 +38,7 @@ func MapToQuestionResponse(question *models.Question) *types.QuestionResponse {
 	}
 }
 
-func MapToQuestionOptionResponse(option *models.QuestionOption) *types.QueOptionResponse {
+func ToQuestionOptionResponse(option *models.QuestionOption) *types.QueOptionResponse {
 	return &types.QueOptionResponse{
 		ID:         option.ID,
 		QuestionID: option.QuestionID,
@@ -48,7 +48,7 @@ func MapToQuestionOptionResponse(option *models.QuestionOption) *types.QueOption
 	}
 }
 
-func MapToFormResponse(form *models.Form) *types.FormResponse {
+func ToFormResponse(form *models.Form) *types.FormResponse {
 	description := ""
 	if form.Description != nil {
 		description = *form.Description
@@ -76,12 +76,12 @@ func MapToFormResponse(form *models.Form) *types.FormResponse {
 
 	edgeResp := make([]*types.EdgeResponse, len(form.Edges))
 	for i := range form.Edges {
-		edgeResp[i] = MapToEdgeResponse(&form.Edges[i])
+		edgeResp[i] = ToEdgeResponse(&form.Edges[i])
 	}
 
 	questionResp := make([]*types.QuestionResponse, len(form.Questions))
 	for i := range form.Questions {
-		questionResp[i] = MapToQuestionResponse(&form.Questions[i])
+		questionResp[i] = ToQuestionResponse(&form.Questions[i])
 	}
 
 	return &types.FormResponse{
@@ -115,7 +115,7 @@ func MapToFormResponse(form *models.Form) *types.FormResponse {
 	}
 }
 
-func MapToActivePasswordResponse(password *models.ActivePassword) *types.ActivePasswordResponse {
+func ToActivePasswordResponse(password *models.ActivePassword) *types.ActivePasswordResponse {
 	return &types.ActivePasswordResponse{
 		ID:         password.ID,
 		FormID:     password.FormID,

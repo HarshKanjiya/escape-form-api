@@ -102,7 +102,7 @@ func (s *DashService) GetQuestions(ctx context.Context, formId string) ([]*types
 
 	questionResponses := make([]*types.QuestionResponse, len(questions))
 	for i, question := range questions {
-		questionResponses[i] = mapper.MapToQuestionResponse(question)
+		questionResponses[i] = mapper.ToQuestionResponse(question)
 	}
 
 	return questionResponses, nil
@@ -130,7 +130,7 @@ func (s *DashService) GetPasswords(ctx context.Context, userId string, formId st
 
 	passResponse := make([]*types.ActivePasswordResponse, len(passwords))
 	for i, pass := range passwords {
-		passResponse[i] = mapper.MapToActivePasswordResponse(pass)
+		passResponse[i] = mapper.ToActivePasswordResponse(pass)
 	}
 
 	return passResponse, nil
@@ -175,7 +175,7 @@ func (s *DashService) CreatePassword(ctx context.Context, userId string, formId 
 		return nil, err
 	}
 
-	return mapper.MapToActivePasswordResponse(createdPassword), nil
+	return mapper.ToActivePasswordResponse(createdPassword), nil
 }
 
 func (s *DashService) UpdatePassword(ctx context.Context, userId string, formId string, passwordId string, password types.PasswordRequest) error {

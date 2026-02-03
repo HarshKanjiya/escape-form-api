@@ -51,7 +51,7 @@ func (s *EdgeService) Get(ctx context.Context, userId string, formId string) ([]
 	}
 	edgeResponses := make([]*types.EdgeResponse, len(edges))
 	for i, edge := range edges {
-		edgeResponses[i] = mapper.MapToEdgeResponse(edge)
+		edgeResponses[i] = mapper.ToEdgeResponse(edge)
 	}
 	return edgeResponses, nil
 }
@@ -79,7 +79,7 @@ func (s *EdgeService) Create(ctx context.Context, userId string, formId string, 
 	if err != nil {
 		return nil, err
 	}
-	return mapper.MapToEdgeResponse(createdEdge), nil
+	return mapper.ToEdgeResponse(createdEdge), nil
 }
 
 func (s *EdgeService) Update(ctx context.Context, userId string, formId string, edgeId string, edge *types.UpdateEdgeRequest) error {
