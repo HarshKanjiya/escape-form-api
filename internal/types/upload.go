@@ -4,6 +4,8 @@ package types
 type GenerateUploadURLRequest struct {
 	FileName       string `json:"fileName" validate:"required"`
 	FileType       string `json:"fileType" validate:"required"`
+	FormID         string `json:"formId" validate:"required"`
+	Intent         string `json:"intent" validate:"required,oneof=settings response question other"`
 	ExpirationMins int64  `json:"expirationMins,omitempty"`
 }
 

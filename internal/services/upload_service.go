@@ -11,7 +11,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/storage"
 	"github.com/HarshKanjiya/escape-form-api/internal/types"
 	"github.com/HarshKanjiya/escape-form-api/pkg/errors"
-	"github.com/google/uuid"
+	"github.com/HarshKanjiya/escape-form-api/pkg/utils"
 )
 
 type IUploadService interface {
@@ -57,13 +57,25 @@ func (s *UploadService) GenerateUploadURL(ctx context.Context, userId string, re
 		expirationMins = 60 // Max 1 hour
 	}
 
-	// Generate unique file key: uploads/{userId}/{uuid}.{extension}
+	// Validate intent
+	validIntents := map[string]bool{
+		"settings":  true,
+		"response":  true,
+		"question":  true,
+		"other":     true,
+	}
+	if !validIntents[req.Intent] {
+		return nil, errors.BadRequest("Invalid intent. Must be one of: settings, response, question, other")
+	}
+
+	// Generate unique file key: uploads/form_{formid}/{intent}/{fileName}_{uuid}
 	ext := strings.TrimPrefix(filepath.Ext(req.FileName), ".")
 	if ext == "" {
 		// Extract extension from MIME type
 		ext = strings.Split(req.FileType, "/")[1]
 	}
-	fileKey := fmt.Sprintf("uploads/%s/%s.%s", userId, uuid.New().String(), ext)
+	fileNameWithoutExt := strings.TrimSuffix(req.FileName, filepath.Ext(req.FileName))
+	fileKey := fmt.Sprintf("uploads/form_%s/%s/%s_%s.%s", req.FormID, req.Intent, fileNameWithoutExt, utils.GenerateUUID(), ext)
 
 	// Generate presigned upload URL
 	uploadURL, err := storage.GeneratePresignedUploadURL(ctx, s.cfg.AWS.BucketName, fileKey, expirationMins)
@@ -83,9 +95,9 @@ func (s *UploadService) GenerateUploadURL(ctx context.Context, userId string, re
 // GenerateDownloadURL creates a presigned URL for file downloads
 func (s *UploadService) GenerateDownloadURL(ctx context.Context, userId string, req *types.GenerateDownloadURLRequest) (*types.DownloadURLResponse, error) {
 
-	// Validate that the file belongs to the user (security check)
-	if !strings.HasPrefix(req.FileKey, fmt.Sprintf("uploads/%s/", userId)) {
-		return nil, errors.Unauthorized("file")
+	// Validate that the file key has the correct format (uploads/form_*/*/)
+	if !strings.HasPrefix(req.FileKey, "uploads/form_") {
+		return nil, errors.BadRequest("Invalid file key format")
 	}
 
 	// Check if file exists
@@ -124,9 +136,9 @@ func (s *UploadService) GenerateDownloadURL(ctx context.Context, userId string, 
 // DeleteFile deletes a file from S3
 func (s *UploadService) DeleteFile(ctx context.Context, userId string, req *types.DeleteFileRequest) (*types.DeleteFileResponse, error) {
 
-	// Validate that the file belongs to the user (security check)
-	if !strings.HasPrefix(req.FileKey, fmt.Sprintf("uploads/%s/", userId)) {
-		return nil, errors.Unauthorized("file")
+	// Validate that the file key has the correct format (uploads/form_*/*)
+	if !strings.HasPrefix(req.FileKey, "uploads/form_") {
+		return nil, errors.BadRequest("Invalid file key format")
 	}
 
 	// Delete the file
