@@ -14,7 +14,7 @@ func Unauthorized(msg string) *AppError {
 	if msg == "" {
 		msg = "Unauthorized access"
 	} else {
-		msg = "You do not have access to this " + msg
+		msg = "You don't have access to this " + msg
 	}
 	return &AppError{
 		StatusCode: http.StatusUnauthorized,

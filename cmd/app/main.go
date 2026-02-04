@@ -9,6 +9,7 @@ import (
 	"github.com/HarshKanjiya/escape-form-api/internal/database"
 	"github.com/HarshKanjiya/escape-form-api/internal/middlewares"
 	"github.com/HarshKanjiya/escape-form-api/internal/routes"
+	"github.com/HarshKanjiya/escape-form-api/internal/storage"
 	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
@@ -54,6 +55,11 @@ func main() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 	defer database.Close()
+
+	// Connect to AWS S3
+	if err := storage.Connect(cfg); err != nil {
+		log.Fatal("Failed to connect to AWS S3:", err)
+	}
 
 	// Run migrations
 	// if err := database.AutoMigrate(&models.User{}); err != nil {

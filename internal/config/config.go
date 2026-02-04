@@ -19,6 +19,7 @@ type Config struct {
 	RateLimit RateLimitConfig
 	Logging   LoggingConfig
 	Clerk     ClerkConfig
+	AWS       AWSConfig
 }
 
 // application-level configuration
@@ -69,6 +70,14 @@ type ClerkConfig struct {
 	SecretKey string
 }
 
+type AWSConfig struct {
+	AccessKey  string
+	SecretKey  string
+	Region     string
+	BucketName string
+	EndPoint   string
+}
+
 // automatically loads the correct .env file based on APP_ENV
 func Load() (*Config, error) {
 
@@ -116,6 +125,13 @@ func Load() (*Config, error) {
 		},
 		Clerk: ClerkConfig{
 			SecretKey: getEnv("CLERK_SK", "sk_test_XXX"),
+		},
+		AWS: AWSConfig{
+			AccessKey:  getEnv("AWS_ACCESS_KEY", ""),
+			SecretKey:  getEnv("AWS_SECRET_KEY", ""),
+			Region:     getEnv("AWS_REGION", "auto"),
+			BucketName: getEnv("AWS_BUCKET_NAME", ""),
+			EndPoint:   getEnv("AWS_ENDPOINT", ""),
 		},
 	}
 
