@@ -28,6 +28,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	questionService := services.NewQuestionService(questionRepo, formRepo)
 	edgeService := services.NewEdgeService(edgeRepo, formRepo)
 	dashService := services.NewDashService(dashRepo, formRepo)
+	uploadService := services.NewUploadService(cfg)
 
 	// Initialize controllers
 	teamController := controllers.NewTeamController(teamService)
@@ -36,6 +37,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	questionController := controllers.NewQuestionController(questionService)
 	edgeController := controllers.NewEdgeController(edgeService)
 	dashController := controllers.NewDashController(dashService)
+	uploadController := controllers.NewUploadController(uploadService)
 
 	// API v1 routes
 	api := app.Group("/api/v1")
@@ -105,6 +107,13 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		dash.Post("/:formId/passwords", dashController.CreatePasswords)
 		dash.Put("/:formId/passwords/:passwordId", dashController.UpdatePasswords)
 		dash.Delete("/:formId/passwords/:passwordId", dashController.DeletePasswords)
+	}
+
+	upload := protectedRoutes.Group("/files")
+	{
+		upload.Post("/upload-url", uploadController.GenerateUploadURL)
+		upload.Post("/download-url", uploadController.GenerateDownloadURL)
+		upload.Delete("/delete", uploadController.DeleteFile)
 	}
 
 }
