@@ -17,6 +17,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	teamRepo := repositories.NewTeamRepo(database.DB)
 	projectRepo := repositories.NewProjectRepo(database.DB)
 	formRepo := repositories.NewFormRepo(database.DB)
+	formVersionRepo := repositories.NewFormVersionRepo(database.DB)
 	questionRepo := repositories.NewQuestionRepo(database.DB)
 	edgeRepo := repositories.NewEdgeRepo(database.DB)
 	dashRepo := repositories.NewDashRepo(database.DB)
@@ -24,7 +25,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	// Initialize services
 	teamService := services.NewTeamService(teamRepo)
 	projectService := services.NewProjectService(projectRepo, teamRepo)
-	formService := services.NewFormService(formRepo, projectRepo)
+	formService := services.NewFormService(formRepo, projectRepo, formVersionRepo, questionRepo, edgeRepo)
 	questionService := services.NewQuestionService(questionRepo, formRepo)
 	edgeService := services.NewEdgeService(edgeRepo, formRepo)
 	dashService := services.NewDashService(dashRepo, formRepo)
@@ -70,6 +71,9 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		forms.Get("/:id", formController.GetById)
 		forms.Post("/:id/status", formController.UpdateStatus)
 		forms.Delete("/:id", formController.Delete)
+
+		forms.Post("/:formId/publish", formController.Publish)
+		forms.Post("/:formId/unpublish", formController.Unpublish)
 
 		forms.Post("/:formId/sequence", formController.UpdateSequence)
 	}

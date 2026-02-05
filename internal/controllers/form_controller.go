@@ -209,3 +209,69 @@ func (pc *FormController) UpdateSequence(c *fiber.Ctx) error {
 	}
 	return utils.Success(c, nil, "Form deleted successfully")
 }
+
+// @Summary Publish a form
+// @Description Publish a form by its ID
+// @Tags forms
+// @Accept json
+// @Produce json
+// @Param formId path string true "Form ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /forms/{formId}/publish [post]
+func (pc *FormController) Publish(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
+	formId := c.Params("formId", "")
+	if formId == "" {
+		return errors.BadRequest("Form ID is required")
+	}
+
+	// Check if user owns the form
+	_, err := pc.formService.GetById(c.Context(), userId, formId)
+	if err != nil {
+		return err
+	}
+
+	form, err := pc.formService.Publish(c.Context(), formId)
+	if err != nil {
+		return err
+	}
+	return utils.Success(c, form, "Form published successfully")
+}
+
+// @Summary Unpublish a form
+// @Description Unpublish a form by its ID
+// @Tags forms
+// @Accept json
+// @Produce json
+// @Param formId path string true "Form ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /forms/{formId}/unpublish [post]
+func (pc *FormController) Unpublish(c *fiber.Ctx) error {
+
+	userId, ok := utils.GetUserId(c)
+	if ok == false {
+		return errors.Unauthorized("")
+	}
+
+	formId := c.Params("formId", "")
+	if formId == "" {
+		return errors.BadRequest("Form ID is required")
+	}
+
+	// Check if user owns the form
+	_, err := pc.formService.GetById(c.Context(), userId, formId)
+	if err != nil {
+		return err
+	}
+
+	form, err := pc.formService.Unpublish(c.Context(), formId)
+	if err != nil {
+		return err
+	}
+	return utils.Success(c, form, "Form unpublished successfully")
+}

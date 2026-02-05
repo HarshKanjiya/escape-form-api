@@ -54,4 +54,5 @@ type UpdateSettingsRequest struct {
 	Description  string                 `json:"description"`
 	FormPageType string                 `json:"formPageType"`
 	Theme        map[string]interface{} `json:"theme"`
+	LogoUrl      string                 `json:"logoUrl"`
 }
