@@ -29,6 +29,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	questionService := services.NewQuestionService(questionRepo, formRepo)
 	edgeService := services.NewEdgeService(edgeRepo, formRepo)
 	dashService := services.NewDashService(dashRepo, formRepo)
+	submissionService := services.NewSubmissionService(formRepo, formVersionRepo)
 	uploadService := services.NewUploadService(cfg)
 
 	// Initialize controllers
@@ -39,6 +40,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 	edgeController := controllers.NewEdgeController(edgeService)
 	dashController := controllers.NewDashController(dashService)
 	uploadController := controllers.NewUploadController(uploadService)
+	submissionController := controllers.NewSubmissionController(submissionService)
 
 	// API v1 routes
 	api := app.Group("/api/v1")
@@ -118,6 +120,11 @@ func SetupRoutes(app *fiber.App, cfg *config.Config) {
 		upload.Post("/upload-url", uploadController.GenerateUploadURL)
 		upload.Post("/download-url", uploadController.GenerateDownloadURL)
 		upload.Delete("/delete", uploadController.DeleteFile)
+	}
+
+	submissions := api.Group("/submissions")
+	{
+		submissions.Get("/:domain", submissionController.GetForm)
 	}
 
 }

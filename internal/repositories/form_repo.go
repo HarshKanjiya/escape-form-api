@@ -22,6 +22,7 @@ type IFormRepo interface {
 	UpdateStatus(ctx context.Context, formId string, status models.FormStatus) error
 	Delete(ctx context.Context, formId string) error
 
+	GetByDomain(ctx context.Context, domain string) (*models.Form, error)
 	UpdateQuestionSequence(ctx context.Context, formId string, sequence []*types.SequenceItem) error
 }
 
@@ -211,4 +212,19 @@ func (r *FormRepo) UpdateQuestionSequence(ctx context.Context, formId string, se
 		return errors.Internal(err)
 	}
 	return nil
+}
+
+func (r *FormRepo) GetByDomain(ctx context.Context, domain string) (*models.Form, error) {
+	var form *models.Form
+	err := r.db.WithContext(ctx).
+		Model(&models.Form{}).
+		Where(`("uniqueSubdomain" = ? OR "customDomain" = ?) AND valid = true`, domain, domain).
+		First(&form).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, errors.Internal(err)
+	}
+	return form, nil
 }
