@@ -59,10 +59,10 @@ func (s *UploadService) GenerateUploadURL(ctx context.Context, userId string, re
 
 	// Validate intent
 	validIntents := map[string]bool{
-		"settings":  true,
-		"response":  true,
-		"question":  true,
-		"other":     true,
+		"settings": true,
+		"response": true,
+		"question": true,
+		"other":    true,
 	}
 	if !validIntents[req.Intent] {
 		return nil, errors.BadRequest("Invalid intent. Must be one of: settings, response, question, other")
@@ -95,13 +95,18 @@ func (s *UploadService) GenerateUploadURL(ctx context.Context, userId string, re
 // GenerateDownloadURL creates a presigned URL for file downloads
 func (s *UploadService) GenerateDownloadURL(ctx context.Context, userId string, req *types.GenerateDownloadURLRequest) (*types.DownloadURLResponse, error) {
 
+	key := req.FileKey
+	if strings.HasPrefix(key, s.cfg.AWS.BucketName+"/") {
+		key = strings.TrimPrefix(key, s.cfg.AWS.BucketName+"/")
+	}
+
 	// Validate that the file key has the correct format (uploads/form_*/*/)
-	if !strings.HasPrefix(req.FileKey, "uploads/form_") {
+	if !strings.HasPrefix(key, "uploads/form_") {
 		return nil, errors.BadRequest("Invalid file key format")
 	}
 
 	// Check if file exists
-	exists, err := storage.CheckObjectExists(ctx, s.cfg.AWS.BucketName, req.FileKey)
+	exists, err := storage.CheckObjectExists(ctx, s.cfg.AWS.BucketName, key)
 	if err != nil {
 		return nil, errors.Internal(err)
 	}
@@ -119,7 +124,7 @@ func (s *UploadService) GenerateDownloadURL(ctx context.Context, userId string, 
 	}
 
 	// Generate presigned download URL
-	downloadURL, err := storage.GeneratePresignedDownloadURL(ctx, s.cfg.AWS.BucketName, req.FileKey, expirationMins)
+	downloadURL, err := storage.GeneratePresignedDownloadURL(ctx, s.cfg.AWS.BucketName, key, expirationMins)
 	if err != nil {
 		return nil, errors.Internal(err)
 	}
