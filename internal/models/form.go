@@ -31,12 +31,16 @@ type Form struct {
 	CreatedAt           *time.Time       `gorm:"type:timestamptz(6);column:createdAt" json:"createdAt"`
 	UpdatedAt           *time.Time       `gorm:"type:timestamp(6);autoUpdateTime;column:updatedAt" json:"updatedAt"`
 	FormPageType        FormPageType     `gorm:"default:'STEPPER';column:formPageType" json:"formPageType"`
+	PublishedVersionID  *string         `gorm:"type:uuid;index;column:publishedVersionId" json:"publishedVersionId"`
+	EditorRevision      *int            `gorm:"column:editorRevision" json:"editorRevision"`
+	PublishedRevision   *int            `gorm:"column:publishedRevision" json:"publishedRevision"`
 	ActivePasswords     []ActivePassword `gorm:"foreignKey:FormID" json:"activePasswords"`
 	Edges               []Edge           `gorm:"foreignKey:FormID" json:"edges"`
 	Project             Project          `gorm:"foreignKey:ProjectID;references:ID;onDelete:CASCADE" json:"project"`
 	Team                Team             `gorm:"foreignKey:TeamID;references:ID;onDelete:CASCADE" json:"team"`
 	Questions           []Question       `gorm:"foreignKey:FormID" json:"questions"`
 	Responses           []Response       `gorm:"foreignKey:FormID" json:"responses"`
+	FormVersions        []FormVersion    `gorm:"foreignKey:FormID" json:"formVersions"`
 	ResponseCount       int              `gorm:"-" json:"responseCount,omitempty"`
 }
 
