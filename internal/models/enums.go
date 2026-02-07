@@ -97,11 +97,11 @@ const (
 	CouponTypePlanBased  CouponType = "PLAN_BASED"
 )
 
-// TeamUsageStatus enum
-type TeamUsageStatus string
+// TeamSubscriptionStatus enum
+type TeamSubscriptionStatus string
 
 const (
-	TeamUsageStatusActive  TeamUsageStatus = "ACTIVE"
-	TeamUsageStatusGrace   TeamUsageStatus = "GRACE"
-	TeamUsageStatusBlocked TeamUsageStatus = "BLOCKED"
+	TeamSubscriptionStatusActive  TeamSubscriptionStatus = "ACTIVE"
+	TeamSubscriptionStatusGrace   TeamSubscriptionStatus = "GRACE"
+	TeamSubscriptionStatusBlocked TeamSubscriptionStatus = "BLOCKED"
 )
